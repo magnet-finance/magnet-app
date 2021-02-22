@@ -53,9 +53,9 @@ jobs:
       - aws-s3/sync:
           from: << parameters.source-dir >>
           to: "s3://<< parameters.s3-bucket-name >>"
-          overwrite: true
+          arguments: '--delete'
 
-
+          
 workflows:
   version: 2
 
