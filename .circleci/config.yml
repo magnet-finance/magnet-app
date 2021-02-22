@@ -1,0 +1,56 @@
+version: 2.1
+
+jobs: 
+  magnet-app-build:
+    parameters:
+    docker:
+      - image: circleci/node:14.15.1-buster
+    working_directory: ~/magnet-app
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-magnet-app-deps-{{ checksum "~/magnet-app/yarn.lock" }}-{{ checksum "~/magnet-app/package.json" }}
+      - run:
+          command: yarn install && git diff --exit-code
+      - run:
+          command: yarn deduplicate && git diff --exit-code
+      - save_cache:
+          paths:
+            - ~/magnet-app/node_modules
+          key: v1-magnet-app-deps-{{ checksum "~/magnet-app/yarn.lock" }}-{{ checksum "~/magnet-app/package.json" }}
+      - run:
+          command: yarn build
+      - run: sudo apt-get update
+      - run: sudo apt-get install rsync
+      - run:
+          working_directory: ~/magnet-app/public
+          command: rsync -vrR . /tmp/magnet-app-build
+      - run:
+          working_directory: /tmp/magnet-app-build
+          command: ls -R
+      - persist_to_workspace:
+          root: /tmp/magnet-app-build
+          paths:
+            - .
+
+workflows:
+  version: 2
+
+  dev-magnet-app:
+    jobs:
+      - magnet-app-build:
+          name: dev-magnet-app-build
+          filters:
+            branches:
+              ignore:
+                - release/prod-magnet-app
+      # - website-deploy:
+      #     name: dev-magnet-app-deploy
+      #     s3-bucket-name: www-dev-realismlabs-com-mycontentbucket-1bm1xftc6070v
+      #     requires:
+      #       - dev-og-portal-website-build
+      #     filters:
+      #       branches:
+      #         only:
+      #           - master
