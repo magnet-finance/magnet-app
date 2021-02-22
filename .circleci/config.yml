@@ -1,6 +1,10 @@
 version: 2.1
 
+orbs:
+  aws-s3: circleci/aws-s3@2.0.0
+
 jobs: 
+
   magnet-app-build:
     parameters:
     docker:
@@ -33,6 +37,24 @@ jobs:
           root: /tmp/magnet-app-build
           paths:
             - .
+  
+  magnet-app-deploy:
+    parameters:
+      source-dir:
+        type: string
+        default: "/tmp/magnet-app-build"
+      s3-bucket-name:
+        type: string
+    docker:
+      - image: circleci/node:14.15.1-buster
+    steps:
+      - attach_workspace:
+          at: << parameters.source-dir >>
+      - aws-s3/sync:
+          from: << parameters.source-dir >>
+          to: "s3://<< parameters.s3-bucket-name >>"
+          overwrite: true
+
 
 workflows:
   version: 2
@@ -45,12 +67,12 @@ workflows:
             branches:
               ignore:
                 - release/prod-magnet-app
-      # - website-deploy:
-      #     name: dev-magnet-app-deploy
-      #     s3-bucket-name: www-dev-realismlabs-com-mycontentbucket-1bm1xftc6070v
-      #     requires:
-      #       - dev-og-portal-website-build
-      #     filters:
-      #       branches:
-      #         only:
-      #           - master
+      - magnet-app-deploy:
+          name: dev-magnet-app-deploy
+          s3-bucket-name: magnet-app
+          requires:
+            - dev-magnet-app-build
+          filters:
+            branches:
+              only:
+                - main
