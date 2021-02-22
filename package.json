@@ -12,7 +12,8 @@
     "start": "gatsby develop",
     "build": "gatsby build",
     "serve": "gatsby serve",
-    "clean": "gatsby clean"
+    "clean": "gatsby clean",
+    "deduplicate": "yarn-deduplicate yarn.lock"
   },
   "dependencies": {
     "gatsby": "^2.32.3",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@types/react": "^17.0.2",
     "@types/react-dom": "^17.0.1",
-    "typescript": "^4.1.5"
+    "typescript": "^4.1.5",
+    "yarn-deduplicate": "^3.1.0"
   }
 }
