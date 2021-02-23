@@ -13,7 +13,7 @@ const IndexPage = () => {
   return (
     <main style={pageStyles}>
       <title>Home Page</title>
-      <div>Hello Magnet App!!</div>
+      <div>🟦🟥 Magnet</div>
     </main>
   )
 }
