@@ -55,7 +55,7 @@ jobs:
           to: "s3://<< parameters.s3-bucket-name >>"
           arguments: '--delete'
 
-          
+
 workflows:
   version: 2
 
@@ -69,10 +69,28 @@ workflows:
                 - release/prod-magnet-app
       - magnet-app-deploy:
           name: dev-magnet-app-deploy
-          s3-bucket-name: magnet-app
+          s3-bucket-name: dev-magnet-app
           requires:
             - dev-magnet-app-build
           filters:
             branches:
               only:
                 - main
+
+  prod-magnet-app:
+    jobs:
+      - magnet-app-build:
+          name: prod-magnet-app-build
+          filters:
+            branches:
+              only:
+                - release/prod-magnet-app
+      - magnet-app-deploy:
+          name: prod-magnet-app-deploy
+          s3-bucket-name: magnet-app
+          requires:
+            - prod-magnet-app-build
+          filters:
+            branches:
+              only:
+                - release/prod-magnet-app
