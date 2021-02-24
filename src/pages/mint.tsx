@@ -6,20 +6,19 @@ import { Header } from '../components/Header';
 const { Content } = Layout;
 
 // markup
-const IndexPage = () => {
+const MintPage = () => {
   return (
     <Layout>
       <Header />
       <Content  style={styles.content}>
-        <div style={styles.title}>Magnetize your Mission.</div>
-        <div style={styles.subtitle}>Attract and retain contributors</div>
-        <div style={styles.choose}>Choose a magnet</div>
+        <div style={styles.title}>Attract and retain contributors</div>
+        <div style={styles.mintTitle}>Mint Magnets</div>
       </Content>
     </Layout>
   )
 }
 
-export default IndexPage
+export default MintPage
 
 const styles : {[key: string]: React.CSSProperties} = {
   content: {
@@ -30,18 +29,9 @@ const styles : {[key: string]: React.CSSProperties} = {
     paddingRight: 146,
   },
   title: {
-    fontSize: 56,
-    textAlign: "center",
+    fontSize: 48,
   },
-  subtitle: {
-    fontSize: 20,
-    textAlign: "center",
-    color: "#828282",
+  mintTitle: {
+    fontSize: 36,
   },
-  choose: {
-    fontSize: 24,
-    textAlign: "center",
-    color: "#1890FF",
-    marginTop: 45,
-  }
 }
