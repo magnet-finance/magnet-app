@@ -11,7 +11,7 @@ const ReviewPage = () => {
     <Layout>
       <Header />
       <Content  style={styles.content}>
-        <div>Review page</div>
+        <div style={styles.title}>Review proposed deposit</div>
       </Content>
     </Layout>
   )
@@ -21,9 +21,13 @@ export default ReviewPage
 
 const styles : {[key: string]: React.CSSProperties} = {
   content: {
+    backgroundColor: "#FFFFFF",
     paddingTop: 64,
     paddingBottom: 64,
     paddingLeft: 146,
     paddingRight: 146,
-  }
+  },
+  title: {
+    fontSize: 36,
+  },
 }

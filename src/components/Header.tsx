@@ -24,6 +24,13 @@ export const Header : React.FC = () => {
       <img src={logoPng} style={styles.logo} onClick={goToIndex}/>
       <div style={styles.spacer}/>
       <Button
+        onClick={goToReview}
+        style={styles.button}
+        type="text"
+        size="large">
+          Review
+      </Button>
+      <Button
         onClick={goToMint}
         style={styles.button}
         type="primary"
@@ -31,13 +38,6 @@ export const Header : React.FC = () => {
         shape="round"
         icon={<PlusOutlined />}>
           Mint
-      </Button>
-      <Button
-        onClick={goToReview}
-        style={styles.button}
-        type="text"
-        size="large">
-          Review
       </Button>
     </Layout.Header>
   )
