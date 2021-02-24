@@ -7,6 +7,10 @@ import logoPng from '../images/icon.png';
 
 // markup
 export const Header : React.FC = () => {
+  const goToIndex = () => {
+    navigate("/");
+  }
+
   const goToMint = () => {
     navigate("/mint");
   }
@@ -17,7 +21,7 @@ export const Header : React.FC = () => {
 
   return (
     <Layout.Header style={styles.header}>
-      <img src={logoPng} style={styles.logo}/>
+      <img src={logoPng} style={styles.logo} onClick={goToIndex}/>
       <div style={styles.spacer}/>
       <Button
         onClick={goToMint}
@@ -50,6 +54,7 @@ const styles : {[key: string]: React.CSSProperties} = {
     width: 40,
     height: 40,
     flex: 0,
+    cursor: "pointer",
   },
   spacer: {
     flex: 1,
