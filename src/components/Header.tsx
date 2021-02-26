@@ -1,8 +1,8 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, Layout } from 'antd';
-import { graphql, navigate, useStaticQuery } from "gatsby";
-import Img from 'gatsby-image';
+import { navigate } from "gatsby";
 import * as React from "react";
+import Logo from '../images/icon.svg';
 
 // markup
 export const Header : React.FC = () => {
@@ -18,23 +18,9 @@ export const Header : React.FC = () => {
     navigate("/review");
   }
 
-  const imgData = useStaticQuery(graphql`
-  query {
-    image: file(relativePath: { eq: "icon.png" }) {
-      childImageSharp {
-        fixed(width: 40, height: 40) {
-          ...GatsbyImageSharpFixed
-        }
-      }
-    }
-  }
-`);
-
   return (
     <Layout.Header style={styles.header}>
-      <div style={styles.logo} onClick={goToIndex}>
-        <Img fixed={imgData.image.childImageSharp.fixed}/>
-      </div>
+      <Logo style={styles.logo} onClick={goToIndex} />
       <div>
         <Button
           onClick={goToReview}
@@ -65,9 +51,8 @@ const styles : {[key: string]: React.CSSProperties} = {
     backgroundColor: "#FFFFFF",
   },
   logo: {
-    width: 40,
+    width: 172,
     height: 40,
-    flex: 0,
     cursor: "pointer",
   },
   button: {
