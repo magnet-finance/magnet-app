@@ -1,6 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, Layout } from 'antd';
-import "antd/dist/antd.css";
 import { navigate } from "gatsby";
 import * as React from "react";
 import logoPng from '../images/icon.png';
@@ -22,23 +21,24 @@ export const Header : React.FC = () => {
   return (
     <Layout.Header style={styles.header}>
       <img src={logoPng} style={styles.logo} onClick={goToIndex}/>
-      <div style={styles.spacer}/>
-      <Button
-        onClick={goToReview}
-        style={styles.button}
-        type="text"
-        size="large">
-          Review
-      </Button>
-      <Button
-        onClick={goToMint}
-        style={styles.button}
-        type="primary"
-        size="large"
-        shape="round"
-        icon={<PlusOutlined />}>
-          Mint
-      </Button>
+      <div>
+        <Button
+          onClick={goToReview}
+          style={styles.button}
+          type="text"
+          size="large">
+            Review
+        </Button>
+        <Button
+          onClick={goToMint}
+          style={styles.button}
+          type="primary"
+          size="large"
+          shape="round"
+          icon={<PlusOutlined />}>
+            Mint
+        </Button>
+      </div>
     </Layout.Header>
   )
 }
@@ -46,7 +46,7 @@ export const Header : React.FC = () => {
 const styles : {[key: string]: React.CSSProperties} = {
   header: {
     display: "flex",
-    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
   },
@@ -55,9 +55,6 @@ const styles : {[key: string]: React.CSSProperties} = {
     height: 40,
     flex: 0,
     cursor: "pointer",
-  },
-  spacer: {
-    flex: 1,
   },
   button: {
     marginLeft: 24,
