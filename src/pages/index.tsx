@@ -15,6 +15,7 @@ const IndexPage = () => {
           <div style={styles.title}>Magnetize your Mission.</div>
           <div style={styles.subtitle}>Attract and retain contributors</div>
           <div style={styles.choose}>Choose a magnet</div>
+          <div></div>
         </Content>
       </Layout>
     </ThemeProvider>
