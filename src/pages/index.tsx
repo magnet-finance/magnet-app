@@ -25,6 +25,18 @@ const IndexPage = () => {
               <div style={styles.cardTitle}>
                 Vest
               </div>
+              <div style={styles.cardDescription}>
+                Vest retention packages with a custom cliff date.
+              </div>
+              <div style={styles.attribution}>
+                via Magnet
+              </div>
+              <Button
+                onClick={goToMint}
+                style={styles.cardButton}
+                type="primary">
+                Mint
+              </Button>
             </div>
             <div style={styles.card}></div>
             <div style={styles.card}></div>
@@ -96,6 +108,19 @@ const styles : {[key: string]: React.CSSProperties} = {
     fontSize: 24,
     fontWeight: 600,
     marginTop: 24,
+  },
+  cardDescription: {
+    fontSize: 14,
+    lineHeight: "22px",
+    color: "#4F4F4F",
+    marginTop: 20,
+  },
+  attribution: {
+    color: "#595959",
+    marginTop: 12,
+  },
+  cardButton: {
+    marginTop: 12,
   },
   mintMultipleButton: {
     marginTop: 48,
