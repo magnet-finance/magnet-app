@@ -3,6 +3,12 @@ import { navigate } from "gatsby";
 import * as React from "react";
 import { Header } from '../components/Header';
 import { ThemeProvider } from '../components/ThemeProvider';
+import GiftGraphic from '../images/gift.svg';
+import SablierLogo from '../images/sablier.svg';
+import StreamGraphic from '../images/stream.svg';
+import VestGraphic from '../images/vest.svg';
+import YfiLogo from '../images/yfi.png';
+import YgiftLogo from '../images/ygift.svg';
 
 const { Content } = Layout;
 
@@ -22,24 +28,71 @@ const IndexPage = () => {
           <div style={styles.subsubtitle}>Choose a magnet</div>
           <div style={styles.cardContainer}>
             <div style={styles.card}>
+              <VestGraphic style={styles.cardLogo} />
               <div style={styles.cardTitle}>
                 Vest
               </div>
               <div style={styles.cardDescription}>
-                Vest retention packages with a custom cliff date.
+                Vest retention packages with a cliff date and any ERC20 token
               </div>
-              <div style={styles.attribution}>
-                via Magnet
+              <div style={styles.attributionContainer}>
+                <img src={YfiLogo} style={styles.attributionLogo} />
+                <div style={styles.attributionText}>
+                  Vested via Yearn Escrow
+                </div>
               </div>
               <Button
                 onClick={goToMint}
                 style={styles.cardButton}
-                type="primary">
+                type="primary"
+                size="large">
                 Mint
               </Button>
             </div>
-            <div style={styles.card}></div>
-            <div style={styles.card}></div>
+            <div style={styles.card}>
+              <StreamGraphic style={styles.cardLogo} />
+              <div style={styles.cardTitle}>
+                Stream
+              </div>
+              <div style={styles.cardDescription}>
+                Stream salaries in real-time with any ERC20 token
+              </div>
+              <div style={styles.attributionContainer}>
+                <SablierLogo style={styles.attributionLogo} />
+                <div style={styles.attributionText}>
+                  Streamed via Sablier
+                </div>
+              </div>
+              <Button
+                onClick={goToMint}
+                style={styles.cardButton}
+                type="primary"
+                size="large">
+                Mint
+              </Button>
+            </div>
+            <div style={styles.card}>
+              <GiftGraphic style={styles.cardLogo} />
+              <div style={styles.cardTitle}>
+                Gift
+              </div>
+              <div style={styles.cardDescription}>
+                Gift ERC20 tokens, memes, and a message of gratitude
+              </div>
+              <div style={styles.attributionContainer}>
+                <YgiftLogo style={styles.attributionLogo} />
+                <div style={styles.attributionText}>
+                  Gifted via yGift
+                </div>
+              </div>
+              <Button
+                onClick={goToMint}
+                style={styles.cardButton}
+                type="primary"
+                size="large">
+                Mint
+              </Button>
+            </div>
           </div>
           <Button
             onClick={goToMint}
@@ -92,7 +145,6 @@ const styles : {[key: string]: React.CSSProperties} = {
   },
   card: {
     width: 326,
-    height: 374,
     backgroundColor: "#F5F5F5",
     borderRadius: 8,
     marginLeft: 56,
@@ -106,21 +158,39 @@ const styles : {[key: string]: React.CSSProperties} = {
   },
   cardTitle: {
     fontSize: 24,
+    lineHeight: "32px",
     fontWeight: 600,
-    marginTop: 24,
+    marginTop: 18,
   },
   cardDescription: {
     fontSize: 14,
     lineHeight: "22px",
+    fontWeight: 300,
     color: "#4F4F4F",
     marginTop: 20,
   },
-  attribution: {
-    color: "#595959",
+  attributionContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: 12,
   },
+  attributionLogo: {
+    width: 16,
+    height: 16,
+  },
+  attributionText: {
+    fontSize: 12,
+    fontWeight: 300,
+    color: "#595959",
+    marginLeft: 8,
+  },
   cardButton: {
-    marginTop: 12,
+    marginTop: 20,
+  },
+  cardLogo: {
+    width: 100,
+    height: 100,
   },
   mintMultipleButton: {
     marginTop: 48,
