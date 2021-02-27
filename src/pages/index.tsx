@@ -7,7 +7,7 @@ import GiftGraphic from '../images/gift.svg';
 import SablierLogo from '../images/sablier.svg';
 import StreamGraphic from '../images/stream.svg';
 import VestGraphic from '../images/vest.svg';
-import YfiLogo from '../images/yfi.png';
+import YfiLogo from '../images/yfi.svg';
 import YgiftLogo from '../images/ygift.svg';
 
 const { Content } = Layout;
@@ -36,7 +36,7 @@ const IndexPage = () => {
                 Vest retention packages with a cliff date and any ERC20 token
               </div>
               <div style={styles.attributionContainer}>
-                <img src={YfiLogo} style={styles.attributionLogo} />
+                <YfiLogo style={styles.attributionLogo} />
                 <div style={styles.attributionText}>
                   Vested via Yearn Escrow
                 </div>
