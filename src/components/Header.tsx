@@ -2,7 +2,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Button, Layout } from 'antd';
 import { navigate } from "gatsby";
 import * as React from "react";
-import logoPng from '../images/icon.png';
+import Logo from '../images/icon.svg';
 
 // markup
 export const Header : React.FC = () => {
@@ -20,7 +20,7 @@ export const Header : React.FC = () => {
 
   return (
     <Layout.Header style={styles.header}>
-      <img src={logoPng} style={styles.logo} onClick={goToIndex}/>
+      <Logo style={styles.logo} onClick={goToIndex} />
       <div>
         <Button
           onClick={goToReview}
@@ -51,9 +51,8 @@ const styles : {[key: string]: React.CSSProperties} = {
     backgroundColor: "#FFFFFF",
   },
   logo: {
-    width: 40,
+    width: 172,
     height: 40,
-    flex: 0,
     cursor: "pointer",
   },
   button: {
