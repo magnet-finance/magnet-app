@@ -1,6 +1,7 @@
 import { Card } from "antd";
 import * as React from "react";
 import { Address } from "../Address";
+import { GiftMagnet } from "./GiftMagnet";
 import { RecurringMagnetTable } from "./RecurringMagnetTable";
 
 type Props = {
@@ -9,19 +10,22 @@ type Props = {
 
 export const ReviewRecipientCard: React.FC<Props> = (props) => {
   return (
-    <Card bodyStyle={styles.cardBody}>
+    <Card style={styles.card} bodyStyle={styles.cardBody}>
       <Address address={props.address} />
       <RecurringMagnetTable address={props.address} />
+      <GiftMagnet address={props.address} />
     </Card>
   );
 }
 
 const styles : {[key: string]: React.CSSProperties} = {
+  card: {
+    borderRadius: 6,
+  },
   cardBody: {
     paddingTop: 24,
     paddingBottom: 24,
     paddingLeft: 32,
     paddingRight: 32,
-    borderRadius: 6,
   },
 }

@@ -9,7 +9,7 @@ export const TokenLabel: React.FC<Props> = (props) => {
   return (
     <span style={styles.container}>
       <Avatar style={styles.avatar} />
-      <span style={styles.address}>{props.address}</span>
+      <span style={styles.ticker}>{props.address}</span>
     </span>
   );
 }
@@ -23,7 +23,7 @@ const styles : {[key: string]: React.CSSProperties} = {
     width: 22,
     height: 22,
   },
-  address: {
+  ticker: {
     fontSize: 14,
     lineHeight: "22px",
     marginLeft: 8,
