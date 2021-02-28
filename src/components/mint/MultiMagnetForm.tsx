@@ -28,6 +28,7 @@ export const MultiMagnetForm : React.FC = () => {
       {...layout}
       form={form}
       name="multi-magnet"
+      colon={false}
       onFinish={(e) => console.log(e)}
     >
       <Form.List name="magnets" initialValue={[INITIAL_VALUE]}>

@@ -18,7 +18,7 @@ const TokensTypes = [
   { label: 'DAI', value: 'dai' },
 ];
 
-export const VestForm : React.FC<Props> = (props) => {
+export const StreamForm : React.FC<Props> = (props) => {
   return (
     <>
       <Form.Item
@@ -27,49 +27,36 @@ export const VestForm : React.FC<Props> = (props) => {
         <Input/>
       </Form.Item>
       <Form.Item
-        label={wrapLabel("Start Time")}
-        style={styles.inputRow}>
-          <Space>
-          <Form.Item name={[props.parentFieldName, "startTimeDate"]}>
+        help="Transaction will fail if executed after start time"
+        style={styles.spaceForWarning}
+        label={wrapLabel("Start Time")}>
+        <Space>
+          <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "startTimeDate"]}>
             <DatePicker />
           </Form.Item>
-          <Form.Item name={[props.parentFieldName, "startTimeTime"]}>
+          <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "startTimeTime"]}>
             <TimePicker />
           </Form.Item>
-          </Space>
+        </Space>
       </Form.Item>
       <Form.Item
-        label={wrapLabel("Cliff Time")}
-        style={styles.inputRow}>
+        label={wrapLabel("End Time")}>
           <Space>
-            <Form.Item name={[props.parentFieldName, "cliffTimeAmount"]}>
+            <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "endTimeAmount"]}>
               <InputNumber />
             </Form.Item>
-            <Form.Item name={[props.parentFieldName, "cliffTimeUnit"]}>
+            <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "endTimeUnit"]}>
               <Select options={TimeUnits} allowClear={false} />
             </Form.Item>
           </Space>
       </Form.Item>
       <Form.Item
-        label={wrapLabel("End Time")}
-        style={styles.inputRow}>
+        label={wrapLabel("Lifetime Value")}>
           <Space>
-            <Form.Item name={[props.parentFieldName, "endTimeAmount"]}>
+            <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "lifetimeValue"]}>
               <InputNumber />
             </Form.Item>
-            <Form.Item name={[props.parentFieldName, "endTimeUnit"]}>
-              <Select options={TimeUnits} allowClear={false} />
-            </Form.Item>
-          </Space>
-      </Form.Item>
-      <Form.Item
-        label={wrapLabel("Lifetime Value")}
-        style={styles.inputRow}>
-          <Space>
-            <Form.Item name={[props.parentFieldName, "lifetimeValue"]}>
-              <InputNumber />
-            </Form.Item>
-            <Form.Item name={[props.parentFieldName, "tokenType"]}>
+            <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "tokenType"]}>
               <Select options={TokensTypes} allowClear={false} />
             </Form.Item>
           </Space>
@@ -87,8 +74,11 @@ const wrapLabel = (label: string) => {
 }
 
 const styles : Stylesheet = {
-  inputRow: {
+  inputRowItem: {
     marginBottom: 0
+  },
+  spaceForWarning: {
+    marginBottom: 24
   },
   label: {
     width: 100,

@@ -2,12 +2,14 @@ import { Form, Radio } from 'antd';
 import { FormListFieldData } from 'antd/lib/form/FormList';
 import { NamePath } from 'antd/lib/form/interface';
 import get from 'lodash.get';
+import moment from 'moment';
 import * as React from 'react';
 import StreamSvg from '../../images/sablier.svg';
 import VestSvg from '../../images/yfi.svg';
 import GiftSvg from '../../images/ygift.svg';
 import { MagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
+import { StreamForm } from './StreamForm';
 import { VestForm } from './VestForm';
 
 type Props = {
@@ -16,12 +18,18 @@ type Props = {
   fieldPath: NamePath,
   setSelfValue: (value: any) => void
 }
-const now = Date.now();
+const now = moment();
 const defaultFormValues : {[key in MagnetDefinition["type"]]: any} = {
   vest: {
     type: "vest",
-    startTime: now + 24 * 60 * 60 * 1000,
-    test: "vestasas"
+    cliffTimeAmount: 1,
+    cliffTimeUnit: "y",
+    endTimeAmount: 4,
+    endTimeUnit: "y",
+    lifetimeValue: 20000,
+    startTimeTime: now,
+    startTimeDate: now,
+    tokenType: "sushi"
   },
   gift: {
     type: "gift",
@@ -29,8 +37,12 @@ const defaultFormValues : {[key in MagnetDefinition["type"]]: any} = {
   },
   stream: {
     type: "stream",
-    startTime: now + 24 * 60 * 60 * 1000,
-    test3: "streamasas"
+    endTimeAmount: 4,
+    endTimeUnit: "y",
+    lifetimeValue: 20000,
+    startTimeTime: now,
+    startTimeDate: now,
+    tokenType: "dai"
   }
 }
 export const INITIAL_VALUE = defaultFormValues.vest;
@@ -65,6 +77,7 @@ export const MagnetForm : React.FC<Props> = (props: Props) => {
             return (
               <div style={styles.typeChooser}>
                 <Form.Item
+                  noStyle
                   name={[props.field.name, "type"]}>
                   <Radio.Group buttonStyle="solid" size="large" onChange={onTypeChange}>
                     <Radio.Button value="vest">Vest</Radio.Button>
@@ -86,7 +99,7 @@ export const MagnetForm : React.FC<Props> = (props: Props) => {
             if (type === "vest") {
               return <VestForm parentFieldName={props.field.name}/>
             } else if (type==="stream") {
-
+              return <StreamForm parentFieldName={props.field.name} />
             } else if (type==="gift") {
 
             }
@@ -153,5 +166,8 @@ const typeTagStyles : Stylesheet = {
   },
   image: {
     margin: 8
+  },
+  inputRow: {
+    marginBottom: 0
   }
 }
