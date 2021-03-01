@@ -35,7 +35,13 @@ export const MultiMagnetForm : React.FC = () => {
   }, 200)).current;
 
   const deleteMagnetForm = (index: number) => {
-    setInProgressMagnets(inProgressMagnets.splice(index, 1));
+    const newInProgressMagnets = inProgressMagnets.reduce(function(result: InProgressMagnetDefinition[], element, i) {
+      if (i != index) {
+        result.push(element);
+      }
+      return result;
+    }, []);
+    setInProgressMagnets(newInProgressMagnets);
   };
 
   const getMagnetFormValueSetter = (index: number) => (value: any) => {
