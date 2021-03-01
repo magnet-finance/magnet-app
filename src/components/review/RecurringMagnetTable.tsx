@@ -1,19 +1,19 @@
 import { Table } from "antd";
 import { ColumnsType } from "antd/lib/table";
+import { map } from "lodash";
 import moment from 'moment';
 import 'moment-duration-format';
 import * as React from "react";
-import { StreamMagnetDefinition, VestMagnetDefinition } from "../../types/magnet";
+import { RecurringMagnetDefinition } from "../../types/magnet";
 import { TokenLabel } from "../TokenLabel";
 
 type Props = {
-  recipient: string;
+  recipient: string,
+  magnets: RecurringMagnetDefinition[],
 }
 
-type RecurringMagnet = VestMagnetDefinition | StreamMagnetDefinition;
-
-export const RecurringMagnetTable: React.FC<Props> = (props) => {
-  const columns: ColumnsType<RecurringMagnet> = [
+export const RecurringMagnetTable: React.FC<Props> = (props: Props) => {
+  const columns: ColumnsType<RecurringMagnetDefinition> = [
     {
       title: <span style={styles.header}>Type</span>,
       dataIndex: 'type',
@@ -24,7 +24,7 @@ export const RecurringMagnetTable: React.FC<Props> = (props) => {
       title: <span style={styles.header}>Start</span>,
       dataIndex: 'start',
       key: 'start',
-      render: (text, record) => <>{record.startTime.local().format('MMMM Do YYYY, h:mm:ss a')}</>,
+      render: (text, record) => <>{record.startTime.local().format('MMMM Do YYYY, h:mm a')}</>,
     },
     {
       title: <span style={styles.header}>Cliff</span>,
@@ -50,9 +50,7 @@ export const RecurringMagnetTable: React.FC<Props> = (props) => {
       title: <span style={styles.header}>Amount</span>,
       dataIndex: 'amount',
       key: 'amount',
-      render: (text, record) => <>
-        {record.lifetimeValue.toLocaleString()}
-      </>,
+      render: (text, record) => <>{record.lifetimeValue.toLocaleString()}</>,
     },
     {
       title: <span style={styles.header}>Token</span>,
@@ -62,34 +60,13 @@ export const RecurringMagnetTable: React.FC<Props> = (props) => {
     },
   ];
 
-  const now = moment();
-  const cliff = moment(now).add(1,'y');
-  const end = moment(now).add(4,'y');
-
-
-  const data: RecurringMagnet[] = [
-    {
-      type: "vest",
-      startTime: now,
-      cliffTime: cliff,
-      endTime: end,
-      lifetimeValue: 20000,
-      tokenType: "SUSHI",
-    } as VestMagnetDefinition,
-    {
-      type: "stream",
-      startTime: now,
-      endTime: end,
-      lifetimeValue: 600000,
-      tokenType: 'DAI',
-    } as StreamMagnetDefinition,
-  ];
+  const dataSource = map(props.magnets, (m, i) => ({...m, key:`review-recurring-${m.recipient}-${i}`}));
 
   return (
     <Table
       style={styles.table}
       columns={columns}
-      dataSource={data}
+      dataSource={dataSource}
       pagination={false} />
   );
 }

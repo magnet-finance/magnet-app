@@ -1,96 +1,64 @@
 import { Table } from "antd";
 import { ColumnsType } from "antd/lib/table";
-import moment from 'moment';
+import groupBy from "lodash/groupBy";
+import mapValues from 'lodash/mapValues';
+import sumBy from "lodash/sumBy";
+import values from "lodash/values";
 import 'moment-duration-format';
 import * as React from "react";
+import { MagnetDefinition } from "../../types/magnet";
 import { TokenLabel } from "../TokenLabel";
 
 type Props = {
-  recipient: string;
+  magnets: MagnetDefinition[],
 }
 
-type RecurringMagnet = {
-  type: string;
-  start: moment.Moment;
-  cliff: moment.Moment;
-  end: moment.Moment;
-  amount: number;
-  token: string;
+type Subtotal = {
+  key: string,
+  amount: number,
+  tokenType: string,
 }
 
 export const Subtotal: React.FC<Props> = (props) => {
-  const columns: ColumnsType<RecurringMagnet> = [
-    {
-      title: <span style={styles.header}>Type</span>,
-      dataIndex: 'type',
-      key: 'type',
-    },
-    {
-      title: <span style={styles.header}>Start</span>,
-      dataIndex: 'start',
-      key: 'start',
-      render: (text, record) => <>{record.start.local().format('MMMM Do YYYY, h:mm:ss a')}</>,
-    },
-    {
-      title: <span style={styles.header}>Cliff</span>,
-      dataIndex: 'cliff',
-      key: 'cliff',
-      render: (text, record) => <>
-        {moment.duration(record.cliff.diff(record.start)).humanize().replace("a ", "1 ")}
-      </>,
-    },
-    {
-      title: <span style={styles.header}>End</span>,
-      dataIndex: 'end',
-      key: 'end',
-      render: (text, record) => <>
-        {moment.duration(record.end.diff(record.start)).humanize().replace("a ", "1 ")}
-      </>,
-    },
+  const columns: ColumnsType<Subtotal> = [
     {
       title: <span style={styles.header}>Amount</span>,
       dataIndex: 'amount',
       key: 'amount',
-      render: (text, record) => <>
-        {record.amount.toLocaleString()}
-      </>,
+      render: (text, record) => <>{record.amount.toLocaleString()}</>,
     },
     {
       title: <span style={styles.header}>Token</span>,
       dataIndex: 'token',
       key: 'token',
-      render: (text, record) => <TokenLabel address={record.token} />,
+      render: (text, record) => <TokenLabel address={record.tokenType} />,
     },
   ];
 
-  const now = moment();
-  const cliff = moment(now).add(1,'y');
-  const end = moment(now).add(4,'y')
+  const getMagnetValue = (magnet: MagnetDefinition) => {
+    if (magnet.type === "vest" || magnet.type === "stream") {
+      return magnet.lifetimeValue;
+    } else if (magnet.type === "gift") {
+      return magnet.giftValue;
+    } else {
+      return 0;
+    }
+  }
 
-  const data: RecurringMagnet[] = [
-    {
-      type: 'Vest',
-      start: now,
-      cliff: cliff,
-      end: end,
-      amount: 20000,
-      token: 'SUSHI',
-    },
-    {
-      type: 'Stream',
-      start: now,
-      cliff: cliff,
-      end: end,
-      amount: 600000,
-      token: 'DAI',
-    },
-  ];
+  const magnetsByToken = groupBy(props.magnets, "tokenType");
+  const subtotals = values(mapValues(magnetsByToken, (magnets, tokenType) => {
+    return {
+      key: `subtotal-${tokenType}`,
+      amount: sumBy(magnets, getMagnetValue),
+      tokenType
+    }
+  }));
 
   return (
     <Table
       style={styles.table}
       columns={columns}
-      dataSource={data}
+      dataSource={subtotals}
       pagination={false} />
   );
 }
@@ -103,6 +71,7 @@ const styles : {[key: string]: React.CSSProperties} = {
     borderColor: "#F0F0F0",
     borderRadius: 6,
     overflow: "hidden",
+    width: "min-content",
   },
   header: {
     fontWeight: 600,
