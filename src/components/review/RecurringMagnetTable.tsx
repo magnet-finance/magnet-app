@@ -6,7 +6,7 @@ import * as React from "react";
 import { TokenLabel } from "../TokenLabel";
 
 type Props = {
-  address: string;
+  recipient: string;
 }
 
 type RecurringMagnet = {

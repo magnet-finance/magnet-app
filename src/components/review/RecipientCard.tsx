@@ -5,15 +5,15 @@ import { GiftMagnet } from "./GiftMagnet";
 import { RecurringMagnetTable } from "./RecurringMagnetTable";
 
 type Props = {
-  address: string;
+  recipient: string;
 }
 
 export const ReviewRecipientCard: React.FC<Props> = (props) => {
   return (
     <Card style={styles.card} bodyStyle={styles.cardBody}>
-      <Address address={props.address} />
-      <RecurringMagnetTable address={props.address} />
-      <GiftMagnet address={props.address} />
+      <Address address={props.recipient} />
+      <RecurringMagnetTable recipient={props.recipient} />
+      <GiftMagnet recipient={props.recipient} />
     </Card>
   );
 }

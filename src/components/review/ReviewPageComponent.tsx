@@ -11,7 +11,7 @@ export const ReviewPageComponent: React.FC = () => {
         <Header />
         <Content  style={styles.content}>
           <div style={styles.title}>Review Mint Transaction</div>
-          <ReviewRecipientCard address="0xmaki.eth" />
+          <ReviewRecipientCard recipient="0xmaki.eth" />
         </Content>
       </Layout>
     </ThemeProvider>
@@ -27,9 +27,9 @@ const styles : {[key: string]: React.CSSProperties} = {
     paddingRight: 146,
   },
   title: {
-    fontSize: 48,
+    fontSize: 36,
     fontWeight: 600,
-    lineHeight: "72px",
+    lineHeight: "44px",
     marginBottom: 48,
   },
 }
