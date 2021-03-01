@@ -1,7 +1,6 @@
 import { Form, Radio } from 'antd';
 import { FormListFieldData } from 'antd/lib/form/FormList';
-import { NamePath } from 'antd/lib/form/interface';
-import get from 'lodash.get';
+import get from 'lodash/get';
 import moment from 'moment';
 import * as React from 'react';
 import StreamSvg from '../../images/sablier.svg';
@@ -16,7 +15,7 @@ import { VestForm } from './VestForm';
 type Props = {
   index: number,
   field: FormListFieldData,
-  fieldPath: NamePath,
+  fieldPath: (string | number)[],
   setSelfValue: (value: any) => void
 }
 const now = moment();
@@ -25,9 +24,9 @@ const defaultFormValues : {[key in MagnetDefinition["type"]]: any} = {
     type: "vest",
     recipient: "",
     cliffTimeAmount: 1,
-    cliffTimeUnit: "y",
+    cliffTimeUnit: "years",
     endTimeAmount: 4,
-    endTimeUnit: "y",
+    endTimeUnit: "years",
     lifetimeValue: 20000,
     startTimeTime: now,
     startTimeDate: now,
@@ -49,7 +48,7 @@ const defaultFormValues : {[key in MagnetDefinition["type"]]: any} = {
     type: "stream",
     recipient: "",
     endTimeAmount: 4,
-    endTimeUnit: "y",
+    endTimeUnit: "years",
     lifetimeValue: 20000,
     startTimeTime: now,
     startTimeDate: now,
@@ -60,8 +59,8 @@ export const INITIAL_VALUE = defaultFormValues.vest;
 
 export const MagnetForm : React.FC<Props> = (props: Props) => {
 
-  const onTypeChange = (event) => {
-    const newType = event.target.value;
+  const onTypeChange = (event: any) => {
+    const newType = event.target?.value;
     if (newType === "vest") {
       props.setSelfValue(defaultFormValues.vest);
     } else if (newType === "stream") {
@@ -71,7 +70,7 @@ export const MagnetForm : React.FC<Props> = (props: Props) => {
     }
   }
 
-  const typeDidChange = (prev, cur) => get(prev, [...props.fieldPath, "type"]) !== get(cur, [...props.fieldPath, "type"]);
+  const typeDidChange = (prev: any, cur: any) => get(prev, [...props.fieldPath, "type"]) !== get(cur, [...props.fieldPath, "type"]);
 
   return (
     <div style={styles.container}>

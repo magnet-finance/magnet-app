@@ -1,9 +1,17 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, Form } from 'antd';
-import * as React from 'react';
+import flatMap from 'lodash/flatMap';
+import get from 'lodash/get';
+import isArray from 'lodash/isArray';
+import throttle from 'lodash/throttle';
+import React, { useRef, useState } from 'react';
+import { InProgressMagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
+import { parseGiftFormData } from './GiftForm';
 import { INITIAL_VALUE, MagnetForm } from './MagnetForm';
 import { MintReview } from './MintReview';
+import { parseStreamFormData } from './StreamForm';
+import { parseVestFormData } from './VestForm';
 
 
 const layout = {
@@ -17,14 +25,24 @@ const tailLayout = {
 
 export const MultiMagnetForm : React.FC = () => {
   const [ form ] = Form.useForm()
-  console.log(form);
+
+  const initialInProgressMagnets = parseFormData({magnets: [INITIAL_VALUE]});
+  const [ inProgressMagnets, setInProgressMagnets] = useState<InProgressMagnetDefinition[]>(initialInProgressMagnets);
+
+  // Note(ggranito): Need to useRef to make sure it's the same function across renders
+  const updateTable = useRef(throttle((formData) => {
+    setInProgressMagnets(parseFormData(formData));
+  }, 200)).current;
+
   const getMagnetFormValueSetter = (index: number) => (value: any) => {
     const curMagnets = form.getFieldsValue().magnets;
     const nextMagnets = [...curMagnets]; //clone array
     nextMagnets[index] = value;
-    form.setFieldsValue({
+    const newFormData = {
       magnets: nextMagnets
-    });
+    }
+    form.setFieldsValue(newFormData);
+    updateTable(newFormData);
   };
 
   return (
@@ -33,7 +51,8 @@ export const MultiMagnetForm : React.FC = () => {
       form={form}
       name="multi-magnet"
       colon={false}
-      onFinish={(e) => console.log(e)}
+      onValuesChange={(_, values) => updateTable(values)}
+      onFinish={(e) => { console.log(e); console.log(parseFormData(e))}}
     >
       <Form.List name="magnets" initialValue={[INITIAL_VALUE]}>
         {(fields, {add}) => (
@@ -52,7 +71,7 @@ export const MultiMagnetForm : React.FC = () => {
           </>
         )}
       </Form.List>
-      <MintReview />
+      <MintReview magnets={inProgressMagnets}/>
       <Form.Item {...tailLayout}>
         <Button type="primary" htmlType="submit">
           Submit
@@ -61,6 +80,27 @@ export const MultiMagnetForm : React.FC = () => {
     </Form>
   );
 };
+
+const parseFormData = (formData: any) : InProgressMagnetDefinition[] => {
+  const magnets = get(formData, "magnets");
+  if (!isArray(magnets)) {
+    return [];
+  }
+
+  return flatMap(magnets, (maybeMag) : InProgressMagnetDefinition[] => {
+    const type = get(maybeMag, "type");
+    if (type === "vest") {
+      return [parseVestFormData(maybeMag)];
+    }
+    if (type === "stream") {
+      return [parseStreamFormData(maybeMag)];
+    }
+    if (type === "gift") {
+      return [parseGiftFormData(maybeMag)];
+    }
+    return []
+  });
+}
 
 const styles : Stylesheet = {
   addMagnetButton: {
