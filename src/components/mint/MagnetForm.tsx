@@ -1,4 +1,5 @@
-import { Form, Radio } from 'antd';
+import { MinusCircleOutlined } from '@ant-design/icons';
+import { Button, Form, Radio } from 'antd';
 import { FormListFieldData } from 'antd/lib/form/FormList';
 import get from 'lodash/get';
 import moment from 'moment';
@@ -16,7 +17,8 @@ type Props = {
   index: number,
   field: FormListFieldData,
   fieldPath: (string | number)[],
-  setSelfValue: (value: any) => void
+  setSelfValue: (value: any) => void,
+  onDelete: (index: number) => void
 }
 const now = moment();
 const defaultFormValues : {[key in MagnetDefinition["type"]]: any} = {
@@ -95,6 +97,10 @@ export const MagnetForm : React.FC<Props> = (props: Props) => {
                     <Radio.Button value="gift">Gift</Radio.Button>
                   </Radio.Group>
                 </Form.Item>
+                <Button
+                  style={styles.deleteButton} type="text" shape="circle" size="large"
+                  icon={<MinusCircleOutlined />}
+                  onClick={() => props.onDelete(props.index)} />
                 { type === "vest" && <TypeTag svg={VestSvg} text="Vested via Yearn Escrow" /> }
                 { type === "stream" && <TypeTag svg={StreamSvg} text="Streamed via Sablier" /> }
                 { type === "gift" && <TypeTag svg={GiftSvg} text="Gifted via yGift" /> }
@@ -153,6 +159,12 @@ const styles: Stylesheet = {
   typeChooser: {
     display: "flex",
     alignItems: "flex-start"
+  },
+  deleteButton: {
+    color: "#8C8C8C",
+    paddingTop: 6.4,
+    marginLeft: 9,
+    marginRight: 9,
   }
 };
 
@@ -175,7 +187,7 @@ const typeTagStyles : Stylesheet = {
     display: "flex",
     alignItems: "center",
     height: 40,
-    marginLeft: 8,
+    marginLeft: 48,
     marginRight: 8
   },
   image: {

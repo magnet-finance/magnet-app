@@ -34,6 +34,10 @@ export const MultiMagnetForm : React.FC = () => {
     setInProgressMagnets(parseFormData(formData));
   }, 200)).current;
 
+  const deleteMagnetForm = (index: number) => {
+    setInProgressMagnets(inProgressMagnets.splice(index, 1));
+  };
+
   const getMagnetFormValueSetter = (index: number) => (value: any) => {
     const curMagnets = form.getFieldsValue().magnets;
     const nextMagnets = [...curMagnets]; //clone array
@@ -58,7 +62,7 @@ export const MultiMagnetForm : React.FC = () => {
         {(fields, {add}) => (
           <>
             {fields.map((f, i) => (
-              <MagnetForm field={f} index={i} key={i} fieldPath={["magnets", f.name]} setSelfValue={getMagnetFormValueSetter(i)} />
+              <MagnetForm field={f} index={i} key={i} fieldPath={["magnets", f.name]} setSelfValue={getMagnetFormValueSetter(i)} onDelete={deleteMagnetForm} />
             ))}
             <Button
               style={styles.addMagnetButton}
