@@ -3,20 +3,14 @@ import { ColumnsType } from "antd/lib/table";
 import moment from 'moment';
 import 'moment-duration-format';
 import * as React from "react";
+import { StreamMagnetDefinition, VestMagnetDefinition } from "../../types/magnet";
 import { TokenLabel } from "../TokenLabel";
 
 type Props = {
   recipient: string;
 }
 
-type RecurringMagnet = {
-  type: string;
-  start: moment.Moment;
-  cliff: moment.Moment;
-  end: moment.Moment;
-  amount: number;
-  token: string;
-}
+type RecurringMagnet = VestMagnetDefinition | StreamMagnetDefinition;
 
 export const RecurringMagnetTable: React.FC<Props> = (props) => {
   const columns: ColumnsType<RecurringMagnet> = [
@@ -24,27 +18,32 @@ export const RecurringMagnetTable: React.FC<Props> = (props) => {
       title: <span style={styles.header}>Type</span>,
       dataIndex: 'type',
       key: 'type',
+      render: (text) => <span style={styles.capitalize}>{text}</span>,
     },
     {
       title: <span style={styles.header}>Start</span>,
       dataIndex: 'start',
       key: 'start',
-      render: (text, record) => <>{record.start.local().format('MMMM Do YYYY, h:mm:ss a')}</>,
+      render: (text, record) => <>{record.startTime.local().format('MMMM Do YYYY, h:mm:ss a')}</>,
     },
     {
       title: <span style={styles.header}>Cliff</span>,
       dataIndex: 'cliff',
       key: 'cliff',
-      render: (text, record) => <>
-        {moment.duration(record.cliff.diff(record.start)).humanize().replace("a ", "1 ")}
-      </>,
+      render: (text, record) => {
+        if (record.type == "vest") {
+          return <>{moment.duration(record.cliffTime.diff(record.startTime)).humanize().replace("a ", "1 ")}</>;
+        } else {
+          return <>-</>;
+        }
+      }
     },
     {
       title: <span style={styles.header}>End</span>,
       dataIndex: 'end',
       key: 'end',
       render: (text, record) => <>
-        {moment.duration(record.end.diff(record.start)).humanize().replace("a ", "1 ")}
+        {moment.duration(record.endTime.diff(record.startTime)).humanize().replace("a ", "1 ")}
       </>,
     },
     {
@@ -52,38 +51,38 @@ export const RecurringMagnetTable: React.FC<Props> = (props) => {
       dataIndex: 'amount',
       key: 'amount',
       render: (text, record) => <>
-        {record.amount.toLocaleString()}
+        {record.lifetimeValue.toLocaleString()}
       </>,
     },
     {
       title: <span style={styles.header}>Token</span>,
       dataIndex: 'token',
       key: 'token',
-      render: (text, record) => <TokenLabel address={record.token} />,
+      render: (text, record) => <TokenLabel address={record.tokenType} />,
     },
   ];
 
   const now = moment();
   const cliff = moment(now).add(1,'y');
-  const end = moment(now).add(4,'y')
+  const end = moment(now).add(4,'y');
+
 
   const data: RecurringMagnet[] = [
     {
-      type: 'Vest',
-      start: now,
-      cliff: cliff,
-      end: end,
-      amount: 20000,
-      token: 'SUSHI',
-    },
+      type: "vest",
+      startTime: now,
+      cliffTime: cliff,
+      endTime: end,
+      lifetimeValue: 20000,
+      tokenType: "SUSHI",
+    } as VestMagnetDefinition,
     {
-      type: 'Stream',
-      start: now,
-      cliff: cliff,
-      end: end,
-      amount: 600000,
-      token: 'DAI',
-    },
+      type: "stream",
+      startTime: now,
+      endTime: end,
+      lifetimeValue: 600000,
+      tokenType: 'DAI',
+    } as StreamMagnetDefinition,
   ];
 
   return (
@@ -107,4 +106,7 @@ const styles : {[key: string]: React.CSSProperties} = {
   header: {
     fontWeight: 600,
   },
+  capitalize: {
+    textTransform: "capitalize",
+  }
 }

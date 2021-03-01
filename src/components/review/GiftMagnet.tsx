@@ -3,6 +3,7 @@ import { Button, Card, Image } from "antd";
 import moment from 'moment';
 import 'moment-duration-format';
 import * as React from "react";
+import { GiftMagnetDefinition } from '../../types/magnet';
 import { TokenLabel } from "../TokenLabel";
 
 
@@ -11,12 +12,16 @@ type Props = {
 }
 
 export const GiftMagnet: React.FC<Props> = (props) => {
-  const imageUrl = "https://news.bitcoin.com/wp-content/uploads/2019/01/sushiswap1.jpg";
-  const giftName = "pedrowww's launch bonus";
-  const message = "Thank you for contributing to the Sushi launch! We’re glad to have you in the community.";
-  const timestamp = moment().local().format('MMMM Do YYYY, h:mm:ss a');
-  const amount = 1000;
-  const tokenAddress = "DAI";
+  const gift = {
+    type: "gift",
+    recipient: props.recipient,
+    giftImageUrl: "https://news.bitcoin.com/wp-content/uploads/2019/01/sushiswap1.jpg",
+    giftName: "pedrowww's launch bonus",
+    giftMessage: "Thank you for contributing to the Sushi launch! We’re glad to have you in the community.",
+    sendTime: moment(),
+    giftValue: 1000,
+    tokenType: "DAI",
+  } as GiftMagnetDefinition;
 
   const shareOnTwitter = () => {
     const text = "Congrats to " + props.recipient + "%0A%0A" + message;
@@ -27,21 +32,21 @@ export const GiftMagnet: React.FC<Props> = (props) => {
     <Card style={styles.card} bodyStyle={styles.cardBody}>
       <Image
         style={styles.image}
-        src={imageUrl}
+        src={gift.giftImageUrl}
         width="30%" />
       <div style={styles.info}>
         <div style={styles.name}>
-          {giftName}
+          {gift.giftName}
         </div>
         <div style={styles.timestamp}>
-          {timestamp}
+          {gift.sendTime.local().format('MMMM Do YYYY, h:mm:ss a')}
         </div>
         <div style={styles.message}>
-          {message}
+          {gift.giftMessage}
         </div>
         <div style={styles.amount}>
-          <span style={styles.number}>{amount}</span>
-          <TokenLabel address={tokenAddress} />
+          <span style={styles.number}>{gift.giftValue}</span>
+          <TokenLabel address={gift.tokenType} />
         </div>
         <Button
           style={styles.twitter}

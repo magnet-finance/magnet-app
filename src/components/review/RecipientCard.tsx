@@ -8,7 +8,7 @@ type Props = {
   recipient: string;
 }
 
-export const ReviewRecipientCard: React.FC<Props> = (props) => {
+export const RecipientCard: React.FC<Props> = (props) => {
   return (
     <Card style={styles.card} bodyStyle={styles.cardBody}>
       <Address address={props.recipient} />
