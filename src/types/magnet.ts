@@ -1,9 +1,11 @@
+import { Moment } from 'moment';
+
 export type VestMagnetDefinition = {
   type: "vest",
   recipient: string,
-  startTime: number,
-  cliffTime: number,
-  endTime: number,
+  startTime: Moment,
+  cliffTime: Moment,
+  endTime: Moment,
   lifetimeValue: number
   tokenType: string
 }
@@ -11,8 +13,8 @@ export type VestMagnetDefinition = {
 export type StreamMagnetDefinition = {
   type: "stream",
   recipient: string,
-  startTime: number,
-  endTime: number,
+  startTime: Moment,
+  endTime: Moment,
   lifetimeValue: number,
   tokenType: string
 }
@@ -20,13 +22,13 @@ export type StreamMagnetDefinition = {
 export type GiftMagnetDefinition = {
   type: "gift",
   recipient: string,
-  sendTime: number,
+  sendTime: Moment,
   giftValue: number,
   tokenType: string,
   giftName: string,
   giftMessage: string,
-  giftImage: any
+  giftImageUrl: string
 }
 
 export type MagnetDefinition = VestMagnetDefinition | StreamMagnetDefinition | GiftMagnetDefinition;
-export type InProgressMagnetDefinition = Partial<MagnetDefinition> & MagnetDefinition["type"];
+export type InProgressMagnetDefinition = Partial<MagnetDefinition> & { type: MagnetDefinition["type"]};
