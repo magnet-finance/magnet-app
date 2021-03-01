@@ -1,22 +1,17 @@
 import { DatePicker, Form, Input, InputNumber, Select, Space, TimePicker } from 'antd';
+import isInteger from 'lodash/isInteger';
+import isString from 'lodash/isString';
+import moment from 'moment';
 import React from 'react';
+import { isTimeUnit, mergeDateAndTime, TimeUnits } from '../../logic/timeSelector';
+import { isTokenType, TokenTypes } from '../../logic/tokenType';
+import { InProgressStreamMagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
+
 
 type Props = {
   parentFieldName: string | number
 }
-
-const TimeUnits = [
-  { label: 'Years', value: 'y' },
-  { label: 'Months', value: 'm' },
-  { label: 'Days', value: 'd' },
-  { label: 'Hours', value: 'h' },
-];
-
-const TokensTypes = [
-  { label: 'Sushi', value: 'sushi' },
-  { label: 'DAI', value: 'dai' },
-];
 
 export const StreamForm : React.FC<Props> = (props) => {
   return (
@@ -57,12 +52,58 @@ export const StreamForm : React.FC<Props> = (props) => {
               <InputNumber />
             </Form.Item>
             <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "tokenType"]}>
-              <Select options={TokensTypes} allowClear={false} />
+              <Select options={TokenTypes} allowClear={false} />
             </Form.Item>
           </Space>
       </Form.Item>
     </>
   );
+}
+
+export const parseStreamFormData = (formData: any) : InProgressStreamMagnetDefinition =>  {
+
+  const streamMagnetDefinition : InProgressStreamMagnetDefinition = {
+    type: "stream"
+  }
+
+  if (formData == null) {
+    return streamMagnetDefinition;
+  }
+
+  // Parse Recipient
+  const recipient = formData.recipient;
+  if (isString(recipient) && recipient !== "") {
+    streamMagnetDefinition.recipient = recipient;
+  }
+
+  // Parse Lifetime val
+  const lifetimeValue = formData.lifetimeValue;
+  if (isInteger(lifetimeValue) && lifetimeValue > 0) {
+    streamMagnetDefinition.lifetimeValue = lifetimeValue;
+  }
+
+  // Parse TokenType
+  const tokenType = formData.tokenType;
+  if (isTokenType(tokenType)) {
+    streamMagnetDefinition.tokenType = tokenType;
+  }
+
+  // Parse Times
+  const startTimeDate = formData.startTimeDate;
+  const startTimeTime = formData.startTimeTime;
+  if (moment.isMoment(startTimeDate) && moment.isMoment(startTimeTime)) {
+    const startTime = mergeDateAndTime(startTimeDate, startTimeTime);
+    streamMagnetDefinition.startTime = startTime;
+
+    // Parse end (needs start time)
+    const endTimeAmount = formData.endTimeAmount;
+    const endTimeUnit = formData.endTimeUnit;
+    if (isInteger(endTimeAmount) && endTimeAmount >=0 && isTimeUnit(endTimeUnit)) {
+      streamMagnetDefinition.endTime = moment(startTime).add(endTimeAmount, endTimeUnit);
+    }
+  }
+
+  return streamMagnetDefinition;
 }
 
 const wrapLabel = (label: string) => {

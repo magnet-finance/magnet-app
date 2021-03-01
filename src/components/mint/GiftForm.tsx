@@ -2,15 +2,20 @@ import { UploadOutlined } from '@ant-design/icons';
 import { Button, DatePicker, Form, Input, InputNumber, Radio, Select, Space, TimePicker, Upload } from 'antd';
 import { UploadChangeParam } from 'antd/lib/upload';
 import { UploadFile } from 'antd/lib/upload/interface';
-import get from 'lodash.get';
-import { NamePath } from 'rc-field-form/es/interface';
+import get from 'lodash/get';
+import isInteger from 'lodash/isInteger';
+import isString from 'lodash/isString';
+import moment from 'moment';
 import { UploadRequestOption } from 'rc-upload/lib/interface';
 import React, { useState } from 'react';
+import { mergeDateAndTime } from '../../logic/timeSelector';
+import { isTokenType } from '../../logic/tokenType';
+import { InProgressGiftMagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
 
 type Props = {
   parentFieldName: string | number,
-  fieldPath: NamePath
+  fieldPath: (string | number)[]
 }
 
 const TokensTypes = [
@@ -28,10 +33,14 @@ export const GiftForm : React.FC<Props> = (props) => {
   }
 
   const dontUploadImage = (data: UploadRequestOption) => {
-    data.onSuccess(null, null);
+    // Note(ggranito): this is needed to tell the UI we're not uploading it
+    // The second arg isn't nullable by the lib types, but it is ok
+    // I checked the antd code and the underlying rc-upload code to make sure
+    // it is ok
+    (data.onSuccess as any)(null, null);
   };
 
-  const sendTimeTypeChanged = (prev, cur) => get(prev, [...props.fieldPath, "sendTimeType"]) !== get(cur, [...props.fieldPath, "sendTimeType"]);
+  const sendTimeTypeChanged = (prev: any, cur: any) => get(prev, [...props.fieldPath, "sendTimeType"]) !== get(cur, [...props.fieldPath, "sendTimeType"]);
 
   return (
     <>
@@ -103,6 +112,74 @@ export const GiftForm : React.FC<Props> = (props) => {
       </Form.Item>
     </>
   );
+}
+
+export const parseGiftFormData = (formData: any) : InProgressGiftMagnetDefinition =>  {
+
+  const giftMagnetDefinition : InProgressGiftMagnetDefinition = {
+    type: "gift"
+  }
+
+  if (formData == null) {
+    return giftMagnetDefinition;
+  }
+
+  // Parse Recipient
+  const recipient = formData.recipient;
+  if (isString(recipient) && recipient !== "") {
+    giftMagnetDefinition.recipient = recipient;
+  }
+
+  // Parse Lifetime val
+  const giftValue = formData.giftValue;
+  if (isInteger(giftValue) && giftValue > 0) {
+    giftMagnetDefinition.giftValue = giftValue;
+  }
+
+  // Parse TokenType
+  const tokenType = formData.tokenType;
+  if (isTokenType(tokenType)) {
+    giftMagnetDefinition.tokenType = tokenType;
+  }
+
+  // Parse Times
+  const sendTimeType = formData.sendTimeType;
+  const sendTimeDate = formData.sendTimeDate;
+  const sendTimeTime = formData.sendTimeTime;
+  const sendTime  = (() => {
+      if (sendTimeType === "now") {
+        return moment();
+      }
+
+      if (sendTimeType === "schedule" && moment.isMoment(sendTimeDate) && moment.isMoment(sendTimeTime)) {
+        return mergeDateAndTime(sendTimeDate, sendTimeTime);
+      }
+
+      return null;
+  })();
+  if (moment.isMoment(sendTime)) {
+    giftMagnetDefinition.sendTime = sendTime;
+  }
+
+  // Parse giftName
+  const giftName = formData.giftName;
+  if (isString(giftName)) {
+    giftMagnetDefinition.giftName = giftName;
+  }
+
+  // Parse giftMessage
+  const giftMessage = formData.giftMessage;
+  if (isString(giftMessage)) {
+    giftMagnetDefinition.giftMessage = giftMessage;
+  }
+
+  // Parse giftImageUrl
+  const giftFile = get(formData, "giftImage.file.originFileObj");
+  if (giftFile instanceof Blob) {
+    giftMagnetDefinition.giftImageUrl = URL.createObjectURL(giftFile);
+  }
+
+  return giftMagnetDefinition;
 }
 
 const wrapLabel = (label: string) => {
