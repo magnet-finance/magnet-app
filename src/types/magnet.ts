@@ -32,3 +32,4 @@ export type GiftMagnetDefinition = {
 
 export type MagnetDefinition = VestMagnetDefinition | StreamMagnetDefinition | GiftMagnetDefinition;
 export type InProgressMagnetDefinition = Partial<MagnetDefinition> & { type: MagnetDefinition["type"]};
+export type RecurringMagnetDefinition = VestMagnetDefinition | StreamMagnetDefinition;
