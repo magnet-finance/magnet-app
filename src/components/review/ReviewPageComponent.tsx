@@ -2,7 +2,7 @@ import Layout, { Content } from "antd/lib/layout/layout";
 import * as React from "react";
 import { Header } from "../Header";
 import { ThemeProvider } from "../ThemeProvider";
-import { ReviewRecipientCard } from "./RecipientCard";
+import { RecipientCard } from "./RecipientCard";
 
 export const ReviewPageComponent: React.FC = () => {
   return (
@@ -11,7 +11,7 @@ export const ReviewPageComponent: React.FC = () => {
         <Header />
         <Content  style={styles.content}>
           <div style={styles.title}>Review Mint Transaction</div>
-          <ReviewRecipientCard recipient="0xmaki.eth" />
+          <RecipientCard recipient="0xmaki.eth" />
         </Content>
       </Layout>
     </ThemeProvider>
