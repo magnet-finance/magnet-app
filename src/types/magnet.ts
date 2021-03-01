@@ -27,8 +27,8 @@ export type GiftMagnetDefinition = {
   tokenType: string,
   giftName: string,
   giftMessage: string,
-  giftImage: any
+  giftImageUrl: string
 }
 
 export type MagnetDefinition = VestMagnetDefinition | StreamMagnetDefinition | GiftMagnetDefinition;
-export type InProgressMagnetDefinition = Partial<MagnetDefinition> & MagnetDefinition["type"];
+export type InProgressMagnetDefinition = Partial<MagnetDefinition> & { type: MagnetDefinition["type"]};
