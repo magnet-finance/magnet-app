@@ -37,3 +37,4 @@ export type InProgressVestMagnetDefinition = InProgress<VestMagnetDefinition>;
 export type InProgressStreamMagnetDefinition = InProgress<StreamMagnetDefinition>;
 export type InProgressGiftMagnetDefinition = InProgress<GiftMagnetDefinition>;
 export type InProgressMagnetDefinition = InProgressVestMagnetDefinition | InProgressStreamMagnetDefinition | InProgressGiftMagnetDefinition;
+export type RecurringMagnetDefinition = VestMagnetDefinition | StreamMagnetDefinition;
