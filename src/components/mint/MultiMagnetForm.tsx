@@ -1,6 +1,10 @@
+import { PlusOutlined } from '@ant-design/icons';
 import { Button, Form } from 'antd';
 import * as React from 'react';
+import { Stylesheet } from '../../types/stylesheet';
 import { INITIAL_VALUE, MagnetForm } from './MagnetForm';
+import { MintReview } from './MintReview';
+
 
 const layout = {
   labelCol: { span: 8 },
@@ -37,12 +41,18 @@ export const MultiMagnetForm : React.FC = () => {
             {fields.map((f, i) => (
               <MagnetForm field={f} index={i} key={i} fieldPath={["magnets", f.name]} setSelfValue={getMagnetFormValueSetter(i)} />
             ))}
-            <Button onClick={() => add(INITIAL_VALUE)}>
-              Add
+            <Button
+              style={styles.addMagnetButton}
+              type="dashed"
+              size="large"
+              icon={<PlusOutlined />}
+              onClick={() => add(INITIAL_VALUE)}>
+              Add another magnet
             </Button>
           </>
         )}
       </Form.List>
+      <MintReview />
       <Form.Item {...tailLayout}>
         <Button type="primary" htmlType="submit">
           Submit
@@ -51,3 +61,10 @@ export const MultiMagnetForm : React.FC = () => {
     </Form>
   );
 };
+
+const styles : Stylesheet = {
+  addMagnetButton: {
+    marginTop: 35,
+    marginBottom: 35
+  }
+}

@@ -9,6 +9,7 @@ import VestSvg from '../../images/yfi.svg';
 import GiftSvg from '../../images/ygift.svg';
 import { MagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
+import { GiftForm } from './GiftForm';
 import { StreamForm } from './StreamForm';
 import { VestForm } from './VestForm';
 
@@ -22,6 +23,7 @@ const now = moment();
 const defaultFormValues : {[key in MagnetDefinition["type"]]: any} = {
   vest: {
     type: "vest",
+    recipient: "",
     cliffTimeAmount: 1,
     cliffTimeUnit: "y",
     endTimeAmount: 4,
@@ -33,10 +35,19 @@ const defaultFormValues : {[key in MagnetDefinition["type"]]: any} = {
   },
   gift: {
     type: "gift",
-    test2: "giftsasfa"
+    giftImage: undefined,
+    giftMessage: "",
+    giftName: "",
+    recipient: "",
+    sendTimeType: "now",
+    sendTimeDate: now,
+    sendTimeTime: now,
+    tokenType: "dai",
+    giftValue: 1000
   },
   stream: {
     type: "stream",
+    recipient: "",
     endTimeAmount: 4,
     endTimeUnit: "y",
     lifetimeValue: 20000,
@@ -93,15 +104,15 @@ export const MagnetForm : React.FC<Props> = (props: Props) => {
           }}
 
         </Form.Item>
-        <Form.Item shouldUpdate={typeDidChange}>
+        <Form.Item style={styles.subformContainer} shouldUpdate={typeDidChange}>
           {({getFieldValue}) => {
             const type = getFieldValue([...props.fieldPath, "type"]);
             if (type === "vest") {
-              return <VestForm parentFieldName={props.field.name}/>
+              return <VestForm parentFieldName={props.field.name} />
             } else if (type==="stream") {
               return <StreamForm parentFieldName={props.field.name} />
             } else if (type==="gift") {
-
+              return <GiftForm parentFieldName={props.field.name} fieldPath={props.fieldPath}/>
             }
           }}
         </Form.Item>
@@ -114,7 +125,7 @@ const styles: Stylesheet = {
   container: {
     display: "flex",
     marginTop: 35,
-    marginBottom: 35
+    marginBottom: 0
   },
   index: {
     flexGrow: 0,
@@ -134,7 +145,11 @@ const styles: Stylesheet = {
   },
   formContainer: {
     flex: 1,
-    marginLeft: 16
+    marginLeft: 16,
+  },
+  subformContainer: {
+    marginBottom: 0,
+    minWidth: 810
   },
   typeChooser: {
     display: "flex",

@@ -21,7 +21,7 @@ export type GiftMagnetDefinition = {
   type: "gift",
   recipient: string,
   sendTime: number,
-  value: number,
+  giftValue: number,
   tokenType: string,
   giftName: string,
   giftMessage: string,
