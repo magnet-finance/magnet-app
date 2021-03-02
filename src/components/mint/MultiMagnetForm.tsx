@@ -55,10 +55,11 @@ export const MultiMagnetForm : React.FC = () => {
       onFinish={(e) => { console.log(e); console.log(parseFormData(e))}}
     >
       <Form.List name="magnets" initialValue={[INITIAL_VALUE]}>
-        {(fields, {add}) => (
+        {(fields, {add, remove}) => (
           <>
             {fields.map((f, i) => (
-              <MagnetForm field={f} index={i} key={i} fieldPath={["magnets", f.name]} setSelfValue={getMagnetFormValueSetter(i)} />
+              <MagnetForm field={f} index={i} key={i} fieldPath={["magnets", f.name]}
+                setSelfValue={getMagnetFormValueSetter(i)} removeSelf={() => remove(f.name)} />
             ))}
             <Button
               style={styles.addMagnetButton}
