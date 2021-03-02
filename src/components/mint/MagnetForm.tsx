@@ -18,7 +18,7 @@ type Props = {
   field: FormListFieldData,
   fieldPath: (string | number)[],
   setSelfValue: (value: any) => void,
-  onDelete: (index: number) => void
+  removeSelf: () => void
 }
 const now = moment();
 const defaultFormValues : {[key in MagnetDefinition["type"]]: any} = {
@@ -100,7 +100,7 @@ export const MagnetForm : React.FC<Props> = (props: Props) => {
                 <Button
                   style={styles.deleteButton} type="text" shape="circle" size="large"
                   icon={<MinusCircleOutlined />}
-                  onClick={() => props.onDelete(props.index)} />
+                  onClick={props.removeSelf} />
                 { type === "vest" && <TypeTag svg={VestSvg} text="Vested via Yearn Escrow" /> }
                 { type === "stream" && <TypeTag svg={StreamSvg} text="Streamed via Sablier" /> }
                 { type === "gift" && <TypeTag svg={GiftSvg} text="Gifted via yGift" /> }
