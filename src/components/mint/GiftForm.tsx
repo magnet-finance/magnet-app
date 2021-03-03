@@ -78,7 +78,7 @@ export const GiftForm : React.FC<Props> = (props) => {
         label={wrapLabel("Value")}
         style={styles.inputRow}>
           <Space>
-            <Form.Item name={[props.parentFieldName, "giftValue"]}>
+            <Form.Item name={[props.parentFieldName, "lifetimeValue"]}>
               <InputNumber />
             </Form.Item>
             <Form.Item name={[props.parentFieldName, "tokenType"]}>
@@ -131,9 +131,9 @@ export const parseGiftFormData = (formData: any) : InProgressGiftMagnetDefinitio
   }
 
   // Parse Lifetime val
-  const giftValue = formData.giftValue;
-  if (isInteger(giftValue) && giftValue > 0) {
-    giftMagnetDefinition.giftValue = giftValue;
+  const lifetimeValue = formData.lifetimeValue;
+  if (isInteger(lifetimeValue) && lifetimeValue > 0) {
+    giftMagnetDefinition.lifetimeValue = lifetimeValue;
   }
 
   // Parse TokenType

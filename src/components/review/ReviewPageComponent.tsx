@@ -44,7 +44,7 @@ export const ReviewPageComponent: React.FC = () => {
       giftName: "pedrowww's launch bonus",
       giftMessage: "Thank you for contributing to the Sushi launch! We’re glad to have you in the community.",
       sendTime: now,
-      giftValue: 1000,
+      lifetimeValue: 1000,
       tokenType: "DAI",
     },
     {
@@ -63,7 +63,7 @@ export const ReviewPageComponent: React.FC = () => {
       giftName: "pedrowww's launch bonus",
       giftMessage: "Thank you for contributing to the Sushi launch! We’re glad to have you in the community.",
       sendTime: now,
-      giftValue: 1000,
+      lifetimeValue: 1000,
       tokenType: "DAI",
     },
     {

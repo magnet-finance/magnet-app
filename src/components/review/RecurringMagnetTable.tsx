@@ -1,10 +1,10 @@
 import { Table } from "antd";
 import { ColumnsType } from "antd/lib/table";
 import { map } from "lodash";
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import 'moment-duration-format';
 import * as React from "react";
-import { RecurringMagnetDefinition } from "../../types/magnet";
+import { maybeGetMagnetTypeDisplayName, RecurringMagnetDefinition } from "../../types/magnet";
 import { TokenLabel } from "../TokenLabel";
 
 type Props = {
@@ -12,27 +12,31 @@ type Props = {
   magnets: RecurringMagnetDefinition[],
 }
 
+type DataRow = RecurringMagnetDefinition & {
+  key: string,
+}
+
 export const RecurringMagnetTable: React.FC<Props> = (props: Props) => {
-  const columns: ColumnsType<RecurringMagnetDefinition> = [
+  const columns: ColumnsType<DataRow> = [
     {
       title: <span style={styles.header}>Type</span>,
       dataIndex: 'type',
       key: 'type',
-      render: (text) => <span style={styles.capitalize}>{text}</span>,
+      render: (type: string) => maybeGetMagnetTypeDisplayName(type) ?? type,
     },
     {
       title: <span style={styles.header}>Start</span>,
-      dataIndex: 'start',
-      key: 'start',
-      render: (text, record) => <>{record.startTime.local().format('MMMM Do YYYY, h:mm a')}</>,
+      dataIndex: 'startTime',
+      key: 'startTime',
+      render: (startTime) => <>{startTime.local().format('MMMM Do YYYY, h:mm a')}</>,
     },
     {
       title: <span style={styles.header}>Cliff</span>,
-      dataIndex: 'cliff',
-      key: 'cliff',
-      render: (text, record) => {
+      dataIndex: 'cliffTime',
+      key: 'cliffTime',
+      render: (cliffTime: Moment, record: DataRow) => {
         if (record.type == "vest") {
-          return <>{moment.duration(record.cliffTime.diff(record.startTime)).humanize().replace("a ", "1 ")}</>;
+          return <>{moment.duration(cliffTime.diff(record.startTime)).humanize().replace("a ", "1 ")}</>;
         } else {
           return <>-</>;
         }
@@ -40,33 +44,33 @@ export const RecurringMagnetTable: React.FC<Props> = (props: Props) => {
     },
     {
       title: <span style={styles.header}>End</span>,
-      dataIndex: 'end',
-      key: 'end',
-      render: (text, record) => <>
-        {moment.duration(record.endTime.diff(record.startTime)).humanize().replace("a ", "1 ")}
+      dataIndex: 'endTime',
+      key: 'endTime',
+      render: (endTime: Moment, record: DataRow) => <>
+        {moment.duration(endTime.diff(record.startTime)).humanize().replace("a ", "1 ")}
       </>,
     },
     {
       title: <span style={styles.header}>Amount</span>,
-      dataIndex: 'amount',
-      key: 'amount',
-      render: (text, record) => <>{record.lifetimeValue.toLocaleString()}</>,
+      dataIndex: 'lifetimeValue',
+      key: 'lifetimeValue',
+      render: (lifetimeValue: number) => <>{lifetimeValue.toLocaleString()}</>,
     },
     {
       title: <span style={styles.header}>Token</span>,
-      dataIndex: 'token',
-      key: 'token',
-      render: (text, record) => <TokenLabel address={record.tokenType} />,
+      dataIndex: 'tokenType',
+      key: 'tokenType',
+      render: (tokenType: string) => <TokenLabel address={tokenType} />,
     },
   ];
 
-  const dataSource = map(props.magnets, (m, i) => ({...m, key:`review-recurring-${m.recipient}-${i}`}));
+  const data : DataRow[] = map(props.magnets, (m, i) => ({...m, key:`review-recurring-${m.recipient}-${i}`}));
 
   return (
     <Table
       style={styles.table}
       columns={columns}
-      dataSource={dataSource}
+      dataSource={data}
       pagination={false} />
   );
 }
@@ -83,7 +87,4 @@ const styles : {[key: string]: React.CSSProperties} = {
   header: {
     fontWeight: 600,
   },
-  capitalize: {
-    textTransform: "capitalize",
-  }
 }

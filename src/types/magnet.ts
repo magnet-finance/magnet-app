@@ -23,11 +23,33 @@ export type GiftMagnetDefinition = {
   type: "gift",
   recipient: string,
   sendTime: Moment,
-  giftValue: number,
+  lifetimeValue: number,
   tokenType: string,
   giftName: string,
   giftMessage: string,
   giftImageUrl: string
+}
+
+export type MagnetDefinitionType = MagnetDefinition["type"];
+
+type DefinitionDetails = {
+  displayName: string
+}
+
+const MagnetDefinitionDetails : {[key in MagnetDefinitionType]: DefinitionDetails} = {
+  vest: {
+    displayName: "Vest"
+  },
+  stream: {
+    displayName: "Stream"
+  },
+  gift: {
+    displayName: "Gift"
+  }
+}
+
+export const maybeGetMagnetTypeDisplayName = (magnetType: string) : string | undefined => {
+  return (MagnetDefinitionDetails as any)[magnetType]?.displayName;
 }
 
 export type MagnetDefinition = VestMagnetDefinition | StreamMagnetDefinition | GiftMagnetDefinition;
