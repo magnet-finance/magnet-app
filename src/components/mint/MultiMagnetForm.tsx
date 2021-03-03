@@ -5,28 +5,32 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import throttle from 'lodash/throttle';
 import React, { useRef, useState } from 'react';
-import { InProgressMagnetDefinition } from '../../types/magnet';
+import { InProgressMagnetDefinition, MagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
 import { parseGiftFormData } from './GiftForm';
-import { INITIAL_VALUE, MagnetForm } from './MagnetForm';
+import { DEFAULT_FORM_VALUES, MagnetForm } from './MagnetForm';
 import { MintReview } from './MintReview';
 import { parseStreamFormData } from './StreamForm';
 import { parseVestFormData } from './VestForm';
-
 
 const layout = {
   labelCol: { span: 8 },
   wrapperCol: { span: 16 },
 };
 const tailLayout = {
-  wrapperCol: { offset: 8, span: 16 },
+  wrapperCol: { offset: 0, span: 0 },
 };
 
+type Props = {
+  initialSelection?: MagnetDefinition["type"];
+}
 
-export const MultiMagnetForm : React.FC = () => {
+export const MultiMagnetForm : React.FC<Props> = (props) => {
   const [ form ] = Form.useForm()
 
-  const initialInProgressMagnets = parseFormData({magnets: [INITIAL_VALUE]});
+  const initialValue = DEFAULT_FORM_VALUES[props.initialSelection ?? "vest"];
+
+  const initialInProgressMagnets = parseFormData({magnets: [initialValue]});
   const [ inProgressMagnets, setInProgressMagnets] = useState<InProgressMagnetDefinition[]>(initialInProgressMagnets);
 
   // Note(ggranito): Need to useRef to make sure it's the same function across renders
@@ -54,7 +58,7 @@ export const MultiMagnetForm : React.FC = () => {
       onValuesChange={(_, values) => updateTable(values)}
       onFinish={(e) => { console.log(e); console.log(parseFormData(e))}}
     >
-      <Form.List name="magnets" initialValue={[INITIAL_VALUE]}>
+      <Form.List name="magnets" initialValue={[initialValue]}>
         {(fields, {add, remove}) => (
           <>
             {fields.map((f, i) => (
@@ -66,7 +70,7 @@ export const MultiMagnetForm : React.FC = () => {
               type="dashed"
               size="large"
               icon={<PlusOutlined />}
-              onClick={() => add(INITIAL_VALUE)}>
+              onClick={() => add(DEFAULT_FORM_VALUES.vest)}>
               Add another magnet
             </Button>
           </>
@@ -74,8 +78,8 @@ export const MultiMagnetForm : React.FC = () => {
       </Form.List>
       <MintReview magnets={inProgressMagnets}/>
       <Form.Item {...tailLayout}>
-        <Button type="primary" htmlType="submit">
-          Submit
+        <Button style={styles.submitButton} type="primary" htmlType="submit" size="large">
+          Mint Magnets
         </Button>
       </Form.Item>
     </Form>
@@ -107,5 +111,8 @@ const styles : Stylesheet = {
   addMagnetButton: {
     marginTop: 35,
     marginBottom: 35
+  },
+  submitButton: {
+    marginTop: 48,
   }
 }

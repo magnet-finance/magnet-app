@@ -1,32 +1,27 @@
 import { Table } from 'antd';
+import { ColumnsType } from 'antd/lib/table';
 import map from 'lodash/map';
 import React from 'react';
-import { getTokenDisplayString } from '../../logic/tokenType';
-import { InProgressMagnetDefinition } from '../../types/magnet';
+import { InProgressMagnetDefinition, maybeGetMagnetTypeDisplayName } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
+import { TokenLabel } from '../TokenLabel';
 
 type Props = {
   magnets: InProgressMagnetDefinition[]
 }
 
+type DataRow = InProgressMagnetDefinition & {
+  key: string,
+  index: number,
+}
 
 export const MintReview : React.FC<Props> = (props) => {
 
-  const data = map(props.magnets, (mag, i) => {
+  const data : DataRow[] = map(props.magnets, (mag, i) => {
     return {
+      ...mag,
       key: `magnet-${i + 1}`,
       index: i + 1,
-      recipient: mag.recipient,
-      type: {
-        vest: "Vesting",
-        stream: "Streaming",
-        gift: "Bonus"
-      }[mag.type],
-      lifetimeValue: ((mag) => {
-        if (mag.type === "gift") return mag.giftValue;
-        return mag.lifetimeValue;
-      })(mag),
-      tokenType: getTokenDisplayString(mag.tokenType)
     }
   });
 
@@ -37,34 +32,41 @@ export const MintReview : React.FC<Props> = (props) => {
     return v
   };
 
-  const columns = [
+  const columns : ColumnsType<DataRow> = [
     {
-      title: '#',
+      title: <span style={styles.header}>#</span>,
       dataIndex: 'index',
       key: 'index',
     },
     {
-      title: 'Recipient',
+      title: <span style={styles.header}>Recipient</span>,
       dataIndex: 'recipient',
       key: 'recipient',
       render: replaceEmptyCell
     },
     {
-      title: 'Type',
+      title: <span style={styles.header}>Type</span>,
       dataIndex: 'type',
       key: 'type',
+      render: (type: string) => maybeGetMagnetTypeDisplayName(type) ?? type,
     },
     {
-      title: 'Lifetime Value',
+      title: <span style={styles.header}>Lifetime Value</span>,
       dataIndex: 'lifetimeValue',
       key: 'lifetimeValue',
-      render: replaceEmptyCell
+      render: (lifetimeValue: number) => {
+        if (lifetimeValue === undefined) {
+          return replaceEmptyCell(null);
+        } else {
+          return lifetimeValue.toLocaleString();
+        }
+      },
     },
     {
-      title: 'Token',
+      title: <span style={styles.header}>Token</span>,
       dataIndex: 'tokenType',
       key: 'tokenType',
-      render: replaceEmptyCell
+      render: (tokenType: string) => <TokenLabel address={tokenType} />,
     },
   ];
 
@@ -89,6 +91,9 @@ const styles : Stylesheet = {
     borderColor: "#F0F0F0",
     borderRadius: 6,
     overflow: "hidden",
+  },
+  header: {
+    fontWeight: 600,
   },
   emptyCell: {
     color: "#FF0000"

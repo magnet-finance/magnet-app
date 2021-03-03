@@ -32,7 +32,7 @@ export const GiftMagnet: React.FC<Props> = (props) => {
           {props.gift.giftMessage}
         </div>
         <div style={styles.amount}>
-          <span style={styles.number}>{props.gift.giftValue.toLocaleString()}</span>
+          <span style={styles.number}>{props.gift.lifetimeValue.toLocaleString()}</span>
           <TokenLabel address={props.gift.tokenType} />
         </div>
         <Button

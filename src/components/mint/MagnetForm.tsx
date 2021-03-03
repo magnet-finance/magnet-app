@@ -21,7 +21,7 @@ type Props = {
   removeSelf: () => void
 }
 const now = moment();
-const defaultFormValues : {[key in MagnetDefinition["type"]]: any} = {
+export const DEFAULT_FORM_VALUES : {[key in MagnetDefinition["type"]]: any} = {
   vest: {
     type: "vest",
     recipient: "",
@@ -44,7 +44,7 @@ const defaultFormValues : {[key in MagnetDefinition["type"]]: any} = {
     sendTimeDate: now,
     sendTimeTime: now,
     tokenType: "dai",
-    giftValue: 1000
+    lifetimeValue: 1000
   },
   stream: {
     type: "stream",
@@ -57,18 +57,17 @@ const defaultFormValues : {[key in MagnetDefinition["type"]]: any} = {
     tokenType: "dai"
   }
 }
-export const INITIAL_VALUE = defaultFormValues.vest;
 
 export const MagnetForm : React.FC<Props> = (props: Props) => {
 
   const onTypeChange = (event: any) => {
     const newType = event.target?.value;
     if (newType === "vest") {
-      props.setSelfValue(defaultFormValues.vest);
+      props.setSelfValue(DEFAULT_FORM_VALUES.vest);
     } else if (newType === "stream") {
-      props.setSelfValue(defaultFormValues.stream);
+      props.setSelfValue(DEFAULT_FORM_VALUES.stream);
     } else if (newType === "gift") {
-      props.setSelfValue(defaultFormValues.gift);
+      props.setSelfValue(DEFAULT_FORM_VALUES.gift);
     }
   }
 
@@ -98,7 +97,7 @@ export const MagnetForm : React.FC<Props> = (props: Props) => {
                   </Radio.Group>
                 </Form.Item>
                 <Button
-                  style={styles.deleteButton} type="text" shape="circle" size="large"
+                  style={styles.removeButton} type="text" shape="circle" size="large"
                   icon={<MinusCircleOutlined />}
                   onClick={props.removeSelf} />
                 { type === "vest" && <TypeTag svg={VestSvg} text="Vested via Yearn Escrow" /> }
@@ -160,7 +159,7 @@ const styles: Stylesheet = {
     display: "flex",
     alignItems: "flex-start"
   },
-  deleteButton: {
+  removeButton: {
     color: "#8C8C8C",
     paddingTop: 6.4,
     marginLeft: 9,

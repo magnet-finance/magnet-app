@@ -1,4 +1,5 @@
-import { Button, Layout } from 'antd';
+import { Button } from 'antd';
+import Layout, { Content } from "antd/lib/layout/layout";
 import { navigate } from "gatsby";
 import * as React from "react";
 import { Header } from '../components/Header';
@@ -10,12 +11,14 @@ import VestGraphic from '../images/vest.svg';
 import YfiLogo from '../images/yfi.svg';
 import YgiftLogo from '../images/ygift.svg';
 
-const { Content } = Layout;
-
 // markup
 const IndexPage = () => {
-  const goToMint = () => {
-    navigate("/mint");
+  const goToMint = (selection: string) => {
+    navigate("/mint", {
+      state: {
+        initialSelection: selection,
+       },
+    });
   }
 
   return (
@@ -42,7 +45,7 @@ const IndexPage = () => {
                 </div>
               </div>
               <Button
-                onClick={goToMint}
+                onClick={() => goToMint("vest")}
                 style={styles.cardButton}
                 type="primary"
                 size="large">
@@ -64,7 +67,7 @@ const IndexPage = () => {
                 </div>
               </div>
               <Button
-                onClick={goToMint}
+                onClick={() => goToMint("stream")}
                 style={styles.cardButton}
                 type="primary"
                 size="large">
@@ -86,7 +89,7 @@ const IndexPage = () => {
                 </div>
               </div>
               <Button
-                onClick={goToMint}
+                onClick={() => goToMint("gift")}
                 style={styles.cardButton}
                 type="primary"
                 size="large">
@@ -95,12 +98,12 @@ const IndexPage = () => {
             </div>
           </div>
           <Button
-            onClick={goToMint}
+            onClick={() => goToMint("")}
             style={styles.mintMultipleButton}
             size="large"
             type="primary"
             ghost={true}>
-              Mint Multiple
+            Mint Multiple
           </Button>
         </Content>
       </Layout>

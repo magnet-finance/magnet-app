@@ -1,22 +1,30 @@
-import { Layout } from 'antd';
+import Layout, { Content } from "antd/lib/layout/layout";
+import { PageProps } from 'gatsby';
 import * as React from "react";
 import { Header } from '../components/Header';
 import { MultiMagnetForm } from '../components/mint/MultiMagnetForm';
 import { ThemeProvider } from '../components/ThemeProvider';
-
-const { Content } = Layout;
+import { MagnetDefinition } from '../types/magnet';
 
 // markup
-const MintPage = () => {
+const MintPage : React.FC<PageProps> = (props) => {
+  const initialSelection = (() : MagnetDefinition["type"] | undefined => {
+    const passedSelection = (props.location.state as any)?.initialSelection;
+    if (passedSelection === "vest" || passedSelection === "stream" || passedSelection === "gift") {
+      return passedSelection;
+    }
+    return undefined;
+  })();
+
   return (
     <ThemeProvider>
       <Layout>
         <Header />
         <Content  style={styles.content}>
           <div style={styles.title}>Attract and retain contributors</div>
-          <div style={styles.tip}>Tip: This is where you mint (create) new magnets. You can mint a vesting, streaming, or bonus magnet. Feel free to mix and match!</div>
+          <div style={styles.tip}>You can mint (create) vesting, streaming, or gift magnets. Feel free to mix and match!</div>
           <div style={styles.mintTitle}>Mint Magnets</div>
-          <MultiMagnetForm />
+          <MultiMagnetForm initialSelection={initialSelection}/>
         </Content>
       </Layout>
     </ThemeProvider>
@@ -41,7 +49,7 @@ const styles : {[key: string]: React.CSSProperties} = {
     backgroundColor: "#E6F7FF",
     borderRadius: 12,
     fontSize: 16,
-    maxWidth: 580,
+    maxWidth: 517,
     paddingTop: 16,
     paddingBottom: 16,
     paddingLeft: 24,

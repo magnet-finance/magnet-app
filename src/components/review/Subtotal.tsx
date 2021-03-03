@@ -35,21 +35,11 @@ export const Subtotal: React.FC<Props> = (props) => {
     },
   ];
 
-  const getMagnetValue = (magnet: MagnetDefinition) => {
-    if (magnet.type === "vest" || magnet.type === "stream") {
-      return magnet.lifetimeValue;
-    } else if (magnet.type === "gift") {
-      return magnet.giftValue;
-    } else {
-      return 0;
-    }
-  }
-
   const magnetsByToken = groupBy(props.magnets, "tokenType");
   const subtotals = values(mapValues(magnetsByToken, (magnets, tokenType) => {
     return {
       key: `subtotal-${tokenType}`,
-      amount: sumBy(magnets, getMagnetValue),
+      amount: sumBy(magnets, "lifetimeValue"),
       tokenType
     }
   }));
