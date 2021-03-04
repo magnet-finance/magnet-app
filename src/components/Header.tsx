@@ -3,6 +3,7 @@ import { Button, Layout } from 'antd';
 import { navigate } from "gatsby";
 import * as React from "react";
 import Logo from '../images/icon.svg';
+import { Wallet } from './Wallet';
 
 // markup
 export const Header : React.FC = () => {
@@ -10,12 +11,12 @@ export const Header : React.FC = () => {
     navigate("/");
   }
 
-  const goToMint = () => {
-    navigate("/mint");
-  }
-
   const goToReview = () => {
     navigate("/review");
+  }
+
+  const goToMint = () => {
+    navigate("/mint");
   }
 
   return (
@@ -38,6 +39,7 @@ export const Header : React.FC = () => {
           icon={<PlusOutlined />}>
             Mint
         </Button>
+        <Wallet />
       </div>
     </Layout.Header>
   )
