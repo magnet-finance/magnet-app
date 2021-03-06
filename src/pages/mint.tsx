@@ -1,18 +1,9 @@
-import { Web3Provider } from '@ethersproject/providers';
-import { Web3ReactProvider } from "@web3-react/core";
 import Layout, { Content } from "antd/lib/layout/layout";
 import { PageProps } from 'gatsby';
 import * as React from "react";
 import { Header } from '../components/Header';
 import { MultiMagnetForm } from '../components/mint/MultiMagnetForm';
-import { ThemeProvider } from '../components/ThemeProvider';
 import { MagnetDefinition } from '../types/magnet';
-
-function getLibrary(provider: any): Web3Provider {
-  const library = new Web3Provider(provider)
-  library.pollingInterval = 12000
-  return library
-}
 
 // markup
 const MintPage : React.FC<PageProps> = (props) => {
@@ -25,19 +16,15 @@ const MintPage : React.FC<PageProps> = (props) => {
   })();
 
   return (
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <ThemeProvider>
-        <Layout>
-          <Header />
-          <Content  style={styles.content}>
-            <div style={styles.title}>Attract and retain contributors</div>
-            <div style={styles.tip}>You can mint (create) vesting, streaming, or gift magnets. Feel free to mix and match!</div>
-            <div style={styles.mintTitle}>Mint Magnets</div>
-            <MultiMagnetForm initialSelection={initialSelection}/>
-          </Content>
-        </Layout>
-      </ThemeProvider>
-    </Web3ReactProvider>
+    <Layout>
+      <Header />
+      <Content  style={styles.content}>
+        <div style={styles.title}>Attract and retain contributors</div>
+        <div style={styles.tip}>You can mint (create) vesting, streaming, or gift magnets. Feel free to mix and match!</div>
+        <div style={styles.mintTitle}>Mint Magnets</div>
+        <MultiMagnetForm initialSelection={initialSelection}/>
+      </Content>
+    </Layout>
   );
 }
 

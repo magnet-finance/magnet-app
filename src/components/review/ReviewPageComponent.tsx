@@ -6,7 +6,6 @@ import moment from 'moment';
 import * as React from "react";
 import { MagnetDefinition } from "../../types/magnet";
 import { Header } from "../Header";
-import { ThemeProvider } from "../ThemeProvider";
 import { RecipientCard } from "./RecipientCard";
 import { Subtotal } from "./Subtotal";
 
@@ -79,26 +78,24 @@ export const ReviewPageComponent: React.FC = () => {
   const groupedMagnets = groupBy(magnets, "recipient");
 
   return (
-    <ThemeProvider>
-      <Layout>
-        <Header />
-        <Content  style={styles.content}>
-          <div style={styles.title}>Review Mint Transaction</div>
-          {map(groupedMagnets, (magnets, recipient) =>
-            <RecipientCard key={`recipient-card-${recipient}`} recipient={recipient} magnets={magnets} />
-          )}
-          <div style={styles.subtitle}>Total</div>
-          <Subtotal magnets={magnets} />
-          <Button
-            onClick={signTransaction}
-            style={styles.button}
-            type="primary"
-            size="large">
-            Sign Transaction
-          </Button>
-        </Content>
-      </Layout>
-    </ThemeProvider>
+    <Layout>
+      <Header />
+      <Content  style={styles.content}>
+        <div style={styles.title}>Review Mint Transaction</div>
+        {map(groupedMagnets, (magnets, recipient) =>
+          <RecipientCard key={`recipient-card-${recipient}`} recipient={recipient} magnets={magnets} />
+        )}
+        <div style={styles.subtitle}>Total</div>
+        <Subtotal magnets={magnets} />
+        <Button
+          onClick={signTransaction}
+          style={styles.button}
+          type="primary"
+          size="large">
+          Sign Transaction
+        </Button>
+      </Content>
+    </Layout>
   );
 }
 
