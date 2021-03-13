@@ -1,4 +1,5 @@
 import keys from "lodash/keys";
+import toNumber from "lodash/toNumber";
 
 type ContractAddresses = {
   sablierContractAddress: string,
@@ -35,4 +36,4 @@ export const getContractAddresses = (chainId: number) : ContractAddresses => {
   return result;
 }
 
-export const SUPPORTED_CHAINS = keys(ContractAddressMap)
+export const SUPPORTED_CHAINS = keys(ContractAddressMap).map(id => toNumber(id));

@@ -56,7 +56,7 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
 
   const testSubmitFunc = async (formData: any) => {
     const provider = web3.library;
-    const magnets = parseFormData(formData);
+    const magnets = parseFormData(formData, web3.chainId);
     console.log(magnets);
     if (provider == null) {
       return;
@@ -107,7 +107,7 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
   );
 };
 
-const parseFormData = (formData: any) : InProgressMagnetDefinition[] => {
+const parseFormData = (formData: any, chainId?: number) : InProgressMagnetDefinition[] => {
   const magnets = get(formData, "magnets");
   if (!isArray(magnets)) {
     return [];
@@ -116,13 +116,13 @@ const parseFormData = (formData: any) : InProgressMagnetDefinition[] => {
   return flatMap(magnets, (maybeMag) : InProgressMagnetDefinition[] => {
     const type = get(maybeMag, "type");
     if (type === "vest") {
-      return [parseVestFormData(maybeMag)];
+      return [parseVestFormData(maybeMag, chainId)];
     }
     if (type === "stream") {
-      return [parseStreamFormData(maybeMag)];
+      return [parseStreamFormData(maybeMag, chainId)];
     }
     if (type === "gift") {
-      return [parseGiftFormData(maybeMag)];
+      return [parseGiftFormData(maybeMag, chainId)];
     }
     return []
   });

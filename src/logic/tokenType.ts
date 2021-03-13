@@ -1,13 +1,42 @@
+import { getAddress } from "@ethersproject/address";
+import filter from "lodash/filter";
 import find from "lodash/find";
 import includes from "lodash/includes";
 import map from "lodash/map";
+import tokenList from "../logic/tokenList.json";
+import { TokenInfo } from "../types/token";
 
-export const TokenTypes = [
-  { label: 'DAI', value: '0xad6d458402f60fd3bd25163575031acdce07538d' },
-  { label: 'SUSHI', value: '0x3f2f7a251a5b160b8142552197494ae8f7698672' },
-];
+const allTokens: TokenInfo[]  = tokenList.tokens;
 
-export const isTokenType = (tokenType: any) : tokenType is string => includes(map(TokenTypes, "value"), tokenType);
+const ChainIdToTokenList : {[key: number]: TokenInfo[]} = {
+  1: filter(allTokens, token => token.chainId === 1),
+  4: filter(allTokens, token => token.chainId === 4),
+}
 
-export const getTokenDisplayString = (tokenType: any) : string | undefined =>
-  find(TokenTypes, (t) => t.value === tokenType)?.label;
+export const isTokenType = (tokenType: any, chainId?: number) : tokenType is string => {
+  if (chainId == null) {
+    return false;
+  }
+  const tokens = getAllTokens(chainId);
+  return includes(map(tokens, "address"), tokenType);
+}
+
+export const getAllTokens = (chainId?: number): TokenInfo[] => {
+  if (chainId == null) {
+    chainId = 1; // default to mainnet tokens when user has not connected a wallet
+  }
+  return ChainIdToTokenList[chainId];
+}
+
+export const getToken = (tokenType: string, chainId?: number) : TokenInfo | undefined => {
+  if (tokenType == null) {
+    return undefined;
+  }
+  const tokens = getAllTokens(chainId);
+  return find(tokens, (token) => getAddress(token.address) === getAddress(tokenType));
+}
+
+export const getTokenAddress = (tokenSymbol: string, chainId?: number) : string | undefined => {
+  const tokens = getAllTokens(chainId);
+  return find(tokens, (token) => token.symbol === tokenSymbol)?.address;
+}

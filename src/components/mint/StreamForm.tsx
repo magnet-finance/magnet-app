@@ -1,12 +1,15 @@
+import { Web3Provider } from '@ethersproject/providers';
+import { useWeb3React } from '@web3-react/core';
 import { DatePicker, Form, Input, InputNumber, Select, Space, TimePicker } from 'antd';
 import isInteger from 'lodash/isInteger';
 import isString from 'lodash/isString';
 import moment from 'moment';
 import React from 'react';
 import { isTimeUnit, mergeDateAndTime, TimeUnits } from '../../logic/timeSelector';
-import { isTokenType, TokenTypes } from '../../logic/tokenType';
+import { getAllTokens, isTokenType } from '../../logic/tokenType';
 import { InProgressStreamMagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
+import { TokenLabel } from '../TokenLabel';
 
 
 type Props = {
@@ -14,6 +17,9 @@ type Props = {
 }
 
 export const StreamForm : React.FC<Props> = (props) => {
+  const web3 = useWeb3React<Web3Provider>();
+  const tokens = getAllTokens(web3.chainId);
+
   return (
     <>
       <Form.Item
@@ -52,7 +58,15 @@ export const StreamForm : React.FC<Props> = (props) => {
               <InputNumber />
             </Form.Item>
             <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "tokenType"]}>
-              <Select options={TokenTypes} allowClear={false} />
+              <Select allowClear={false} style={styles.tokenSelect}>
+                {tokens.map((token) =>
+                  <Select.Option value={token.address} key={`mint-stream-token-dropdown-${token.address}`}>
+                    <span style={styles.selectOptionContainer}>
+                      <TokenLabel address={token.address} chainId={web3.chainId}/>
+                    </span>
+                  </Select.Option>
+                )}
+              </Select>
             </Form.Item>
           </Space>
       </Form.Item>
@@ -60,7 +74,7 @@ export const StreamForm : React.FC<Props> = (props) => {
   );
 }
 
-export const parseStreamFormData = (formData: any) : InProgressStreamMagnetDefinition =>  {
+export const parseStreamFormData = (formData: any, chainId?: number) : InProgressStreamMagnetDefinition =>  {
 
   const streamMagnetDefinition : InProgressStreamMagnetDefinition = {
     type: "stream"
@@ -84,7 +98,7 @@ export const parseStreamFormData = (formData: any) : InProgressStreamMagnetDefin
 
   // Parse TokenType
   const tokenType = formData.tokenType;
-  if (isTokenType(tokenType)) {
+  if (isTokenType(tokenType, chainId)) {
     streamMagnetDefinition.tokenType = tokenType;
   }
 
@@ -124,5 +138,13 @@ const styles : Stylesheet = {
   label: {
     width: 100,
     textAlign: "left"
+  },
+  tokenSelect: {
+    width: 120,
+  },
+  selectOptionContainer: {
+    height: 29,
+    display: "flex",
+    alignItems: "center",
   }
 }

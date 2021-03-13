@@ -1,4 +1,6 @@
 import { UploadOutlined } from '@ant-design/icons';
+import { Web3Provider } from '@ethersproject/providers';
+import { useWeb3React } from '@web3-react/core';
 import { Button, DatePicker, Form, Input, InputNumber, Radio, Select, Space, TimePicker, Upload } from 'antd';
 import { UploadChangeParam } from 'antd/lib/upload';
 import { UploadFile } from 'antd/lib/upload/interface';
@@ -9,22 +11,21 @@ import moment from 'moment';
 import { UploadRequestOption } from 'rc-upload/lib/interface';
 import React, { useState } from 'react';
 import { mergeDateAndTime } from '../../logic/timeSelector';
-import { isTokenType } from '../../logic/tokenType';
+import { getAllTokens, isTokenType } from '../../logic/tokenType';
 import { InProgressGiftMagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
+import { TokenLabel } from '../TokenLabel';
 
 type Props = {
   parentFieldName: string | number,
   fieldPath: (string | number)[]
 }
 
-const TokensTypes = [
-  { label: 'Sushi', value: 'sushi' },
-  { label: 'DAI', value: 'dai' },
-];
-
 export const GiftForm : React.FC<Props> = (props) => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+
+  const web3 = useWeb3React<Web3Provider>();
+  const tokens = getAllTokens(web3.chainId);
 
   const handleImageChange = (info: UploadChangeParam) => {
     const newFileList = info.fileList.slice(-1);
@@ -82,7 +83,15 @@ export const GiftForm : React.FC<Props> = (props) => {
               <InputNumber />
             </Form.Item>
             <Form.Item name={[props.parentFieldName, "tokenType"]}>
-              <Select options={TokensTypes} allowClear={false} />
+              <Select allowClear={false} style={styles.tokenSelect}>
+                {tokens.map((token) =>
+                  <Select.Option value={token.address} key={`mint-gift-token-dropdown-${token.address}`}>
+                    <span style={styles.selectOptionContainer}>
+                      <TokenLabel address={token.address} chainId={web3.chainId}/>
+                    </span>
+                  </Select.Option>
+                )}
+              </Select>
             </Form.Item>
           </Space>
       </Form.Item>
@@ -114,7 +123,7 @@ export const GiftForm : React.FC<Props> = (props) => {
   );
 }
 
-export const parseGiftFormData = (formData: any) : InProgressGiftMagnetDefinition =>  {
+export const parseGiftFormData = (formData: any, chainId?: number) : InProgressGiftMagnetDefinition =>  {
 
   const giftMagnetDefinition : InProgressGiftMagnetDefinition = {
     type: "gift"
@@ -138,7 +147,7 @@ export const parseGiftFormData = (formData: any) : InProgressGiftMagnetDefinitio
 
   // Parse TokenType
   const tokenType = formData.tokenType;
-  if (isTokenType(tokenType)) {
+  if (isTokenType(tokenType, chainId)) {
     giftMagnetDefinition.tokenType = tokenType;
   }
 
@@ -197,5 +206,13 @@ const styles : Stylesheet = {
   label: {
     width: 100,
     textAlign: "left"
+  },
+  tokenSelect: {
+    width: 120,
+  },
+  selectOptionContainer: {
+    height: 29,
+    display: "flex",
+    alignItems: "center",
   }
 }

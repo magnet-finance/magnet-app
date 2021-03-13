@@ -1,16 +1,18 @@
 import Avatar from "antd/lib/avatar/avatar";
 import * as React from "react";
-import { getTokenDisplayString } from "../logic/tokenType";
+import { getToken } from "../logic/tokenType";
 
 type Props = {
   address: string;
+  chainId?: number;
 }
 
 export const TokenLabel: React.FC<Props> = (props) => {
+  const token = getToken(props.address, props.chainId);
   return (
     <span style={styles.container}>
-      <Avatar style={styles.avatar} />
-      <span style={styles.ticker}>{getTokenDisplayString(props.address)}</span>
+      <Avatar style={styles.avatar} src={token?.logoURI} />
+      <span style={styles.symbol}>{token?.symbol}</span>
     </span>
   );
 }
@@ -24,7 +26,7 @@ const styles : {[key: string]: React.CSSProperties} = {
     width: 22,
     height: 22,
   },
-  ticker: {
+  symbol: {
     fontSize: 14,
     lineHeight: "22px",
     marginLeft: 8,
