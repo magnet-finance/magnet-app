@@ -5,7 +5,7 @@ import { Button } from "antd";
 import * as React from "react";
 import { getConfig } from '../config';
 
-export const injectedConnector = new InjectedConnector({
+const injectedConnector = new InjectedConnector({
   supportedChainIds: [
     getConfig().chainId
   ],

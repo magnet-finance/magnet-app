@@ -7,6 +7,7 @@ import * as React from 'react';
 import StreamSvg from '../../images/sablier.svg';
 import VestSvg from '../../images/yfi.svg';
 import GiftSvg from '../../images/ygift.svg';
+import { TokenTypes } from '../../logic/tokenType';
 import { MagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
 import { GiftForm } from './GiftForm';
@@ -32,7 +33,7 @@ export const DEFAULT_FORM_VALUES : {[key in MagnetDefinition["type"]]: any} = {
     lifetimeValue: 20000,
     startTimeTime: now,
     startTimeDate: now,
-    tokenType: "sushi"
+    tokenType: TokenTypes[1].value
   },
   gift: {
     type: "gift",
@@ -43,7 +44,7 @@ export const DEFAULT_FORM_VALUES : {[key in MagnetDefinition["type"]]: any} = {
     sendTimeType: "now",
     sendTimeDate: now,
     sendTimeTime: now,
-    tokenType: "dai",
+    tokenType: TokenTypes[0].value,
     lifetimeValue: 1000
   },
   stream: {
@@ -54,7 +55,7 @@ export const DEFAULT_FORM_VALUES : {[key in MagnetDefinition["type"]]: any} = {
     lifetimeValue: 20000,
     startTimeTime: now,
     startTimeDate: now,
-    tokenType: "dai"
+    tokenType: TokenTypes[0].value
   }
 }
 

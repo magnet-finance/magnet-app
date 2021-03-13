@@ -1,11 +1,15 @@
 import { PlusOutlined } from '@ant-design/icons';
+import { Web3Provider } from '@ethersproject/providers';
+import { useWeb3React } from '@web3-react/core';
 import { Button, Form } from 'antd';
 import flatMap from 'lodash/flatMap';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import throttle from 'lodash/throttle';
 import React, { useRef, useState } from 'react';
-import { InProgressMagnetDefinition, MagnetDefinition } from '../../types/magnet';
+import { getStreamTxn } from '../../logic/contracts/stream';
+import { executeTransaction } from '../../logic/executeTransaction';
+import { InProgressMagnetDefinition, MagnetDefinition, StreamMagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
 import { parseGiftFormData } from './GiftForm';
 import { DEFAULT_FORM_VALUES, MagnetForm } from './MagnetForm';
@@ -27,6 +31,7 @@ type Props = {
 
 export const MultiMagnetForm : React.FC<Props> = (props) => {
   const [ form ] = Form.useForm()
+  const web3 = useWeb3React<Web3Provider>();
 
   const initialValue = DEFAULT_FORM_VALUES[props.initialSelection ?? "vest"];
 
@@ -49,6 +54,22 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
     updateTable(newFormData);
   };
 
+  const testSubmitFunc = async (formData: any) => {
+    const provider = web3.library;
+    const magnets = parseFormData(formData);
+    console.log(magnets);
+    if (provider == null) {
+      return;
+    }
+    for (const magnet of magnets) {
+      if (magnet.type === "stream") {
+        const txn = await getStreamTxn(magnet as StreamMagnetDefinition, provider)
+        console.log(txn);
+        executeTransaction(txn[0], provider);
+      }
+    }
+  }
+
   return (
     <Form
       {...layout}
@@ -56,7 +77,7 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
       name="multi-magnet"
       colon={false}
       onValuesChange={(_, values) => updateTable(values)}
-      onFinish={(e) => { console.log(e); console.log(parseFormData(e))}}
+      onFinish={testSubmitFunc}
     >
       <Form.List name="magnets" initialValue={[initialValue]}>
         {(fields, {add, remove}) => (

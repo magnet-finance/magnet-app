@@ -1,5 +1,6 @@
 import { Button } from "antd";
 import Layout, { Content } from "antd/lib/layout/layout";
+import { BigNumber } from "ethers";
 import groupBy from "lodash/groupBy";
 import map from "lodash/map";
 import moment from 'moment';
@@ -25,7 +26,7 @@ export const ReviewPageComponent: React.FC = () => {
       startTime: now,
       cliffTime: cliff,
       endTime: end,
-      lifetimeValue: 20000,
+      lifetimeValue: BigNumber.from(20000),
       tokenType: "SUSHI",
     },
     {
@@ -33,7 +34,7 @@ export const ReviewPageComponent: React.FC = () => {
       recipient: "0xmaki.eth",
       startTime: now,
       endTime: end,
-      lifetimeValue: 600000,
+      lifetimeValue: BigNumber.from(600000),
       tokenType: 'DAI',
     },
     {
@@ -43,7 +44,7 @@ export const ReviewPageComponent: React.FC = () => {
       giftName: "pedrowww's launch bonus",
       giftMessage: "Thank you for contributing to the Sushi launch! We’re glad to have you in the community.",
       sendTime: now,
-      lifetimeValue: 1000,
+      lifetimeValue: BigNumber.from(1000),
       tokenType: "DAI",
     },
     {
@@ -52,7 +53,7 @@ export const ReviewPageComponent: React.FC = () => {
       startTime: now,
       cliffTime: cliff,
       endTime: end,
-      lifetimeValue: 20000,
+      lifetimeValue: BigNumber.from(20000),
       tokenType: "SUSHI",
     },
     {
@@ -62,7 +63,7 @@ export const ReviewPageComponent: React.FC = () => {
       giftName: "pedrowww's launch bonus",
       giftMessage: "Thank you for contributing to the Sushi launch! We’re glad to have you in the community.",
       sendTime: now,
-      lifetimeValue: 1000,
+      lifetimeValue: BigNumber.from(1000),
       tokenType: "DAI",
     },
     {
@@ -70,7 +71,7 @@ export const ReviewPageComponent: React.FC = () => {
       recipient: "pedrowww.eth",
       startTime: now,
       endTime: end,
-      lifetimeValue: 600000,
+      lifetimeValue: BigNumber.from(600000),
       tokenType: 'DAI',
     },
   ];

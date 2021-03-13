@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers';
 import { Moment } from 'moment';
 
 export type VestMagnetDefinition = {
@@ -6,7 +7,7 @@ export type VestMagnetDefinition = {
   startTime: Moment,
   cliffTime: Moment,
   endTime: Moment,
-  lifetimeValue: number
+  lifetimeValue: BigNumber
   tokenType: string
 }
 
@@ -15,7 +16,7 @@ export type StreamMagnetDefinition = {
   recipient: string,
   startTime: Moment,
   endTime: Moment,
-  lifetimeValue: number,
+  lifetimeValue: BigNumber,
   tokenType: string
 }
 
@@ -23,7 +24,7 @@ export type GiftMagnetDefinition = {
   type: "gift",
   recipient: string,
   sendTime: Moment,
-  lifetimeValue: number,
+  lifetimeValue: BigNumber,
   tokenType: string,
   giftName: string,
   giftMessage: string,
