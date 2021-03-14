@@ -68,7 +68,7 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
       return;
     }
     if (web3 == null) {
-      console.error("FormSubmissionError: Provider is null");
+      console.error("FormSubmissionError: Web3 is null");
       return;
     }
     const txn = getMagnetsTxn(magnets, web3);
@@ -111,6 +111,9 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
         )}
       </Form.List>
       <MintReview magnets={inProgressMagnets}/>
+      <div style={styles.beta}>Beta Warning: use at your own risk</div>
+      <div style={styles.disclaimer}>Magnet is an unaudited tool. You could lose all your funds. </div>
+      <div style={styles.disclaimer}>By clicking "Mint Magnets" below, you acknowledge this risk and assume all responsibility and liability.</div>
       <Form.Item {...tailLayout}>
         <Button style={styles.submitButton} type="primary" htmlType="submit" size="large">
           Mint Magnets
@@ -145,6 +148,19 @@ const styles : Stylesheet = {
   addMagnetButton: {
     marginTop: 35,
     marginBottom: 35
+  },
+  beta: {
+    marginTop: 48,
+    fontSize: 14,
+    fontWeight: 600,
+    lineHeight: "22px",
+    color: "#8C8C8C",
+  },
+  disclaimer: {
+    fontSize: 14,
+    fontWeight: 300,
+    lineHeight: "22px",
+    color: "#8C8C8C",
   },
   submitButton: {
     marginTop: 48,
