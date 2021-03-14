@@ -6,13 +6,15 @@ export const WalletConnectPageComponent: React.FC = () => {
   return (
     <Content style={styles.content}>
       <Wallet />
+      <div>Magnet only supports injected providers like Metamask for now :)</div>
     </Content>
   );
 }
 
 const styles : {[key: string]: React.CSSProperties} = {
   content: {
-    marginTop: 256,
-    alignItems: "center",
+    display: "flex",
+    textAlign: "center",
+    justifyContent: "center",
   }
 }

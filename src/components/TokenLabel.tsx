@@ -1,14 +1,22 @@
+import { Web3Provider } from '@ethersproject/providers';
+import { useWeb3React } from "@web3-react/core";
 import Avatar from "antd/lib/avatar/avatar";
 import * as React from "react";
-import { getToken } from "../logic/tokenType";
+import { getTokenManager } from "../logic/tokenManager";
 
 type Props = {
   address: string;
-  chainId?: number;
 }
 
 export const TokenLabel: React.FC<Props> = (props) => {
-  const token = getToken(props.address, props.chainId);
+  const provider = useWeb3React<Web3Provider>().library;
+  const tokenManager = getTokenManager(provider);
+  if (provider == null || tokenManager == null) {
+    console.error("TokenLabel Error: No Wallet connected");
+    return null;
+  }
+  const token = tokenManager.getTokenInfo(props.address);
+
   return (
     <span style={styles.container}>
       <Avatar style={styles.avatar} src={token?.logoURI} />

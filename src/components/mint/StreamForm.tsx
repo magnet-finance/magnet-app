@@ -6,19 +6,22 @@ import isString from 'lodash/isString';
 import moment from 'moment';
 import React from 'react';
 import { isTimeUnit, mergeDateAndTime, TimeUnits } from '../../logic/timeSelector';
-import { getAllTokens, isTokenType } from '../../logic/tokenType';
+import { getTokenManager, TokenManager } from '../../logic/tokenManager';
 import { InProgressStreamMagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
 import { TokenLabel } from '../TokenLabel';
-
 
 type Props = {
   parentFieldName: string | number
 }
 
 export const StreamForm : React.FC<Props> = (props) => {
-  const web3 = useWeb3React<Web3Provider>();
-  const tokens = getAllTokens(web3.chainId);
+  const provider = useWeb3React<Web3Provider>().library;
+  const tokenManager = getTokenManager(provider);
+  if (provider == null || tokenManager == null) {
+    console.error("Stream Form Error: No Wallet connected");
+    return null;
+  }
 
   return (
     <>
@@ -57,12 +60,12 @@ export const StreamForm : React.FC<Props> = (props) => {
             <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "lifetimeValue"]}>
               <InputNumber />
             </Form.Item>
-            <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "tokenType"]}>
+            <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "tokenAddress"]}>
               <Select allowClear={false} style={styles.tokenSelect}>
-                {tokens.map((token) =>
+                {tokenManager.tokens.map((token) =>
                   <Select.Option value={token.address} key={`mint-stream-token-dropdown-${token.address}`}>
                     <span style={styles.selectOptionContainer}>
-                      <TokenLabel address={token.address} chainId={web3.chainId}/>
+                      <TokenLabel address={token.address}/>
                     </span>
                   </Select.Option>
                 )}
@@ -74,7 +77,7 @@ export const StreamForm : React.FC<Props> = (props) => {
   );
 }
 
-export const parseStreamFormData = (formData: any, chainId?: number) : InProgressStreamMagnetDefinition =>  {
+export const parseStreamFormData = (formData: any, tokenManager: TokenManager) : InProgressStreamMagnetDefinition =>  {
 
   const streamMagnetDefinition : InProgressStreamMagnetDefinition = {
     type: "stream"
@@ -96,11 +99,9 @@ export const parseStreamFormData = (formData: any, chainId?: number) : InProgres
     streamMagnetDefinition.lifetimeValue = lifetimeValue;
   }
 
-  // Parse TokenType
-  const tokenType = formData.tokenType;
-  if (isTokenType(tokenType, chainId)) {
-    streamMagnetDefinition.tokenType = tokenType;
-  }
+  // Parse TokenAddress
+  const tokenAddress = formData.tokenAddress;
+  streamMagnetDefinition.token = tokenManager.getTokenInfo(tokenAddress);
 
   // Parse Times
   const startTimeDate = formData.startTimeDate;

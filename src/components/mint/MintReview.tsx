@@ -69,7 +69,7 @@ export const MintReview : React.FC<Props> = (props) => {
       title: <span style={styles.header}>Token</span>,
       dataIndex: 'tokenType',
       key: 'tokenType',
-      render: (tokenType: string) => <TokenLabel address={tokenType} chainId={web3.chainId}/>,
+      render: (tokenType: string) => <TokenLabel address={tokenType}/>,
     },
   ];
 
