@@ -1,7 +1,9 @@
 import { Contract } from "@ethersproject/contracts";
 import { Web3Provider } from '@ethersproject/providers';
 import memoize from "lodash/memoize";
+import { TokenInfo } from "../../types/token";
 import { Web3ReactContext } from "../../types/web3ReactContext";
+import erc20Abi from './abi/erc20.json';
 import gnosisMultiSendAbi from './abi/gnosisMultiSend.json';
 import multiSendAbi from './abi/multiSend.json';
 import sablierAbi from './abi/sablier.json';
@@ -45,7 +47,8 @@ export type ContractManager = {
   getYVestFactoryContract: () => Contract,
   getYGiftContract: () => Contract,
   getMultiSendContract: () => Contract,
-  getGnosisMultiSendContract: () => Contract
+  getGnosisMultiSendContract: () => Contract,
+  getTokenContract: (token: TokenInfo) => Contract
 }
 
 const _getContractManagerHelper = memoize((chainId: number, provider: Web3Provider) : ContractManager => {
@@ -77,6 +80,11 @@ const _getContractManagerHelper = memoize((chainId: number, provider: Web3Provid
       gnosisMultiSendAbi,
       provider
     )),
+    getTokenContract: memoize((token) => new Contract(
+      token.address,
+      erc20Abi,
+      provider
+    ))
   }
 })
 

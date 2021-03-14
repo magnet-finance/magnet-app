@@ -30,7 +30,7 @@ const _getTokenManagerHelper = memoize((chainId) : TokenManager => {
     isTokenAddress: memoize((tokenAddress) : tokenAddress is string => includes(map(ChainIdToTokenList[chainId], "address"), tokenAddress)),
     getTokenInfo: memoize((tokenAddress) => find(ChainIdToTokenList[chainId], (token) => getAddress(token.address) === getAddress(tokenAddress))),
     getTokenInfoBySymbol: memoize((tokenSymbol) => find(ChainIdToTokenList[chainId], (token) => token.symbol === tokenSymbol)),
-    convertToDecimals: (amount, tokenInfo) => amount.mul(BigNumber.from(10).pow(tokenInfo.decimals))
+    convertToDecimals: (amount, tokenInfo) => amount.mul(BigNumber.from(10).pow(tokenInfo.decimals)),
   }
 });
 

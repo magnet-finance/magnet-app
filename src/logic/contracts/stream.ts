@@ -3,6 +3,7 @@ import { Transaction } from '../../types/transaction';
 import { Web3ReactContext } from '../../types/web3ReactContext';
 import { getTokenManager } from '../tokenManager';
 import { getContractManager } from './contractManager';
+import { getErc20ApproveTxn } from './erc20';
 
 export const getStreamTxn = (magnet: StreamMagnetDefinition, web3: Web3ReactContext) : Transaction[] => {
   const contractManager = getContractManager(web3);
@@ -14,17 +15,20 @@ export const getStreamTxn = (magnet: StreamMagnetDefinition, web3: Web3ReactCont
   const contract = contractManager.getSablierContract();
   const amount = tokenManager.convertToDecimals(magnet.lifetimeValue, magnet.token);
 
-  // TODO: call approve() first
-
-  return [{
-    to: contract.address,
-    value: Transaction.DEFAULT_VALUE,
-    data: contract.interface.encodeFunctionData("createStream", [
-      magnet.recipient,       // sablier.recipient
-      amount,                 // sablier.deposit
-      magnet.token.address,   // sablier.tokenAddress
-      magnet.startTime.unix(),// sablier.startTime
-      magnet.endTime.unix()   // sablier.startTime
-    ])
-  }];
+  return [
+    // ERC20 Approve
+    getErc20ApproveTxn(magnet.token, contract.address, amount, web3),
+    // Sablier Create Stream
+    {
+      to: contract.address,
+      value: Transaction.DEFAULT_VALUE,
+      data: contract.interface.encodeFunctionData("createStream", [
+        magnet.recipient,       // sablier.recipient
+        amount,                 // sablier.deposit
+        magnet.token.address,   // sablier.tokenAddress
+        magnet.startTime.unix(),// sablier.startTime
+        magnet.endTime.unix()   // sablier.startTime
+      ])
+    }
+  ];
 }
