@@ -1,4 +1,5 @@
 import { getAddress } from "@ethersproject/address";
+import { BigNumber } from "@ethersproject/bignumber";
 import filter from "lodash/filter";
 import find from "lodash/find";
 import includes from "lodash/includes";
@@ -39,4 +40,14 @@ export const getToken = (tokenType: string, chainId?: number) : TokenInfo | unde
 export const getTokenAddress = (tokenSymbol: string, chainId?: number) : string | undefined => {
   const tokens = getAllTokens(chainId);
   return find(tokens, (token) => token.symbol === tokenSymbol)?.address;
+}
+
+/** Convert a user-entered value into the decimal representation of the token's ERC20 contract */
+export const convertToDecimals = (amount: BigNumber, tokenType: string, chainId?: number) : BigNumber => {
+  const token = getToken(tokenType, chainId);
+  if (token == null) {
+    throw Error(`Token Not Found: ${tokenType}`);
+  } else {
+    return amount.mul(BigNumber.from(10).pow(token.decimals));
+  }
 }
