@@ -90,7 +90,7 @@ export const GiftForm : React.FC<Props> = (props) => {
                 {tokenManager.tokens.map((token) =>
                   <Select.Option value={token.address} key={`mint-gift-token-dropdown-${token.address}`}>
                     <span style={styles.selectOptionContainer}>
-                      <TokenLabel address={token.address}/>
+                      <TokenLabel token={token}/>
                     </span>
                   </Select.Option>
                 )}
@@ -150,7 +150,9 @@ export const parseGiftFormData = (formData: any, tokenManager: TokenManager) : I
 
   // Parse Token Address
   const tokenAddress = formData.tokenAddress;
-  giftMagnetDefinition.token = tokenManager.getTokenInfo(tokenAddress);
+  if (tokenManager.isTokenAddress(tokenAddress)) {
+    giftMagnetDefinition.token = tokenManager.getTokenInfo(tokenAddress);
+  }
 
   // Parse Times
   const sendTimeType = formData.sendTimeType;
