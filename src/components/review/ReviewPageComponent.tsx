@@ -1,7 +1,7 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from "@web3-react/core";
 import { Button } from "antd";
-import Layout, { Content } from "antd/lib/layout/layout";
+import { Content } from "antd/lib/layout/layout";
 import { BigNumber } from "ethers";
 import groupBy from "lodash/groupBy";
 import map from "lodash/map";
@@ -9,7 +9,6 @@ import moment from 'moment';
 import * as React from "react";
 import { getTokenManager } from "../../logic/tokenManager";
 import { MagnetDefinition } from "../../types/magnet";
-import { Header } from "../Header";
 import { RecipientCard } from "./RecipientCard";
 import { Subtotal } from "./Subtotal";
 
@@ -17,7 +16,7 @@ export const ReviewPageComponent: React.FC = () => {
   const web3 = useWeb3React<Web3Provider>();
   const tokenManager = getTokenManager(web3);
   if (web3 == null || tokenManager == null) {
-    console.error("Magnet Form Error: No Wallet connected");
+    console.error("Review Page Error: No Wallet connected");
     return null;
   }
 
@@ -89,24 +88,21 @@ export const ReviewPageComponent: React.FC = () => {
   }
 
   return (
-    <Layout>
-      <Header />
-      <Content  style={styles.content}>
-        <div style={styles.title}>Review Mint Transaction</div>
-        {map(groupedMagnets, (magnets, recipient) =>
-          <RecipientCard key={`recipient-card-${recipient}`} recipient={recipient} magnets={magnets} />
-        )}
-        <div style={styles.subtitle}>Total</div>
-        <Subtotal magnets={magnets} />
-        <Button
-          onClick={signTransaction}
-          style={styles.button}
-          type="primary"
-          size="large">
-          Sign Transaction
-        </Button>
-      </Content>
-    </Layout>
+    <Content  style={styles.content}>
+      <div style={styles.title}>Review Mint Transaction</div>
+      {map(groupedMagnets, (magnets, recipient) =>
+        <RecipientCard key={`recipient-card-${recipient}`} recipient={recipient} magnets={magnets} />
+      )}
+      <div style={styles.subtitle}>Total</div>
+      <Subtotal magnets={magnets} />
+      <Button
+        onClick={signTransaction}
+        style={styles.button}
+        type="primary"
+        size="large">
+        Sign Transaction
+      </Button>
+    </Content>
   );
 }
 

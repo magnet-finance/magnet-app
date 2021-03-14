@@ -78,7 +78,7 @@ export const VestForm : React.FC<Props> = (props) => {
                 {tokenManager.tokens.map((token) =>
                   <Select.Option value={token.address} key={`mint-vest-token-dropdown-${token.address}`}>
                     <span style={styles.selectOptionContainer}>
-                      <TokenLabel address={token.address}/>
+                      <TokenLabel token={token}/>
                     </span>
                   </Select.Option>
                 )}
@@ -114,7 +114,9 @@ export const parseVestFormData = (formData: any, tokenManager: TokenManager) : I
 
   // Parse tokenAddress
   const tokenAddress = formData.tokenAddress;
-  vestMagnetDefinition.token = tokenManager.getTokenInfo(tokenAddress);
+  if (tokenManager.isTokenAddress(tokenAddress)) {
+    vestMagnetDefinition.token = tokenManager.getTokenInfo(tokenAddress);
+  }
 
   // Parse Times
   const startTimeDate = formData.startTimeDate;

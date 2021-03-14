@@ -7,6 +7,7 @@ import values from "lodash/values";
 import 'moment-duration-format';
 import * as React from "react";
 import { MagnetDefinition } from "../../types/magnet";
+import { TokenInfo } from "../../types/token";
 import { TokenLabel } from "../TokenLabel";
 
 type Props = {
@@ -16,7 +17,7 @@ type Props = {
 type Subtotal = {
   key: string,
   amount: number,
-  token: string,
+  token: TokenInfo,
 }
 
 export const Subtotal: React.FC<Props> = (props) => {
@@ -31,7 +32,7 @@ export const Subtotal: React.FC<Props> = (props) => {
       title: <span style={styles.header}>Token</span>,
       dataIndex: 'token',
       key: 'token',
-      render: (text, record) => <TokenLabel address={record.token}/>,
+      render: (text, record) => <TokenLabel token={record.token}/>,
     },
   ];
 

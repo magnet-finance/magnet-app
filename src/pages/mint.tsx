@@ -19,7 +19,7 @@ const MintPage : React.FC<PageProps> = (props) => {
   })();
 
   const web3 = useWeb3React<Web3Provider>();
-//  web3.chainId;
+
   return (
     <Layout>
       <Header />

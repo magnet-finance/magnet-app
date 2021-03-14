@@ -3,9 +3,10 @@ import { useWeb3React } from "@web3-react/core";
 import Avatar from "antd/lib/avatar/avatar";
 import * as React from "react";
 import { getTokenManager } from "../logic/tokenManager";
+import { TokenInfo } from '../types/token';
 
 type Props = {
-  address: string;
+  token: TokenInfo | undefined;
 }
 
 export const TokenLabel: React.FC<Props> = (props) => {
@@ -15,12 +16,15 @@ export const TokenLabel: React.FC<Props> = (props) => {
     console.error("TokenLabel Error: No Wallet connected");
     return null;
   }
-  const token = tokenManager.getTokenInfo(props.address);
+
+  const token = props.token;
+  const iconURI = token?.logoURI ?? "";
+  const symbol = token?.symbol ?? "";
 
   return (
     <span style={styles.container}>
-      <Avatar style={styles.avatar} src={token?.logoURI} />
-      <span style={styles.symbol}>{token?.symbol}</span>
+      <Avatar style={styles.avatar} src={iconURI} />
+      <span style={styles.symbol}>{symbol}</span>
     </span>
   );
 }

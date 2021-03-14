@@ -66,7 +66,7 @@ export const MintReview : React.FC<Props> = (props) => {
       title: <span style={styles.header}>Token</span>,
       dataIndex: 'token',
       key: 'token',
-      render: (token: TokenInfo) => <TokenLabel address={token.address}/>,
+      render: (token: TokenInfo) => <TokenLabel token={token}/>,
     },
   ];
 

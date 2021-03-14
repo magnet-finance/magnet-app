@@ -65,7 +65,7 @@ export const StreamForm : React.FC<Props> = (props) => {
                 {tokenManager.tokens.map((token) =>
                   <Select.Option value={token.address} key={`mint-stream-token-dropdown-${token.address}`}>
                     <span style={styles.selectOptionContainer}>
-                      <TokenLabel address={token.address}/>
+                      <TokenLabel token={token}/>
                     </span>
                   </Select.Option>
                 )}
@@ -101,7 +101,9 @@ export const parseStreamFormData = (formData: any, tokenManager: TokenManager) :
 
   // Parse TokenAddress
   const tokenAddress = formData.tokenAddress;
-  streamMagnetDefinition.token = tokenManager.getTokenInfo(tokenAddress);
+  if (tokenManager.isTokenAddress(tokenAddress)) {
+    streamMagnetDefinition.token = tokenManager.getTokenInfo(tokenAddress);
+  }
 
   // Parse Times
   const startTimeDate = formData.startTimeDate;
