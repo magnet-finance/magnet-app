@@ -32,9 +32,9 @@ type Props = {
 export const MultiMagnetForm : React.FC<Props> = (props) => {
   const [ form ] = Form.useForm()
 
-  const provider = useWeb3React<Web3Provider>().library;
-  const tokenManager = getTokenManager(provider);
-  if (provider == null || tokenManager == null) {
+  const web3 = useWeb3React<Web3Provider>();
+  const tokenManager = getTokenManager(web3);
+  if (web3 == null || tokenManager == null) {
     console.error("MultiMagnet Form Error: No Wallet connected");
     return null;
   }
@@ -67,11 +67,11 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
       console.log(magnets);
       return;
     }
-    if (provider == null) {
+    if (web3 == null) {
       console.error("FormSubmissionError: Provider is null");
       return;
     }
-    const txn = getMagnetsTxn(magnets, provider);
+    const txn = getMagnetsTxn(magnets, web3);
     if (txn == null) {
       console.error("FormSubmissionError: Unable to generate txn");
       console.log(magnets);
@@ -80,8 +80,8 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
     console.log("Executing Txn: ");
     console.log(magnets);
     console.log(txn);
-    executeTxn(txn, provider);
-  }, [provider])
+    executeTxn(txn, web3);
+  }, [web3])
 
   return (
     <Form

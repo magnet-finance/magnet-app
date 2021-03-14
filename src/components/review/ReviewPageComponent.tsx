@@ -1,3 +1,5 @@
+import { Web3Provider } from '@ethersproject/providers';
+import { useWeb3React } from "@web3-react/core";
 import { Button } from "antd";
 import Layout, { Content } from "antd/lib/layout/layout";
 import { BigNumber } from "ethers";
@@ -5,14 +7,18 @@ import groupBy from "lodash/groupBy";
 import map from "lodash/map";
 import moment from 'moment';
 import * as React from "react";
+import { getTokenManager } from "../../logic/tokenManager";
 import { MagnetDefinition } from "../../types/magnet";
 import { Header } from "../Header";
 import { RecipientCard } from "./RecipientCard";
 import { Subtotal } from "./Subtotal";
 
 export const ReviewPageComponent: React.FC = () => {
-  const signTransaction = () => {
-    console.log("signing transaction");
+  const web3 = useWeb3React<Web3Provider>();
+  const tokenManager = getTokenManager(web3);
+  if (web3 == null || tokenManager == null) {
+    console.error("Magnet Form Error: No Wallet connected");
+    return null;
   }
 
   /** Spoof magnet data for now */
@@ -27,7 +33,7 @@ export const ReviewPageComponent: React.FC = () => {
       cliffTime: cliff,
       endTime: end,
       lifetimeValue: BigNumber.from(20000),
-      tokenType: "SUSHI",
+      token: tokenManager.getTokenInfoBySymbol("SUSHI") ?? tokenManager.tokens[0],
     },
     {
       type: "stream",
@@ -35,7 +41,7 @@ export const ReviewPageComponent: React.FC = () => {
       startTime: now,
       endTime: end,
       lifetimeValue: BigNumber.from(600000),
-      tokenType: 'DAI',
+      token: tokenManager.getTokenInfoBySymbol("DAI") ?? tokenManager.tokens[0],
     },
     {
       type: "gift",
@@ -45,7 +51,7 @@ export const ReviewPageComponent: React.FC = () => {
       giftMessage: "Thank you for contributing to the Sushi launch! We’re glad to have you in the community.",
       sendTime: now,
       lifetimeValue: BigNumber.from(1000),
-      tokenType: "DAI",
+      token: tokenManager.getTokenInfoBySymbol("DAI") ?? tokenManager.tokens[0],
     },
     {
       type: "vest",
@@ -54,7 +60,7 @@ export const ReviewPageComponent: React.FC = () => {
       cliffTime: cliff,
       endTime: end,
       lifetimeValue: BigNumber.from(20000),
-      tokenType: "SUSHI",
+      token: tokenManager.getTokenInfoBySymbol("SUSHI") ?? tokenManager.tokens[0],
     },
     {
       type: "gift",
@@ -64,7 +70,7 @@ export const ReviewPageComponent: React.FC = () => {
       giftMessage: "Thank you for contributing to the Sushi launch! We’re glad to have you in the community.",
       sendTime: now,
       lifetimeValue: BigNumber.from(1000),
-      tokenType: "DAI",
+      token: tokenManager.getTokenInfoBySymbol("DAI") ?? tokenManager.tokens[0],
     },
     {
       type: "stream",
@@ -72,11 +78,15 @@ export const ReviewPageComponent: React.FC = () => {
       startTime: now,
       endTime: end,
       lifetimeValue: BigNumber.from(600000),
-      tokenType: 'DAI',
+      token: tokenManager.getTokenInfoBySymbol("DAI") ?? tokenManager.tokens[0],
     },
   ];
 
   const groupedMagnets = groupBy(magnets, "recipient");
+
+  const signTransaction = () => {
+    console.log("signing transaction");
+  }
 
   return (
     <Layout>

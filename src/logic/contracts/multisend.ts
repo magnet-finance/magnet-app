@@ -1,6 +1,6 @@
-import { Web3Provider } from '@ethersproject/providers';
 import { utils } from 'ethers';
 import { Transaction } from '../../types/transaction';
+import { Web3ReactContext } from '../../types/web3ReactContext';
 import { getContractManager } from './contractManager';
 
 // Adapted from https://github.com/gnosis/safe-react/blob/94175a6970e4f5e149b83bbe994408d12e91fc5e/src/logic/safe/transactions/multisend.ts
@@ -18,10 +18,10 @@ const encodeTxnsAsMultiSendData = (txns: Transaction[]): string => {
 }
 
 
-export const getMultiSendTxn = (txns: Transaction[], provider?: Web3Provider, forSendingToGnosis = false) : Transaction => {
-  const contractManager = getContractManager(provider);
-  if (provider == null || contractManager == null) {
-    throw Error(`Transaction Error: Either not connected to a wallet or chain is invalid\nProvider: ${provider}`);
+export const getMultiSendTxn = (txns: Transaction[], web3: Web3ReactContext, forSendingToGnosis = false) : Transaction => {
+  const contractManager = getContractManager(web3);
+  if (web3 == null || web3.library == null || contractManager == null) {
+    throw Error(`Transaction Error: wallet not connected or chain ID incompatible`);
   }
 
   const contract = forSendingToGnosis ? contractManager.getGnosisMultiSendContract() : contractManager.getMultiSendContract();

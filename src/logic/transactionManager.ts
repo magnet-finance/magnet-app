@@ -1,26 +1,30 @@
-import { Web3Provider } from "@ethersproject/providers";
 import flatMap from "lodash/flatMap";
 import { MagnetDefinition } from "../types/magnet";
 import { Transaction } from "../types/transaction";
+import { Web3ReactContext } from "../types/web3ReactContext";
 import { getGiftTxn } from "./contracts/gift";
 import { getMultiSendTxn } from "./contracts/multisend";
 import { getStreamTxn } from "./contracts/stream";
 import { getVestTxn } from "./contracts/vest";
 
-export const executeTxn = async (txn: Transaction, provider:  Web3Provider) => {
+export const executeTxn = async (txn: Transaction, web3:  Web3ReactContext) => {
+  const provider = web3.library;
+  if (provider == null) {
+    throw Error("Transaction Execution Error: Provider is null");
+  }
   const result = await provider.getSigner().sendTransaction(txn);
   console.log(result);
   return result;
 };
 
-export const getMagnetsTxn = (magnets: MagnetDefinition[], provider: Web3Provider, forSendingToGnosis=false) : Transaction | undefined => {
+export const getMagnetsTxn = (magnets: MagnetDefinition[], web3: Web3ReactContext, forSendingToGnosis=false) : Transaction | undefined => {
   const allTxns = flatMap(magnets, (m) => {
     if (m.type === "vest") {
-      return getVestTxn(m, provider);
+      return getVestTxn(m, web3);
     } else if (m.type === "stream") {
-      return getStreamTxn(m, provider);
+      return getStreamTxn(m, web3);
     } else if (m.type === "gift") {
-      return getGiftTxn(m, provider);
+      return getGiftTxn(m, web3);
     } else {
       // Should never happen
       return [];
@@ -34,6 +38,6 @@ export const getMagnetsTxn = (magnets: MagnetDefinition[], provider: Web3Provide
     // No need to wrap in multisend if there's only one
     return allTxns[0];
   } else {
-    return getMultiSendTxn(allTxns, provider, forSendingToGnosis);
+    return getMultiSendTxn(allTxns, web3, forSendingToGnosis);
   }
 }

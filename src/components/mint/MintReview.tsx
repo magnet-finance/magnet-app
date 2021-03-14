@@ -1,11 +1,10 @@
-import { Web3Provider } from '@ethersproject/providers';
-import { useWeb3React } from '@web3-react/core';
 import { Table } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import map from 'lodash/map';
 import React from 'react';
 import { InProgressMagnetDefinition, maybeGetMagnetTypeDisplayName } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
+import { TokenInfo } from '../../types/token';
 import { TokenLabel } from '../TokenLabel';
 
 type Props = {
@@ -18,8 +17,6 @@ type DataRow = InProgressMagnetDefinition & {
 }
 
 export const MintReview : React.FC<Props> = (props) => {
-  const web3 = useWeb3React<Web3Provider>();
-
   const data : DataRow[] = map(props.magnets, (mag, i) => {
     return {
       ...mag,
@@ -67,9 +64,9 @@ export const MintReview : React.FC<Props> = (props) => {
     },
     {
       title: <span style={styles.header}>Token</span>,
-      dataIndex: 'tokenType',
-      key: 'tokenType',
-      render: (tokenType: string) => <TokenLabel address={tokenType}/>,
+      dataIndex: 'token',
+      key: 'token',
+      render: (token: TokenInfo) => <TokenLabel address={token.address}/>,
     },
   ];
 

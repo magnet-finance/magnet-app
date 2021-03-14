@@ -1,6 +1,7 @@
 import { Contract } from "@ethersproject/contracts";
 import { Web3Provider } from '@ethersproject/providers';
 import memoize from "lodash/memoize";
+import { Web3ReactContext } from "../../types/web3ReactContext";
 import gnosisMultiSendAbi from './abi/gnosisMultiSend.json';
 import multiSendAbi from './abi/multiSend.json';
 import sablierAbi from './abi/sablier.json';
@@ -79,13 +80,14 @@ const _getContractManagerHelper = memoize((chainId: number, provider: Web3Provid
   }
 })
 
-export const getContractManager = (provider?: Web3Provider) : ContractManager | undefined => {
-  if (provider == null) {
+export const getContractManager = (web3: Web3ReactContext) : ContractManager | undefined => {
+  if (web3 == null || web3.library == null) {
     return undefined;
   }
-  const providerChainId = provider.network.chainId;
-  if (providerChainId == null || ContractAddressMap[providerChainId] == null) {
+  const chainId = web3.chainId;
+  const provider = web3.library;
+  if (chainId == null || ContractAddressMap[chainId] == null || provider == null) {
     return undefined;
   }
-  return _getContractManagerHelper(providerChainId, provider);
+  return _getContractManagerHelper(chainId, provider);
 }

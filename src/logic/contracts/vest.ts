@@ -1,10 +1,10 @@
-import { Web3Provider } from '@ethersproject/providers';
 import { VestMagnetDefinition } from '../../types/magnet';
 import { Transaction } from '../../types/transaction';
+import { Web3ReactContext } from '../../types/web3ReactContext';
 import { getTokenManager } from '../tokenManager';
 import { getContractManager } from './contractManager';
 
-export const getVestTxn = (magnet: VestMagnetDefinition, provider: Web3Provider) : Transaction[] => {
+export const getVestTxn = (magnet: VestMagnetDefinition, web3: Web3ReactContext) : Transaction[] => {
   const start = magnet.startTime.unix();
   const end = magnet.endTime.unix();
   const duration = end - start;
@@ -13,10 +13,10 @@ export const getVestTxn = (magnet: VestMagnetDefinition, provider: Web3Provider)
     throw Error(`Transaction Error: Invalid Times for Vest Contract start:${start} end:${end} cliff:${magnet.cliffTime.unix()}`);
   }
 
-  const contractManager = getContractManager(provider);
-  const tokenManager = getTokenManager(provider);
-  if (provider == null || tokenManager == null || contractManager == null) {
-    throw Error(`Transaction Error: Either not connected to a wallet or chain is invalid\nProvider: ${provider}`);
+  const contractManager = getContractManager(web3);
+  const tokenManager = getTokenManager(web3);
+  if (web3 == null || web3.library == null || tokenManager == null || contractManager == null) {
+    throw Error(`Transaction Error: wallet not connected or chain ID incompatible`);
   }
 
   const contract = contractManager.getYVestFactoryContract();

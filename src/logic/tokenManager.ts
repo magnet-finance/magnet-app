@@ -1,6 +1,5 @@
 import { getAddress } from "@ethersproject/address";
 import { BigNumber } from "@ethersproject/bignumber";
-import { Web3Provider } from '@ethersproject/providers';
 import { memoize } from "lodash";
 import filter from "lodash/filter";
 import find from "lodash/find";
@@ -8,6 +7,7 @@ import includes from "lodash/includes";
 import map from "lodash/map";
 import tokenList from "../logic/tokenList.json";
 import { TokenInfo } from "../types/token";
+import { Web3ReactContext } from "../types/web3ReactContext";
 
 const ChainIdToTokenList : {[key: number]: TokenInfo[]} = {
   1: filter(tokenList.tokens, token => token.chainId === 1),
@@ -34,11 +34,11 @@ const _getTokenManagerHelper = memoize((chainId) : TokenManager => {
   }
 });
 
-export const getTokenManager = (provider?: Web3Provider) : TokenManager | undefined => {
-  if (provider == null) {
+export const getTokenManager = (web3?: Web3ReactContext) : TokenManager | undefined => {
+  if (web3 == null) {
     return undefined;
   }
-  const providerChainId = provider.network.chainId;
+  const providerChainId = web3.chainId;
   if (providerChainId == null || ChainIdToTokenList[providerChainId] == null) {
     return undefined;
   }

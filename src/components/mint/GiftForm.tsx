@@ -24,9 +24,9 @@ type Props = {
 export const GiftForm : React.FC<Props> = (props) => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
-  const provider = useWeb3React<Web3Provider>().library;
-  const tokenManager = getTokenManager(provider);
-  if (provider == null || tokenManager == null) {
+  const web3 = useWeb3React<Web3Provider>();
+  const tokenManager = getTokenManager(web3);
+  if (web3 == null || tokenManager == null) {
     console.error("Gift Form Error: No Wallet connected");
     return null;
   }
