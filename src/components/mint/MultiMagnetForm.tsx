@@ -6,7 +6,7 @@ import flatMap from 'lodash/flatMap';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import throttle from 'lodash/throttle';
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { getStreamTxn } from '../../logic/contracts/stream';
 import { executeTransaction } from '../../logic/executeTransaction';
 import { InProgressMagnetDefinition, MagnetDefinition, StreamMagnetDefinition } from '../../types/magnet';
@@ -35,12 +35,12 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
 
   const initialValue = DEFAULT_FORM_VALUES[props.initialSelection ?? "vest"];
 
-  const initialInProgressMagnets = parseFormData({magnets: [initialValue]});
+  const initialInProgressMagnets = useMemo(() => parseFormData({magnets: [initialValue]}, web3.chainId), [web3]);
   const [ inProgressMagnets, setInProgressMagnets] = useState<InProgressMagnetDefinition[]>(initialInProgressMagnets);
 
   // Note(ggranito): Need to useRef to make sure it's the same function across renders
   const updateTable = useRef(throttle((formData) => {
-    setInProgressMagnets(parseFormData(formData));
+    setInProgressMagnets(parseFormData(formData, web3.chainId));
   }, 200)).current;
 
   const getMagnetFormValueSetter = (index: number) => (value: any) => {

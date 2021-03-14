@@ -70,7 +70,7 @@ export const VestForm : React.FC<Props> = (props) => {
               <InputNumber />
             </Form.Item>
             <Form.Item name={[props.parentFieldName, "tokenType"]}>
-              <Select allowClear={false} style={styles.tokenSelect}>
+              <Select allowClear={false} style={styles.tokenSelect} onChange={(e) => console.log()}>
                 {tokens.map((token) =>
                   <Select.Option value={token.address} key={`mint-vest-token-dropdown-${token.address}`}>
                     <span style={styles.selectOptionContainer}>

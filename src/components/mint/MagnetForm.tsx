@@ -1,4 +1,6 @@
 import { MinusCircleOutlined } from '@ant-design/icons';
+import { Web3Provider } from '@ethersproject/providers';
+import { useWeb3React } from '@web3-react/core';
 import { Button, Form, Radio } from 'antd';
 import { FormListFieldData } from 'antd/lib/form/FormList';
 import get from 'lodash/get';
@@ -7,12 +9,13 @@ import * as React from 'react';
 import StreamSvg from '../../images/sablier.svg';
 import VestSvg from '../../images/yfi.svg';
 import GiftSvg from '../../images/ygift.svg';
-import { getTokenAddress } from '../../logic/tokenType';
+import { getTokenManager, TokenManager } from '../../logic/tokenManager';
 import { MagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
 import { GiftForm } from './GiftForm';
 import { StreamForm } from './StreamForm';
 import { VestForm } from './VestForm';
+
 
 type Props = {
   index: number,
@@ -22,7 +25,7 @@ type Props = {
   removeSelf: () => void
 }
 const now = moment();
-export const DEFAULT_FORM_VALUES : {[key in MagnetDefinition["type"]]: any} = {
+export const DEFAULT_FORM_VALUES = (tokenManager: TokenManager) : {[key in MagnetDefinition["type"]]: any} => ({
   vest: {
     type: "vest",
     recipient: "",
@@ -33,7 +36,7 @@ export const DEFAULT_FORM_VALUES : {[key in MagnetDefinition["type"]]: any} = {
     lifetimeValue: 20000,
     startTimeTime: now,
     startTimeDate: now,
-    tokenType: getTokenAddress("SUSHI", 1),
+    tokenType: tokenManager.getTokenInfoBySymbol("SUSHI")?.address ?? tokenManager.tokens[0].address,
   },
   gift: {
     type: "gift",
@@ -44,7 +47,7 @@ export const DEFAULT_FORM_VALUES : {[key in MagnetDefinition["type"]]: any} = {
     sendTimeType: "now",
     sendTimeDate: now,
     sendTimeTime: now,
-    tokenType: getTokenAddress("DAI", 1),
+    tokenType: tokenManager.getTokenInfoBySymbol("DAI")?.address ?? tokenManager.tokens[0].address,
     lifetimeValue: 1000
   },
   stream: {
@@ -55,20 +58,27 @@ export const DEFAULT_FORM_VALUES : {[key in MagnetDefinition["type"]]: any} = {
     lifetimeValue: 20000,
     startTimeTime: now,
     startTimeDate: now,
-    tokenType: getTokenAddress("DAI", 1),
+    tokenType: tokenManager.getTokenInfoBySymbol("DAI")?.address ?? tokenManager.tokens[0].address,
   }
-}
+});
 
 export const MagnetForm : React.FC<Props> = (props: Props) => {
+
+  const provider = useWeb3React<Web3Provider>().library;
+  const tokenManager = getTokenManager(provider);
+  if (provider == null || tokenManager == null) {
+    console.error("Magnet Form Error: No Wallet connected");
+    return null;
+  }
 
   const onTypeChange = (event: any) => {
     const newType = event.target?.value;
     if (newType === "vest") {
-      props.setSelfValue(DEFAULT_FORM_VALUES.vest);
+      props.setSelfValue(DEFAULT_FORM_VALUES(tokenManager).vest);
     } else if (newType === "stream") {
-      props.setSelfValue(DEFAULT_FORM_VALUES.stream);
+      props.setSelfValue(DEFAULT_FORM_VALUES(tokenManager).stream);
     } else if (newType === "gift") {
-      props.setSelfValue(DEFAULT_FORM_VALUES.gift);
+      props.setSelfValue(DEFAULT_FORM_VALUES(tokenManager).gift);
     }
   }
 
