@@ -6,11 +6,10 @@ import flatMap from 'lodash/flatMap';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import throttle from 'lodash/throttle';
-import React, { useMemo, useRef, useState } from 'react';
-import { getStreamTxn } from '../../logic/contracts/stream';
-import { executeTransaction } from '../../logic/executeTransaction';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { getTokenManager, TokenManager } from '../../logic/tokenManager';
-import { InProgressMagnetDefinition, MagnetDefinition, StreamMagnetDefinition } from '../../types/magnet';
+import { executeTxn, getMagnetsTxn } from '../../logic/transactionManager';
+import { areMagnetDefinitions, InProgressMagnetDefinition, MagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
 import { parseGiftFormData } from './GiftForm';
 import { DEFAULT_FORM_VALUES, MagnetForm } from './MagnetForm';
@@ -61,20 +60,28 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
     updateTable(newFormData);
   };
 
-  const testSubmitFunc = async (formData: any) => {
+  const onSubmit = useCallback(async (formData: any) => {
     const magnets = parseFormData(formData, tokenManager);
-    console.log(magnets);
-    if (provider == null) {
+    if (!areMagnetDefinitions(magnets)){
+      console.error("FormSubmissionError: Magnet definitions are incomplete");
+      console.log(magnets);
       return;
     }
-    for (const magnet of magnets) {
-      if (magnet.type === "stream") {
-        const txn = await getStreamTxn(magnet as StreamMagnetDefinition, provider)
-        console.log(txn);
-        executeTransaction(txn[0], provider);
-      }
+    if (provider == null) {
+      console.error("FormSubmissionError: Provider is null");
+      return;
     }
-  }
+    const txn = getMagnetsTxn(magnets, provider);
+    if (txn == null) {
+      console.error("FormSubmissionError: Unable to generate txn");
+      console.log(magnets);
+      return;
+    }
+    console.log("Executing Txn: ");
+    console.log(magnets);
+    console.log(txn);
+    executeTxn(txn, provider);
+  }, [provider])
 
   return (
     <Form
@@ -83,7 +90,7 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
       name="multi-magnet"
       colon={false}
       onValuesChange={(_, values) => updateTable(values)}
-      onFinish={testSubmitFunc}
+      onFinish={onSubmit}
     >
       <Form.List name="magnets" initialValue={[initialValue]}>
         {(fields, {add, remove}) => (
