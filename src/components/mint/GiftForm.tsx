@@ -11,7 +11,7 @@ import moment from 'moment';
 import { UploadRequestOption } from 'rc-upload/lib/interface';
 import React, { useState } from 'react';
 import { mergeDateAndTime } from '../../logic/timeSelector';
-import { getAllTokens, isTokenType } from '../../logic/tokenType';
+import { getTokenManager, TokenManager } from '../../logic/tokenManager';
 import { InProgressGiftMagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
 import { TokenLabel } from '../TokenLabel';
@@ -24,9 +24,12 @@ type Props = {
 export const GiftForm : React.FC<Props> = (props) => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
-  const web3 = useWeb3React<Web3Provider>();
-  const tokens = getAllTokens(web3.chainId);
-
+  const provider = useWeb3React<Web3Provider>().library;
+  const tokenManager = getTokenManager(provider);
+  if (provider == null || tokenManager == null) {
+    console.error("Gift Form Error: No Wallet connected");
+    return null;
+  }
   const handleImageChange = (info: UploadChangeParam) => {
     const newFileList = info.fileList.slice(-1);
     info.fileList = newFileList;
@@ -82,12 +85,12 @@ export const GiftForm : React.FC<Props> = (props) => {
             <Form.Item name={[props.parentFieldName, "lifetimeValue"]}>
               <InputNumber />
             </Form.Item>
-            <Form.Item name={[props.parentFieldName, "tokenType"]}>
+            <Form.Item name={[props.parentFieldName, "tokenAddress"]}>
               <Select allowClear={false} style={styles.tokenSelect}>
-                {tokens.map((token) =>
+                {tokenManager.tokens.map((token) =>
                   <Select.Option value={token.address} key={`mint-gift-token-dropdown-${token.address}`}>
                     <span style={styles.selectOptionContainer}>
-                      <TokenLabel address={token.address} chainId={web3.chainId}/>
+                      <TokenLabel address={token.address}/>
                     </span>
                   </Select.Option>
                 )}
@@ -123,7 +126,7 @@ export const GiftForm : React.FC<Props> = (props) => {
   );
 }
 
-export const parseGiftFormData = (formData: any, chainId?: number) : InProgressGiftMagnetDefinition =>  {
+export const parseGiftFormData = (formData: any, tokenManager: TokenManager) : InProgressGiftMagnetDefinition =>  {
 
   const giftMagnetDefinition : InProgressGiftMagnetDefinition = {
     type: "gift"
@@ -145,11 +148,9 @@ export const parseGiftFormData = (formData: any, chainId?: number) : InProgressG
     giftMagnetDefinition.lifetimeValue = lifetimeValue;
   }
 
-  // Parse TokenType
-  const tokenType = formData.tokenType;
-  if (isTokenType(tokenType, chainId)) {
-    giftMagnetDefinition.tokenType = tokenType;
-  }
+  // Parse Token Address
+  const tokenAddress = formData.tokenAddress;
+  giftMagnetDefinition.token = tokenManager.getTokenInfo(tokenAddress);
 
   // Parse Times
   const sendTimeType = formData.sendTimeType;

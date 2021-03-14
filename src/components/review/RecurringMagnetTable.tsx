@@ -60,7 +60,7 @@ export const RecurringMagnetTable: React.FC<Props> = (props: Props) => {
       title: <span style={styles.header}>Token</span>,
       dataIndex: 'tokenType',
       key: 'tokenType',
-      render: (tokenType: string) => <TokenLabel address={tokenType} />,
+      render: (tokenType: string) => <TokenLabel address={tokenType}/>,
     },
   ];
 

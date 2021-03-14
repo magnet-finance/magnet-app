@@ -9,6 +9,7 @@ import throttle from 'lodash/throttle';
 import React, { useMemo, useRef, useState } from 'react';
 import { getStreamTxn } from '../../logic/contracts/stream';
 import { executeTransaction } from '../../logic/executeTransaction';
+import { getTokenManager, TokenManager } from '../../logic/tokenManager';
 import { InProgressMagnetDefinition, MagnetDefinition, StreamMagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
 import { parseGiftFormData } from './GiftForm';
@@ -31,16 +32,22 @@ type Props = {
 
 export const MultiMagnetForm : React.FC<Props> = (props) => {
   const [ form ] = Form.useForm()
-  const web3 = useWeb3React<Web3Provider>();
 
-  const initialValue = DEFAULT_FORM_VALUES[props.initialSelection ?? "vest"];
+  const provider = useWeb3React<Web3Provider>().library;
+  const tokenManager = getTokenManager(provider);
+  if (provider == null || tokenManager == null) {
+    console.error("MultiMagnet Form Error: No Wallet connected");
+    return null;
+  }
 
-  const initialInProgressMagnets = useMemo(() => parseFormData({magnets: [initialValue]}, web3.chainId), [web3]);
+  const initialValue = useMemo(() => DEFAULT_FORM_VALUES(tokenManager)[props.initialSelection ?? "vest"], [tokenManager]);
+
+  const initialInProgressMagnets = useMemo(() => parseFormData({magnets: [initialValue]}, tokenManager), [initialValue, tokenManager]);
   const [ inProgressMagnets, setInProgressMagnets] = useState<InProgressMagnetDefinition[]>(initialInProgressMagnets);
 
   // Note(ggranito): Need to useRef to make sure it's the same function across renders
   const updateTable = useRef(throttle((formData) => {
-    setInProgressMagnets(parseFormData(formData, web3.chainId));
+    setInProgressMagnets(parseFormData(formData, tokenManager));
   }, 200)).current;
 
   const getMagnetFormValueSetter = (index: number) => (value: any) => {
@@ -55,8 +62,7 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
   };
 
   const testSubmitFunc = async (formData: any) => {
-    const provider = web3.library;
-    const magnets = parseFormData(formData, web3.chainId);
+    const magnets = parseFormData(formData, tokenManager);
     console.log(magnets);
     if (provider == null) {
       return;
@@ -91,7 +97,7 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
               type="dashed"
               size="large"
               icon={<PlusOutlined />}
-              onClick={() => add(DEFAULT_FORM_VALUES.vest)}>
+              onClick={() => add(DEFAULT_FORM_VALUES(tokenManager).vest)}>
               Add another magnet
             </Button>
           </>
@@ -107,7 +113,7 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
   );
 };
 
-const parseFormData = (formData: any, chainId?: number) : InProgressMagnetDefinition[] => {
+const parseFormData = (formData: any, tokenManager: TokenManager) : InProgressMagnetDefinition[] => {
   const magnets = get(formData, "magnets");
   if (!isArray(magnets)) {
     return [];
@@ -116,13 +122,13 @@ const parseFormData = (formData: any, chainId?: number) : InProgressMagnetDefini
   return flatMap(magnets, (maybeMag) : InProgressMagnetDefinition[] => {
     const type = get(maybeMag, "type");
     if (type === "vest") {
-      return [parseVestFormData(maybeMag, chainId)];
+      return [parseVestFormData(maybeMag, tokenManager)];
     }
     if (type === "stream") {
-      return [parseStreamFormData(maybeMag, chainId)];
+      return [parseStreamFormData(maybeMag, tokenManager)];
     }
     if (type === "gift") {
-      return [parseGiftFormData(maybeMag, chainId)];
+      return [parseGiftFormData(maybeMag, tokenManager)];
     }
     return []
   });

@@ -9,12 +9,9 @@ import map from "lodash/map";
 import tokenList from "../logic/tokenList.json";
 import { TokenInfo } from "../types/token";
 
-
-const allTokens: TokenInfo[]  = tokenList.tokens;
-
 const ChainIdToTokenList : {[key: number]: TokenInfo[]} = {
-  1: filter(allTokens, token => token.chainId === 1),
-  4: filter(allTokens, token => token.chainId === 4),
+  1: filter(tokenList.tokens, token => token.chainId === 1),
+  4: filter(tokenList.tokens, token => token.chainId === 4),
 }
 
 export type TokenManager = {
@@ -26,6 +23,17 @@ export type TokenManager = {
   convertToDecimals: (amount: BigNumber, tokenInfo: TokenInfo) => BigNumber
 };
 
+const _getTokenManagerHelper = memoize((chainId) : TokenManager => {
+  return {
+    chainId,
+    tokens: ChainIdToTokenList[chainId],
+    isTokenAddress: memoize((tokenAddress) : tokenAddress is string => includes(map(ChainIdToTokenList[chainId], "address"), tokenAddress)),
+    getTokenInfo: memoize((tokenAddress) => find(ChainIdToTokenList[chainId], (token) => getAddress(token.address) === getAddress(tokenAddress))),
+    getTokenInfoBySymbol: memoize((tokenSymbol) => find(ChainIdToTokenList[chainId], (token) => token.symbol === tokenSymbol)),
+    convertToDecimals: (amount, tokenInfo) => amount.mul(BigNumber.from(10).pow(tokenInfo.decimals))
+  }
+});
+
 export const getTokenManager = (provider?: Web3Provider) : TokenManager | undefined => {
   if (provider == null) {
     return undefined;
@@ -34,14 +42,5 @@ export const getTokenManager = (provider?: Web3Provider) : TokenManager | undefi
   if (providerChainId == null || ChainIdToTokenList[providerChainId] == null) {
     return undefined;
   }
-  return memoize((chainId) : TokenManager => {
-    return {
-      chainId,
-      tokens: ChainIdToTokenList[chainId],
-      isTokenAddress: memoize((tokenAddress) : tokenAddress is string => includes(map(ChainIdToTokenList[chainId], "address"), tokenAddress)),
-      getTokenInfo: memoize((tokenAddress) => find(ChainIdToTokenList[chainId], (token) => getAddress(token.address) === getAddress(tokenAddress))),
-      getTokenInfoBySymbol: memoize((tokenSymbol) => find(ChainIdToTokenList[chainId], (token) => token.symbol === tokenSymbol)),
-      convertToDecimals: (amount, tokenInfo) => amount.mul(BigNumber.from(10).pow(tokenInfo.decimals))
-    }
-  })(providerChainId);
+  return _getTokenManagerHelper(providerChainId);
 };
