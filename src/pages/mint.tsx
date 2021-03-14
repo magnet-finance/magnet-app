@@ -19,11 +19,11 @@ const MintPage : React.FC<PageProps> = (props) => {
   })();
 
   const web3 = useWeb3React<Web3Provider>();
-
+//  web3.chainId;
   return (
     <Layout>
       <Header />
-      {web3.active? (
+      {web3.chainId ? (
         <Content  style={styles.content}>
           <div style={styles.title}>Attract and retain contributors</div>
           <div style={styles.tip}>You can mint (create) vesting, streaming, or gift magnets. Feel free to mix and match!</div>

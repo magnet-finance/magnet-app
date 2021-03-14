@@ -3,6 +3,7 @@ import { Contract } from 'ethers';
 import memoize from 'lodash/memoize';
 import { StreamMagnetDefinition } from '../../types/magnet';
 import { Transaction } from '../../types/Transaction';
+import { Web3ReactContext } from '../../types/web3ReactContext';
 import { getTokenManager } from '../tokenManager';
 import SablierAbi from './abi/sablier.json';
 import { getContractAddresses } from './contractAddresses';
@@ -12,13 +13,14 @@ const getContract = memoize((provider: Web3Provider) : Contract => {
   return new Contract(sablierAddress, SablierAbi, provider);
 });
 
-export const getStreamTxn = async (magnet: StreamMagnetDefinition, provider: Web3Provider) : Promise<Transaction[]> => {
-  const contract = getContract(provider);
-  const tokenManager = getTokenManager(provider);
-  if (provider == null || tokenManager == null) {
+export const getStreamTxn = async (magnet: StreamMagnetDefinition, web3: Web3ReactContext) : Promise<Transaction[]> => {
+  const tokenManager = getTokenManager(web3);
+  if (web3 == null || web3.library == null || tokenManager == null) {
     throw Error(`Transaction Error: wallet not connected or chain ID incompatible`);
   }
   const amount = tokenManager.convertToDecimals(magnet.lifetimeValue, magnet.token);
+
+  const contract = getContract(web3.library);
 
   // TODO: call approve() first
 

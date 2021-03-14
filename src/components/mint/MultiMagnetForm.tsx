@@ -33,9 +33,9 @@ type Props = {
 export const MultiMagnetForm : React.FC<Props> = (props) => {
   const [ form ] = Form.useForm()
 
-  const provider = useWeb3React<Web3Provider>().library;
-  const tokenManager = getTokenManager(provider);
-  if (provider == null || tokenManager == null) {
+  const web3 = useWeb3React<Web3Provider>();
+  const tokenManager = getTokenManager(web3);
+  if (web3 == null || tokenManager == null) {
     console.error("MultiMagnet Form Error: No Wallet connected");
     return null;
   }
@@ -64,14 +64,14 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
   const testSubmitFunc = async (formData: any) => {
     const magnets = parseFormData(formData, tokenManager);
     console.log(magnets);
-    if (provider == null) {
+    if (web3 == null) {
       return;
     }
     for (const magnet of magnets) {
       if (magnet.type === "stream") {
-        const txn = await getStreamTxn(magnet as StreamMagnetDefinition, provider)
+        const txn = await getStreamTxn(magnet as StreamMagnetDefinition, web3)
         console.log(txn);
-        executeTransaction(txn[0], provider);
+        executeTransaction(txn[0], web3);
       }
     }
   }

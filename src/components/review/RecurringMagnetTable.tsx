@@ -5,6 +5,7 @@ import moment, { Moment } from 'moment';
 import 'moment-duration-format';
 import * as React from "react";
 import { maybeGetMagnetTypeDisplayName, RecurringMagnetDefinition } from "../../types/magnet";
+import { TokenInfo } from "../../types/token";
 import { TokenLabel } from "../TokenLabel";
 
 type Props = {
@@ -58,9 +59,9 @@ export const RecurringMagnetTable: React.FC<Props> = (props: Props) => {
     },
     {
       title: <span style={styles.header}>Token</span>,
-      dataIndex: 'tokenType',
-      key: 'tokenType',
-      render: (tokenType: string) => <TokenLabel address={tokenType}/>,
+      dataIndex: 'token',
+      key: 'token',
+      render: (token: TokenInfo) => <TokenLabel address={token.address}/>,
     },
   ];
 
