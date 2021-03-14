@@ -1,19 +1,15 @@
 import { Web3Provider } from '@ethersproject/providers';
-import { Contract } from 'ethers';
-import memoize from 'lodash/memoize';
 import { GiftMagnetDefinition } from '../../types/magnet';
 import { Transaction } from '../../types/Transaction';
 import { convertToDecimals } from '../tokenType';
-import yGiftAbi from './abi/yGift.json';
-import { getContractAddresses } from './contractAddresses';
+import { getContractManager } from './contractManager';
 
-const getContract = memoize((provider: Web3Provider) : Contract => {
-  const yGiftAddress = getContractAddresses(provider.network.chainId).yGiftContractAddress;
-  return new Contract(yGiftAddress, yGiftAbi, provider);
-});
-
-export const getGiftTxn = async (magnet: GiftMagnetDefinition, provider: Web3Provider) : Promise<Transaction[]> => {
-  const contract = getContract(provider);
+export const getGiftTxn = async (magnet: GiftMagnetDefinition, provider?: Web3Provider) : Promise<Transaction[]> => {
+  const contractManager = getContractManager(provider);
+  if (contractManager == null) {
+    throw Error(`Either not connected to a wallet or chain is invalid\nProvider: ${provider}`);
+  }
+  const contract = contractManager.getYGiftContract();
   const amount = convertToDecimals(magnet.lifetimeValue, magnet.tokenType, provider.network.chainId);
   return [{
     to: contract.address,

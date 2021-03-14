@@ -5,7 +5,7 @@ import { VestMagnetDefinition } from '../../types/magnet';
 import { Transaction } from '../../types/Transaction';
 import { convertToDecimals } from '../tokenType';
 import yVestFactoryAbi from './abi/yVestFactory.json';
-import { getContractAddresses } from './contractAddresses';
+import { getContractAddresses } from './contractManager';
 
 const getContract = memoize((provider: Web3Provider) : Contract => {
   const vestAddress = getContractAddresses(provider.network.chainId).yVestFactoryContractAddress;

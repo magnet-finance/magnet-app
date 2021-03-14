@@ -80,7 +80,7 @@ export const MagnetForm : React.FC<Props> = (props: Props) => {
     } else if (newType === "gift") {
       props.setSelfValue(DEFAULT_FORM_VALUES(tokenManager).gift);
     }
-  }
+  };
 
   const typeDidChange = (prev: any, cur: any) => get(prev, [...props.fieldPath, "type"]) !== get(cur, [...props.fieldPath, "type"]);
 
