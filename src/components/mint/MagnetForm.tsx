@@ -36,7 +36,7 @@ export const DEFAULT_FORM_VALUES = (tokenManager: TokenManager) : {[key in Magne
     lifetimeValue: 20000,
     startTimeTime: now,
     startTimeDate: now,
-    token: tokenManager.getTokenInfoBySymbol("SUSHI") ?? tokenManager.tokens[0],
+    tokenAddress: tokenManager.getTokenInfoBySymbol("SUSHI")?.address ?? tokenManager.tokens[0].address,
   },
   gift: {
     type: "gift",
@@ -47,7 +47,7 @@ export const DEFAULT_FORM_VALUES = (tokenManager: TokenManager) : {[key in Magne
     sendTimeType: "now",
     sendTimeDate: now,
     sendTimeTime: now,
-    token: tokenManager.getTokenInfoBySymbol("DAI") ?? tokenManager.tokens[0],
+    tokenAddress: tokenManager.getTokenInfoBySymbol("DAI")?.address ?? tokenManager.tokens[0].address,
     lifetimeValue: 1000
   },
   stream: {
@@ -58,7 +58,7 @@ export const DEFAULT_FORM_VALUES = (tokenManager: TokenManager) : {[key in Magne
     lifetimeValue: 20000,
     startTimeTime: now,
     startTimeDate: now,
-    token: tokenManager.getTokenInfoBySymbol("DAI") ?? tokenManager.tokens[0],
+    tokenAddress: tokenManager.getTokenInfoBySymbol("DAI")?.address ?? tokenManager.tokens[0].address,
   }
 });
 

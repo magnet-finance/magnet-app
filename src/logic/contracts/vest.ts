@@ -3,6 +3,7 @@ import { Transaction } from '../../types/transaction';
 import { Web3ReactContext } from '../../types/web3ReactContext';
 import { getTokenManager } from '../tokenManager';
 import { getContractManager } from './contractManager';
+import { getErc20ApproveTxn } from './erc20';
 
 export const getVestTxn = (magnet: VestMagnetDefinition, web3: Web3ReactContext) : Transaction[] => {
   const start = magnet.startTime.unix();
@@ -22,16 +23,21 @@ export const getVestTxn = (magnet: VestMagnetDefinition, web3: Web3ReactContext)
   const contract = contractManager.getYVestFactoryContract();
   const amount = tokenManager.convertToDecimals(magnet.lifetimeValue, magnet.token);
 
-  return [{
-    to: contract.address,
-    value: Transaction.DEFAULT_VALUE,
-    data: contract.interface.encodeFunctionData("deploy_vesting_contract", [
-      magnet.token.address,   // yVestFactory.token
-      magnet.recipient,       // yVestFactory.recipient
-      amount,                 // yVestFactory.amount
-      duration,               // yVestFactory.vesting_duration
-      start,                  // yVestFactory.vesting_start
-      durationToCliff         // yVestFactory.cliff_length
-    ])
-  }];
+  return [
+    // Approve ERC20
+    getErc20ApproveTxn(magnet.token, contract.address, amount, web3),
+    // Create Vest Contract
+    {
+      to: contract.address,
+      value: Transaction.DEFAULT_VALUE,
+      data: contract.interface.encodeFunctionData("deploy_vesting_contract(address,address,uint256,uint256,uint256,uint256)", [
+        magnet.token.address,   // yVestFactory.token
+        magnet.recipient,       // yVestFactory.recipient
+        amount,                 // yVestFactory.amount
+        duration,               // yVestFactory.vesting_duration
+        start,                  // yVestFactory.vesting_start
+        durationToCliff         // yVestFactory.cliff_length
+      ])
+    }
+  ];
 }

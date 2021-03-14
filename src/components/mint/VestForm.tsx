@@ -1,7 +1,8 @@
+import { BigNumber } from '@ethersproject/bignumber';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import { DatePicker, Form, Input, InputNumber, Select, Space, TimePicker } from 'antd';
-import isInteger from 'lodash/isInteger';
+import isFinite from 'lodash/isFinite';
 import isString from 'lodash/isString';
 import moment from 'moment';
 import React from 'react';
@@ -108,8 +109,8 @@ export const parseVestFormData = (formData: any, tokenManager: TokenManager) : I
 
   // Parse Lifetime val
   const lifetimeValue = formData.lifetimeValue;
-  if (isInteger(lifetimeValue) && lifetimeValue > 0) {
-    vestMagnetDefinition.lifetimeValue = lifetimeValue;
+  if (isFinite(lifetimeValue) && lifetimeValue > 0) {
+    vestMagnetDefinition.lifetimeValue = BigNumber.from(lifetimeValue);
   }
 
   // Parse tokenAddress
@@ -128,14 +129,14 @@ export const parseVestFormData = (formData: any, tokenManager: TokenManager) : I
     // Parse cliff (needs start time)
     const cliffTimeAmount = formData.cliffTimeAmount;
     const cliffTimeUnit = formData.cliffTimeUnit;
-    if (isInteger(cliffTimeAmount) && cliffTimeAmount >=0 && isTimeUnit(cliffTimeUnit)) {
+    if (isFinite(cliffTimeAmount) && cliffTimeAmount >=0 && isTimeUnit(cliffTimeUnit)) {
       vestMagnetDefinition.cliffTime = moment(startTime).add(cliffTimeAmount, cliffTimeUnit);
     }
 
     // Parse end (needs start time)
     const endTimeAmount = formData.endTimeAmount;
     const endTimeUnit = formData.endTimeUnit;
-    if (isInteger(endTimeAmount) && endTimeAmount >=0 && isTimeUnit(endTimeUnit)) {
+    if (isFinite(endTimeAmount) && endTimeAmount >=0 && isTimeUnit(endTimeUnit)) {
       vestMagnetDefinition.endTime = moment(startTime).add(endTimeAmount, endTimeUnit);
     }
   }

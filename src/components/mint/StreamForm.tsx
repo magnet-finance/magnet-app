@@ -1,7 +1,8 @@
+import { BigNumber } from '@ethersproject/bignumber';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import { DatePicker, Form, Input, InputNumber, Select, Space, TimePicker } from 'antd';
-import isInteger from 'lodash/isInteger';
+import isFinite from 'lodash/isFinite';
 import isString from 'lodash/isString';
 import moment from 'moment';
 import React from 'react';
@@ -95,8 +96,8 @@ export const parseStreamFormData = (formData: any, tokenManager: TokenManager) :
 
   // Parse Lifetime val
   const lifetimeValue = formData.lifetimeValue;
-  if (isInteger(lifetimeValue) && lifetimeValue > 0) {
-    streamMagnetDefinition.lifetimeValue = lifetimeValue;
+  if (isFinite(lifetimeValue) && lifetimeValue > 0) {
+    streamMagnetDefinition.lifetimeValue = BigNumber.from(lifetimeValue);
   }
 
   // Parse TokenAddress
@@ -115,7 +116,7 @@ export const parseStreamFormData = (formData: any, tokenManager: TokenManager) :
     // Parse end (needs start time)
     const endTimeAmount = formData.endTimeAmount;
     const endTimeUnit = formData.endTimeUnit;
-    if (isInteger(endTimeAmount) && endTimeAmount >=0 && isTimeUnit(endTimeUnit)) {
+    if (isFinite(endTimeAmount) && endTimeAmount >=0 && isTimeUnit(endTimeUnit)) {
       streamMagnetDefinition.endTime = moment(startTime).add(endTimeAmount, endTimeUnit);
     }
   }

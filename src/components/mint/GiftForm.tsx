@@ -1,11 +1,12 @@
 import { UploadOutlined } from '@ant-design/icons';
+import { BigNumber } from '@ethersproject/bignumber';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import { Button, DatePicker, Form, Input, InputNumber, Radio, Select, Space, TimePicker, Upload } from 'antd';
 import { UploadChangeParam } from 'antd/lib/upload';
 import { UploadFile } from 'antd/lib/upload/interface';
 import get from 'lodash/get';
-import isInteger from 'lodash/isInteger';
+import isFinite from 'lodash/isFinite';
 import isString from 'lodash/isString';
 import moment from 'moment';
 import { UploadRequestOption } from 'rc-upload/lib/interface';
@@ -144,8 +145,8 @@ export const parseGiftFormData = (formData: any, tokenManager: TokenManager) : I
 
   // Parse Lifetime val
   const lifetimeValue = formData.lifetimeValue;
-  if (isInteger(lifetimeValue) && lifetimeValue > 0) {
-    giftMagnetDefinition.lifetimeValue = lifetimeValue;
+  if (isFinite(lifetimeValue) && lifetimeValue > 0) {
+    giftMagnetDefinition.lifetimeValue = BigNumber.from(lifetimeValue);
   }
 
   // Parse Token Address
