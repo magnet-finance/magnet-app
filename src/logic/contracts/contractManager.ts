@@ -42,7 +42,7 @@ export type ContractManager = {
   getYVestFactoryContract: () => Contract,
   getYGiftContract: () => Contract,
   getGnosisMultiSendContract: () => Contract,
-  getTokenContract: (token: TokenInfo) => Contract
+  getErc20Contract: (token: TokenInfo) => Contract
 }
 
 const _getContractManagerHelper = memoize((chainId: number, provider: Web3Provider) : ContractManager => {
@@ -69,7 +69,7 @@ const _getContractManagerHelper = memoize((chainId: number, provider: Web3Provid
       gnosisMultiSendAbi,
       provider
     )),
-    getTokenContract: memoize((token) => new Contract(
+    getErc20Contract: memoize((token) => new Contract(
       token.address,
       erc20Abi,
       provider

@@ -14,7 +14,7 @@ export const getErc20ApproveTxn = (token: TokenInfo, spenderAddress: string, dec
     throw Error(`Transaction Error: Trying to create Approve for token on wrong chain. Web3ChainID:${web3.chainId} TokenChainId:${token.chainId}`);
   }
 
-  const contract = contractManager.getTokenContract(token);
+  const contract = contractManager.getErc20Contract(token);
   return {
     operation: Operation.CALL,
     to: contract.address,
