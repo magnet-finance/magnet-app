@@ -1,12 +1,14 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
-import { Button, Form } from 'antd';
+import { Button, Form, Input } from 'antd';
+import Avatar from 'antd/lib/avatar/avatar';
 import flatMap from 'lodash/flatMap';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import throttle from 'lodash/throttle';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
+import GnosisLogo from '../../images/gnosis.png';
 import { getTokenManager, TokenManager } from '../../logic/tokenManager';
 import { executeTxn, getMagnetsTxn } from '../../logic/transactionManager';
 import { areMagnetDefinitions, InProgressMagnetDefinition, MagnetDefinition } from '../../types/magnet';
@@ -61,6 +63,7 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
   };
 
   const onSubmit = useCallback(async (formData: any) => {
+    console.log(formData)
     const magnets = parseFormData(formData, tokenManager);
     if (!areMagnetDefinitions(magnets)){
       console.error("FormSubmissionError: Magnet definitions are incomplete");
@@ -92,6 +95,20 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
       onValuesChange={(_, values) => updateTable(values)}
       onFinish={onSubmit}
     >
+      <div style={styles.gnosisContainer}>
+        <div style={styles.gnosisHeader}>
+          <Avatar src={GnosisLogo} style={styles.gnosisHeaderImage} />
+          <span style={styles.gnosisHeaderText}>Gnosis Safe multisig address to fund these magnets</span>
+        </div>
+        <Form.Item
+          label={<div style={styles.gnosisLabel}>Address</div>}
+          labelAlign="left"
+          labelCol={{span: 0}}
+          style={styles.gnosisFormItem}
+          name="gnosisAddress">
+          <Input/>
+        </Form.Item>
+      </div>
       <Form.List name="magnets" initialValue={[initialValue]}>
         {(fields, {add, remove}) => (
           <>
@@ -145,6 +162,36 @@ const parseFormData = (formData: any, tokenManager: TokenManager) : InProgressMa
 }
 
 const styles : Stylesheet = {
+  gnosisContainer: {
+    flex: 1,
+    marginBottom: 0,
+    minWidth: 810
+  },
+  gnosisHeader: {
+    marginTop: 24,
+    marginBottom: 0,
+  },
+  gnosisHeaderImage: {
+    width: 40,
+    height: 40,
+  },
+  gnosisHeaderText: {
+    marginLeft: 16,
+    fontSize: 16,
+    lineHeight: "38px",
+  },
+  gnosisLabel: {
+    width: 100,
+    textAlign: "left",
+  },
+  gnosisFormItem: {
+    marginLeft: 56,
+    marginTop: 24,
+    marginBottom: 60,
+    minWidth: 810,
+    // Hack because @willhennesy didn't do this correctly
+    paddingRight: 165
+  },
   addMagnetButton: {
     marginTop: 35,
     marginBottom: 35
