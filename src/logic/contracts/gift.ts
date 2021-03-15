@@ -1,5 +1,5 @@
 import { GiftMagnetDefinition } from '../../types/magnet';
-import { Transaction } from '../../types/transaction';
+import { Operation, Transaction } from '../../types/transaction';
 import { Web3ReactContext } from '../../types/web3ReactContext';
 import { getTokenManager } from '../tokenManager';
 import { getContractManager } from './contractManager';
@@ -15,6 +15,7 @@ export const getGiftTxn = (magnet: GiftMagnetDefinition, web3: Web3ReactContext)
   const amount = tokenManager.convertToDecimals(magnet.lifetimeValue, magnet.token);
 
   return [{
+    operation: Operation.CALL,
     to: contract.address,
     value: Transaction.DEFAULT_VALUE,
     data: contract.interface.encodeFunctionData("mint", [

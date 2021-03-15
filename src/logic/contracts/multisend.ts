@@ -1,5 +1,5 @@
 import { utils } from 'ethers';
-import { Transaction } from '../../types/transaction';
+import { Operation, Transaction } from '../../types/transaction';
 import { Web3ReactContext } from '../../types/web3ReactContext';
 import { getContractManager } from './contractManager';
 
@@ -7,7 +7,7 @@ import { getContractManager } from './contractManager';
 const encodeTxnsAsMultiSendData = (txns: Transaction[]): string => {
   const joinedTxns = txns.map((tx) =>
       [
-        utils.defaultAbiCoder.encode(['uint8'], [0]).slice(-2),
+        utils.defaultAbiCoder.encode(['uint8'], [tx.operation]).slice(-2),
         utils.defaultAbiCoder.encode(['address'], [tx.to]).slice(-40),
         utils.defaultAbiCoder.encode(['uint256'], [tx.value]).slice(-64),
         utils.defaultAbiCoder.encode(['uint256'], [utils.arrayify(tx.data).length]).slice(-64),
@@ -18,14 +18,15 @@ const encodeTxnsAsMultiSendData = (txns: Transaction[]): string => {
 }
 
 
-export const getMultiSendTxn = (txns: Transaction[], web3: Web3ReactContext, forSendingToGnosis = false) : Transaction => {
+export const getMultiSendTxn = (txns: Transaction[], web3: Web3ReactContext) : Transaction => {
   const contractManager = getContractManager(web3);
   if (web3 == null || web3.library == null || contractManager == null) {
     throw Error(`Transaction Error: wallet not connected or chain ID incompatible`);
   }
 
-  const contract = forSendingToGnosis ? contractManager.getGnosisMultiSendContract() : contractManager.getMultiSendContract();
+  const contract = contractManager.getGnosisMultiSendContract();
   return {
+    operation: Operation.DELEGATE_CALL,
     to: contract.address,
     value: Transaction.DEFAULT_VALUE,
     data: contract.interface.encodeFunctionData("multiSend", [

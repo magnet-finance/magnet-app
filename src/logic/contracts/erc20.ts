@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { TokenInfo } from '../../types/token';
-import { Transaction } from '../../types/transaction';
+import { Operation, Transaction } from '../../types/transaction';
 import { Web3ReactContext } from '../../types/web3ReactContext';
 import { getContractManager } from './contractManager';
 
@@ -16,6 +16,7 @@ export const getErc20ApproveTxn = (token: TokenInfo, spenderAddress: string, dec
 
   const contract = contractManager.getTokenContract(token);
   return {
+    operation: Operation.CALL,
     to: contract.address,
     value: Transaction.DEFAULT_VALUE,
     data: contract.interface.encodeFunctionData("approve", [

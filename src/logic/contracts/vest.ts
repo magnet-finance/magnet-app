@@ -1,5 +1,5 @@
 import { VestMagnetDefinition } from '../../types/magnet';
-import { Transaction } from '../../types/transaction';
+import { Operation, Transaction } from '../../types/transaction';
 import { Web3ReactContext } from '../../types/web3ReactContext';
 import { getTokenManager } from '../tokenManager';
 import { getContractManager } from './contractManager';
@@ -28,6 +28,7 @@ export const getVestTxn = (magnet: VestMagnetDefinition, web3: Web3ReactContext)
     getErc20ApproveTxn(magnet.token, contract.address, amount, web3),
     // Create Vest Contract
     {
+      operation: Operation.CALL,
       to: contract.address,
       value: Transaction.DEFAULT_VALUE,
       data: contract.interface.encodeFunctionData("deploy_vesting_contract(address,address,uint256,uint256,uint256,uint256)", [

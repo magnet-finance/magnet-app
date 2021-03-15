@@ -20,8 +20,8 @@ export const executeTxn = async (txn: Transaction, web3:  Web3ReactContext) => {
   return result;
 };
 
-export const getMagnetsTxn = (magnets: MagnetDefinition[], web3: Web3ReactContext, forSendingToGnosis=false) : Transaction | undefined => {
-  const allTxns = flatMap(magnets, (m) => {
+export const getMagnetsTxns = (magnets: MagnetDefinition[], web3: Web3ReactContext) : Transaction[] => {
+  return flatMap(magnets, (m) => {
     if (m.type === "vest") {
       return getVestTxn(m, web3);
     } else if (m.type === "stream") {
@@ -33,14 +33,15 @@ export const getMagnetsTxn = (magnets: MagnetDefinition[], web3: Web3ReactContex
       return [];
     }
   });
+}
 
-  if (allTxns.length === 0) {
-    // We didn't get any?
+export const getGnosisTxn = (magnets: MagnetDefinition[], web3: Web3ReactContext) : Transaction | undefined => {
+  const txns = getMagnetsTxns(magnets, web3);
+  if (txns.length === 0) {
     return undefined;
-  } else if (allTxns.length === 1) {
-    // No need to wrap in multisend if there's only one
-    return allTxns[0];
+  } else if (txns.length === 1) {
+    return txns[0];
   } else {
-    return getMultiSendTxn(allTxns, web3, forSendingToGnosis);
+    return getMultiSendTxn(txns, web3);
   }
 }
