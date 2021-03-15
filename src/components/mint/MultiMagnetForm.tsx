@@ -105,7 +105,7 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
           labelAlign="left"
           labelCol={{span: 0}}
           style={styles.gnosisFormItem}
-          name="gnosisAddress">
+          name="safeAddress">
           <Input/>
         </Form.Item>
       </div>
