@@ -1,5 +1,9 @@
 
-type Method = "POST" | "GET" | "PUT" | "DELETE:;
+export const JSON_HEADERS = {
+  'Content-Type': 'application/json'
+};
+
+type Method = "POST" | "GET" | "PUT" | "DELETE";
 export const fetchJson = async <ReturnType=unknown>(url: string, method: Method = "GET", body?: object, options: RequestInit={}) : Promise<ReturnType> => {
   try {
     const resp = await fetch(url, {
@@ -11,10 +15,21 @@ export const fetchJson = async <ReturnType=unknown>(url: string, method: Method 
       },
       body: JSON.stringify(body)
     });
-    return (await resp.json()) as ReturnType;
+    if (resp.status >= 400) {
+      //call was unsuccessful
+      console.error(resp);
+      throw Error(`Network Error(${resp.status}): ${method} ${url} failed`)
+    }
+
+    try {
+      return (await resp.json()) as ReturnType;
+    } catch (e) {
+      console.error(resp);
+      throw Error("Network Error: Unable to parse Json");
+    }
   } catch (e) {
     console.error(`Network Error: Unable to call ${method} ${url}`);
-    console.log(JSON.stringify(e.response.data));
+    console.log(e);
     throw e;
   }
 }

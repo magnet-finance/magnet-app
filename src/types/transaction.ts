@@ -1,3 +1,4 @@
+import { BigNumber } from "@ethersproject/bignumber";
 
 export enum Operation {
   CALL = 0,
@@ -7,12 +8,12 @@ export enum Operation {
 export type Transaction = {
   operation: Operation
   to: string;
-  value: string;
+  value: BigNumber;
   data: string;
 };
 
 export const Transaction = {
   DEFAULT_OPERATION: Operation.CALL,
-  DEFAULT_VALUE: '0x0',
+  DEFAULT_VALUE: BigNumber.from(0),
   DEFAULT_DATA: '0x'
 }

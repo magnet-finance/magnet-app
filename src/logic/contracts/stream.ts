@@ -1,5 +1,5 @@
 import { StreamMagnetDefinition } from '../../types/magnet';
-import { Transaction } from '../../types/transaction';
+import { Operation, Transaction } from '../../types/transaction';
 import { Web3ReactContext } from '../../types/web3ReactContext';
 import { getTokenManager } from '../tokenManager';
 import { getContractManager } from './contractManager';
@@ -20,6 +20,7 @@ export const getStreamTxn = (magnet: StreamMagnetDefinition, web3: Web3ReactCont
     getErc20ApproveTxn(magnet.token, contract.address, amount, web3),
     // Sablier Create Stream
     {
+      operation: Operation.CALL,
       to: contract.address,
       value: Transaction.DEFAULT_VALUE,
       data: contract.interface.encodeFunctionData("createStream", [

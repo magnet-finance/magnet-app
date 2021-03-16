@@ -1,4 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons';
+import { getAddress, isAddress } from '@ethersproject/address';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import { Button, Form, Input } from 'antd';
@@ -9,8 +10,8 @@ import isArray from 'lodash/isArray';
 import throttle from 'lodash/throttle';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import GnosisLogo from '../../images/gnosis.png';
+import { getGnosisManager } from '../../logic/gnosisManager';
 import { getTokenManager, TokenManager } from '../../logic/tokenManager';
-import { executeTxn, getMagnetsTxn } from '../../logic/transactionManager';
 import { areMagnetDefinitions, InProgressMagnetDefinition, MagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
 import { parseGiftFormData } from './GiftForm';
@@ -43,12 +44,12 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
 
   const initialValue = useMemo(() => DEFAULT_FORM_VALUES(tokenManager)[props.initialSelection ?? "vest"], [tokenManager]);
 
-  const initialInProgressMagnets = useMemo(() => parseFormData({magnets: [initialValue]}, tokenManager), [initialValue, tokenManager]);
+  const initialInProgressMagnets = useMemo(() => parseFormData({magnets: [initialValue]}, tokenManager).magnets, [initialValue, tokenManager]);
   const [ inProgressMagnets, setInProgressMagnets] = useState<InProgressMagnetDefinition[]>(initialInProgressMagnets);
 
   // Note(ggranito): Need to useRef to make sure it's the same function across renders
   const updateTable = useRef(throttle((formData) => {
-    setInProgressMagnets(parseFormData(formData, tokenManager));
+    setInProgressMagnets(parseFormData(formData, tokenManager).magnets);
   }, 200)).current;
 
   const getMagnetFormValueSetter = (index: number) => (value: any) => {
@@ -64,26 +65,29 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
 
   const onSubmit = useCallback(async (formData: any) => {
     console.log(formData)
-    const magnets = parseFormData(formData, tokenManager);
+    const {
+      magnets,
+      safeAddress
+    } = parseFormData(formData, tokenManager);
     if (!areMagnetDefinitions(magnets)){
       console.error("FormSubmissionError: Magnet definitions are incomplete");
       console.log(magnets);
+      return;
+    }
+    if (safeAddress == null || !isAddress(safeAddress)) {
+      console.error(`FormSubmissionError: Invalid Safe Addres ${safeAddress}`);
       return;
     }
     if (web3 == null) {
       console.error("FormSubmissionError: Web3 is null");
       return;
     }
-    const txn = getMagnetsTxn(magnets, web3);
-    if (txn == null) {
-      console.error("FormSubmissionError: Unable to generate txn");
-      console.log(magnets);
+    const gnosisManager = getGnosisManager(web3);
+    if (gnosisManager == null) {
+      console.error("FormSubmissionError: Unable to get GnosisManager");
       return;
     }
-    console.log("Executing Txn: ");
-    console.log(magnets);
-    console.log(txn);
-    executeTxn(txn, web3);
+    gnosisManager.submitMagnets(magnets, safeAddress)
   }, [web3])
 
   return (
@@ -140,25 +144,44 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
   );
 };
 
-const parseFormData = (formData: any, tokenManager: TokenManager) : InProgressMagnetDefinition[] => {
-  const magnets = get(formData, "magnets");
-  if (!isArray(magnets)) {
-    return [];
-  }
+type ParsedFormData = {
+  magnets: InProgressMagnetDefinition[],
+  safeAddress?: string
+};
+const parseFormData = (formData: any, tokenManager: TokenManager) : ParsedFormData => {
+  const parsedSafeAddress = (() => {
+    try {
+      return getAddress(get(formData, "safeAddress"));
+    } catch {
+      return undefined;
+    }
+  })();
 
-  return flatMap(magnets, (maybeMag) : InProgressMagnetDefinition[] => {
-    const type = get(maybeMag, "type");
-    if (type === "vest") {
-      return [parseVestFormData(maybeMag, tokenManager)];
+  const parsedMagnets = (() => {
+    const magnets = get(formData, "magnets");
+    if (!isArray(magnets)) {
+      return [];
     }
-    if (type === "stream") {
-      return [parseStreamFormData(maybeMag, tokenManager)];
-    }
-    if (type === "gift") {
-      return [parseGiftFormData(maybeMag, tokenManager)];
-    }
-    return []
-  });
+
+    return flatMap(magnets, (maybeMag) : InProgressMagnetDefinition[] => {
+      const type = get(maybeMag, "type");
+      if (type === "vest") {
+        return [parseVestFormData(maybeMag, tokenManager)];
+      }
+      if (type === "stream") {
+        return [parseStreamFormData(maybeMag, tokenManager)];
+      }
+      if (type === "gift") {
+        return [parseGiftFormData(maybeMag, tokenManager)];
+      }
+      return []
+    });
+  })();
+
+  return {
+    safeAddress: parsedSafeAddress,
+    magnets: parsedMagnets
+  }
 }
 
 const styles : Stylesheet = {
