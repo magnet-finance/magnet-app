@@ -3,12 +3,10 @@ import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { Button } from "antd";
 import * as React from "react";
-import { getConfig } from '../config';
+import { ChainManager } from '../logic/chainManager';
 
-export const injectedConnector = new InjectedConnector({
-  supportedChainIds: [
-    getConfig().chainId
-  ],
+const injectedConnector = new InjectedConnector({
+  supportedChainIds: ChainManager.SUPPORTED_CHAINS,
 })
 
 export const Wallet: React.FC = () => {

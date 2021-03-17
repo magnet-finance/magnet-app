@@ -1,11 +1,18 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Form } from 'antd';
+import { getAddress, isAddress } from '@ethersproject/address';
+import { Web3Provider } from '@ethersproject/providers';
+import { useWeb3React } from '@web3-react/core';
+import { Button, Form, Input } from 'antd';
+import Avatar from 'antd/lib/avatar/avatar';
 import flatMap from 'lodash/flatMap';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import throttle from 'lodash/throttle';
-import React, { useRef, useState } from 'react';
-import { InProgressMagnetDefinition, MagnetDefinition } from '../../types/magnet';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import GnosisLogo from '../../images/gnosis.png';
+import { getGnosisManager } from '../../logic/gnosisManager';
+import { getTokenManager, TokenManager } from '../../logic/tokenManager';
+import { areMagnetDefinitions, InProgressMagnetDefinition, MagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
 import { parseGiftFormData } from './GiftForm';
 import { DEFAULT_FORM_VALUES, MagnetForm } from './MagnetForm';
@@ -28,14 +35,21 @@ type Props = {
 export const MultiMagnetForm : React.FC<Props> = (props) => {
   const [ form ] = Form.useForm()
 
-  const initialValue = DEFAULT_FORM_VALUES[props.initialSelection ?? "vest"];
+  const web3 = useWeb3React<Web3Provider>();
+  const tokenManager = getTokenManager(web3);
+  if (web3 == null || tokenManager == null) {
+    console.error("MultiMagnet Form Error: No Wallet connected");
+    return null;
+  }
 
-  const initialInProgressMagnets = parseFormData({magnets: [initialValue]});
+  const initialValue = useMemo(() => DEFAULT_FORM_VALUES(tokenManager)[props.initialSelection ?? "vest"], [tokenManager]);
+
+  const initialInProgressMagnets = useMemo(() => parseFormData({magnets: [initialValue]}, tokenManager).magnets, [initialValue, tokenManager]);
   const [ inProgressMagnets, setInProgressMagnets] = useState<InProgressMagnetDefinition[]>(initialInProgressMagnets);
 
   // Note(ggranito): Need to useRef to make sure it's the same function across renders
   const updateTable = useRef(throttle((formData) => {
-    setInProgressMagnets(parseFormData(formData));
+    setInProgressMagnets(parseFormData(formData, tokenManager).magnets);
   }, 200)).current;
 
   const getMagnetFormValueSetter = (index: number) => (value: any) => {
@@ -49,6 +63,33 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
     updateTable(newFormData);
   };
 
+  const onSubmit = useCallback(async (formData: any) => {
+    console.log(formData)
+    const {
+      magnets,
+      safeAddress
+    } = parseFormData(formData, tokenManager);
+    if (!areMagnetDefinitions(magnets)){
+      console.error("FormSubmissionError: Magnet definitions are incomplete");
+      console.log(magnets);
+      return;
+    }
+    if (safeAddress == null || !isAddress(safeAddress)) {
+      console.error(`FormSubmissionError: Invalid Safe Address ${safeAddress}`);
+      return;
+    }
+    if (web3 == null) {
+      console.error("FormSubmissionError: Web3 is null");
+      return;
+    }
+    const gnosisManager = getGnosisManager(web3);
+    if (gnosisManager == null) {
+      console.error("FormSubmissionError: Unable to get GnosisManager");
+      return;
+    }
+    gnosisManager.submitMagnets(magnets, safeAddress)
+  }, [web3])
+
   return (
     <Form
       {...layout}
@@ -56,8 +97,22 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
       name="multi-magnet"
       colon={false}
       onValuesChange={(_, values) => updateTable(values)}
-      onFinish={(e) => { console.log(e); console.log(parseFormData(e))}}
+      onFinish={onSubmit}
     >
+      <div style={styles.gnosisContainer}>
+        <div style={styles.gnosisHeader}>
+          <Avatar src={GnosisLogo} style={styles.gnosisHeaderImage} />
+          <span style={styles.gnosisHeaderText}>Gnosis Safe multisig address to fund these magnets</span>
+        </div>
+        <Form.Item
+          label={<div style={styles.gnosisLabel}>Address</div>}
+          labelAlign="left"
+          labelCol={{span: 0}}
+          style={styles.gnosisFormItem}
+          name="safeAddress">
+          <Input/>
+        </Form.Item>
+      </div>
       <Form.List name="magnets" initialValue={[initialValue]}>
         {(fields, {add, remove}) => (
           <>
@@ -70,13 +125,17 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
               type="dashed"
               size="large"
               icon={<PlusOutlined />}
-              onClick={() => add(DEFAULT_FORM_VALUES.vest)}>
+              onClick={() => add(DEFAULT_FORM_VALUES(tokenManager).vest)}>
               Add another magnet
             </Button>
           </>
         )}
       </Form.List>
       <MintReview magnets={inProgressMagnets}/>
+      <div style={styles.beta}>Beta Warning: use at your own risk</div>
+      <div style={styles.disclaimer}>Please take note that this is a beta version feature and is provided on an "as is" and "as available" basis.</div>
+      <div style={styles.disclaimer}>Magnet or its developers do not give any warranties and will not be liable for any loss, direct or indirect through continued use of this feature.</div>
+      <div style={styles.disclaimer}>By clicking "Mint Magnets" below, you acknowledge this risk and assume all responsibility.</div>
       <Form.Item {...tailLayout}>
         <Button style={styles.submitButton} type="primary" htmlType="submit" size="large">
           Mint Magnets
@@ -86,31 +145,93 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
   );
 };
 
-const parseFormData = (formData: any) : InProgressMagnetDefinition[] => {
-  const magnets = get(formData, "magnets");
-  if (!isArray(magnets)) {
-    return [];
-  }
+type ParsedFormData = {
+  magnets: InProgressMagnetDefinition[],
+  safeAddress?: string
+};
+const parseFormData = (formData: any, tokenManager: TokenManager) : ParsedFormData => {
+  const parsedSafeAddress = (() => {
+    try {
+      return getAddress(get(formData, "safeAddress"));
+    } catch {
+      return undefined;
+    }
+  })();
 
-  return flatMap(magnets, (maybeMag) : InProgressMagnetDefinition[] => {
-    const type = get(maybeMag, "type");
-    if (type === "vest") {
-      return [parseVestFormData(maybeMag)];
+  const parsedMagnets = (() => {
+    const magnets = get(formData, "magnets");
+    if (!isArray(magnets)) {
+      return [];
     }
-    if (type === "stream") {
-      return [parseStreamFormData(maybeMag)];
-    }
-    if (type === "gift") {
-      return [parseGiftFormData(maybeMag)];
-    }
-    return []
-  });
+
+    return flatMap(magnets, (maybeMag) : InProgressMagnetDefinition[] => {
+      const type = get(maybeMag, "type");
+      if (type === "vest") {
+        return [parseVestFormData(maybeMag, tokenManager)];
+      }
+      if (type === "stream") {
+        return [parseStreamFormData(maybeMag, tokenManager)];
+      }
+      if (type === "gift") {
+        return [parseGiftFormData(maybeMag, tokenManager)];
+      }
+      return []
+    });
+  })();
+
+  return {
+    safeAddress: parsedSafeAddress,
+    magnets: parsedMagnets
+  }
 }
 
 const styles : Stylesheet = {
+  gnosisContainer: {
+    flex: 1,
+    marginBottom: 0,
+    minWidth: 810
+  },
+  gnosisHeader: {
+    marginTop: 24,
+    marginBottom: 0,
+  },
+  gnosisHeaderImage: {
+    width: 40,
+    height: 40,
+  },
+  gnosisHeaderText: {
+    marginLeft: 16,
+    fontSize: 16,
+    lineHeight: "38px",
+  },
+  gnosisLabel: {
+    width: 100,
+    textAlign: "left",
+  },
+  gnosisFormItem: {
+    marginLeft: 56,
+    marginTop: 24,
+    marginBottom: 60,
+    minWidth: 810,
+    // Hack because @willhennesy didn't do this correctly
+    paddingRight: 165
+  },
   addMagnetButton: {
     marginTop: 35,
     marginBottom: 35
+  },
+  beta: {
+    marginTop: 48,
+    fontSize: 14,
+    fontWeight: 600,
+    lineHeight: "22px",
+    color: "#8C8C8C",
+  },
+  disclaimer: {
+    fontSize: 14,
+    fontWeight: 300,
+    lineHeight: "22px",
+    color: "#8C8C8C",
   },
   submitButton: {
     marginTop: 48,

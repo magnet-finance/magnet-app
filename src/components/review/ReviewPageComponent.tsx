@@ -1,17 +1,23 @@
+import { Web3Provider } from '@ethersproject/providers';
+import { useWeb3React } from "@web3-react/core";
 import { Button } from "antd";
-import Layout, { Content } from "antd/lib/layout/layout";
+import { Content } from "antd/lib/layout/layout";
+import { BigNumber } from "ethers";
 import groupBy from "lodash/groupBy";
 import map from "lodash/map";
 import moment from 'moment';
 import * as React from "react";
+import { getTokenManager } from "../../logic/tokenManager";
 import { MagnetDefinition } from "../../types/magnet";
-import { Header } from "../Header";
 import { RecipientCard } from "./RecipientCard";
 import { Subtotal } from "./Subtotal";
 
 export const ReviewPageComponent: React.FC = () => {
-  const signTransaction = () => {
-    console.log("signing transaction");
+  const web3 = useWeb3React<Web3Provider>();
+  const tokenManager = getTokenManager(web3);
+  if (web3 == null || tokenManager == null) {
+    console.error("Review Page Error: No Wallet connected");
+    return null;
   }
 
   /** Spoof magnet data for now */
@@ -25,16 +31,16 @@ export const ReviewPageComponent: React.FC = () => {
       startTime: now,
       cliffTime: cliff,
       endTime: end,
-      lifetimeValue: 20000,
-      tokenType: "SUSHI",
+      lifetimeValue: BigNumber.from(20000),
+      token: tokenManager.getTokenInfoBySymbol("SUSHI") ?? tokenManager.tokens[0],
     },
     {
       type: "stream",
       recipient: "0xmaki.eth",
       startTime: now,
       endTime: end,
-      lifetimeValue: 600000,
-      tokenType: 'DAI',
+      lifetimeValue: BigNumber.from(600000),
+      token: tokenManager.getTokenInfoBySymbol("DAI") ?? tokenManager.tokens[0],
     },
     {
       type: "gift",
@@ -43,8 +49,8 @@ export const ReviewPageComponent: React.FC = () => {
       giftName: "pedrowww's launch bonus",
       giftMessage: "Thank you for contributing to the Sushi launch! We’re glad to have you in the community.",
       sendTime: now,
-      lifetimeValue: 1000,
-      tokenType: "DAI",
+      lifetimeValue: BigNumber.from(1000),
+      token: tokenManager.getTokenInfoBySymbol("DAI") ?? tokenManager.tokens[0],
     },
     {
       type: "vest",
@@ -52,8 +58,8 @@ export const ReviewPageComponent: React.FC = () => {
       startTime: now,
       cliffTime: cliff,
       endTime: end,
-      lifetimeValue: 20000,
-      tokenType: "SUSHI",
+      lifetimeValue: BigNumber.from(20000),
+      token: tokenManager.getTokenInfoBySymbol("SUSHI") ?? tokenManager.tokens[0],
     },
     {
       type: "gift",
@@ -62,40 +68,41 @@ export const ReviewPageComponent: React.FC = () => {
       giftName: "pedrowww's launch bonus",
       giftMessage: "Thank you for contributing to the Sushi launch! We’re glad to have you in the community.",
       sendTime: now,
-      lifetimeValue: 1000,
-      tokenType: "DAI",
+      lifetimeValue: BigNumber.from(1000),
+      token: tokenManager.getTokenInfoBySymbol("DAI") ?? tokenManager.tokens[0],
     },
     {
       type: "stream",
       recipient: "pedrowww.eth",
       startTime: now,
       endTime: end,
-      lifetimeValue: 600000,
-      tokenType: 'DAI',
+      lifetimeValue: BigNumber.from(600000),
+      token: tokenManager.getTokenInfoBySymbol("DAI") ?? tokenManager.tokens[0],
     },
   ];
 
   const groupedMagnets = groupBy(magnets, "recipient");
 
+  const signTransaction = () => {
+    console.log("signing transaction");
+  }
+
   return (
-    <Layout>
-      <Header />
-      <Content  style={styles.content}>
-        <div style={styles.title}>Review Mint Transaction</div>
-        {map(groupedMagnets, (magnets, recipient) =>
-          <RecipientCard key={`recipient-card-${recipient}`} recipient={recipient} magnets={magnets} />
-        )}
-        <div style={styles.subtitle}>Total</div>
-        <Subtotal magnets={magnets} />
-        <Button
-          onClick={signTransaction}
-          style={styles.button}
-          type="primary"
-          size="large">
-          Sign Transaction
-        </Button>
-      </Content>
-    </Layout>
+    <Content  style={styles.content}>
+      <div style={styles.title}>Review Mint Transaction</div>
+      {map(groupedMagnets, (magnets, recipient) =>
+        <RecipientCard key={`recipient-card-${recipient}`} recipient={recipient} magnets={magnets} />
+      )}
+      <div style={styles.subtitle}>Total</div>
+      <Subtotal magnets={magnets} />
+      <Button
+        onClick={signTransaction}
+        style={styles.button}
+        type="primary"
+        size="large">
+        Sign Transaction
+      </Button>
+    </Content>
   );
 }
 

@@ -4,6 +4,7 @@ import map from 'lodash/map';
 import React from 'react';
 import { InProgressMagnetDefinition, maybeGetMagnetTypeDisplayName } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
+import { TokenInfo } from '../../types/token';
 import { TokenLabel } from '../TokenLabel';
 
 type Props = {
@@ -16,7 +17,6 @@ type DataRow = InProgressMagnetDefinition & {
 }
 
 export const MintReview : React.FC<Props> = (props) => {
-
   const data : DataRow[] = map(props.magnets, (mag, i) => {
     return {
       ...mag,
@@ -64,9 +64,9 @@ export const MintReview : React.FC<Props> = (props) => {
     },
     {
       title: <span style={styles.header}>Token</span>,
-      dataIndex: 'tokenType',
-      key: 'tokenType',
-      render: (tokenType: string) => <TokenLabel address={tokenType} />,
+      dataIndex: 'token',
+      key: 'token',
+      render: (token: TokenInfo) => <TokenLabel token={token}/>,
     },
   ];
 

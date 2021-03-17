@@ -1,16 +1,11 @@
 
 type Environment = "development" | "production";
 type Config = {
-  chainId: number
 }
 
 const Configs : { [index in Environment] : Config} = {
-  development: {
-    chainId: 3, // Ropsten
-  },
-  production: {
-    chainId: 1 //Mainnet
-  }
+  development: {},
+  production: {}
 };
 
 export const getConfig = () : Config => {

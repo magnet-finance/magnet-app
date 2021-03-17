@@ -1,18 +1,29 @@
+import { BigNumber } from '@ethersproject/bignumber';
+import { Web3Provider } from '@ethersproject/providers';
+import { useWeb3React } from '@web3-react/core';
 import { DatePicker, Form, Input, InputNumber, Select, Space, TimePicker } from 'antd';
-import isInteger from 'lodash/isInteger';
+import isFinite from 'lodash/isFinite';
 import isString from 'lodash/isString';
 import moment from 'moment';
 import React from 'react';
 import { isTimeUnit, mergeDateAndTime, TimeUnits } from '../../logic/timeSelector';
-import { isTokenType, TokenTypes } from '../../logic/tokenType';
+import { getTokenManager, TokenManager } from '../../logic/tokenManager';
 import { InProgressVestMagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
+import { TokenLabel } from '../TokenLabel';
 
 type Props = {
   parentFieldName: string | number
 }
 
 export const VestForm : React.FC<Props> = (props) => {
+  const web3 = useWeb3React<Web3Provider>();
+  const tokenManager = getTokenManager(web3);
+  if (web3 == null || tokenManager == null) {
+    console.error("Vest Form Error: No Wallet connected");
+    return null;
+  }
+
   return (
     <>
       <Form.Item
@@ -63,8 +74,16 @@ export const VestForm : React.FC<Props> = (props) => {
             <Form.Item name={[props.parentFieldName, "lifetimeValue"]}>
               <InputNumber />
             </Form.Item>
-            <Form.Item name={[props.parentFieldName, "tokenType"]}>
-              <Select options={TokenTypes} allowClear={false} />
+            <Form.Item name={[props.parentFieldName, "tokenAddress"]}>
+              <Select allowClear={false} style={styles.tokenSelect} onChange={(e) => console.log()}>
+                {tokenManager.tokens.map((token) =>
+                  <Select.Option value={token.address} key={`mint-vest-token-dropdown-${token.address}`}>
+                    <span style={styles.selectOptionContainer}>
+                      <TokenLabel token={token}/>
+                    </span>
+                  </Select.Option>
+                )}
+              </Select>
             </Form.Item>
           </Space>
       </Form.Item>
@@ -72,7 +91,7 @@ export const VestForm : React.FC<Props> = (props) => {
   );
 }
 
-export const parseVestFormData = (formData: any) : InProgressVestMagnetDefinition =>  {
+export const parseVestFormData = (formData: any, tokenManager: TokenManager) : InProgressVestMagnetDefinition =>  {
 
   const vestMagnetDefinition : InProgressVestMagnetDefinition = {
     type: "vest"
@@ -90,14 +109,14 @@ export const parseVestFormData = (formData: any) : InProgressVestMagnetDefinitio
 
   // Parse Lifetime val
   const lifetimeValue = formData.lifetimeValue;
-  if (isInteger(lifetimeValue) && lifetimeValue > 0) {
-    vestMagnetDefinition.lifetimeValue = lifetimeValue;
+  if (isFinite(lifetimeValue) && lifetimeValue > 0) {
+    vestMagnetDefinition.lifetimeValue = BigNumber.from(lifetimeValue);
   }
 
-  // Parse TokenType
-  const tokenType = formData.tokenType;
-  if (isTokenType(tokenType)) {
-    vestMagnetDefinition.tokenType = tokenType;
+  // Parse tokenAddress
+  const tokenAddress = formData.tokenAddress;
+  if (tokenManager.isTokenAddress(tokenAddress)) {
+    vestMagnetDefinition.token = tokenManager.getTokenInfo(tokenAddress);
   }
 
   // Parse Times
@@ -110,14 +129,14 @@ export const parseVestFormData = (formData: any) : InProgressVestMagnetDefinitio
     // Parse cliff (needs start time)
     const cliffTimeAmount = formData.cliffTimeAmount;
     const cliffTimeUnit = formData.cliffTimeUnit;
-    if (isInteger(cliffTimeAmount) && cliffTimeAmount >=0 && isTimeUnit(cliffTimeUnit)) {
+    if (isFinite(cliffTimeAmount) && cliffTimeAmount >=0 && isTimeUnit(cliffTimeUnit)) {
       vestMagnetDefinition.cliffTime = moment(startTime).add(cliffTimeAmount, cliffTimeUnit);
     }
 
     // Parse end (needs start time)
     const endTimeAmount = formData.endTimeAmount;
     const endTimeUnit = formData.endTimeUnit;
-    if (isInteger(endTimeAmount) && endTimeAmount >=0 && isTimeUnit(endTimeUnit)) {
+    if (isFinite(endTimeAmount) && endTimeAmount >=0 && isTimeUnit(endTimeUnit)) {
       vestMagnetDefinition.endTime = moment(startTime).add(endTimeAmount, endTimeUnit);
     }
   }
@@ -140,5 +159,13 @@ const styles : Stylesheet = {
   label: {
     width: 100,
     textAlign: "left"
+  },
+  tokenSelect: {
+    width: 120,
+  },
+  selectOptionContainer: {
+    height: 29,
+    display: "flex",
+    alignItems: "center",
   }
 }
