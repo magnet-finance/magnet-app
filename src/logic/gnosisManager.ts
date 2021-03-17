@@ -147,13 +147,14 @@ const getNextNonce = async (config: GnosisConfig, safeAddress: string, fallback?
 }
 
 const getGasEstimate = (config: GnosisConfig, safeAddress: string, txn: Transaction): Promise<GasEstimateResponse> => {
-    return fetchJson<GasEstimateResponse>(`${config.safeRelayUrl}/api/v2/safes/${safeAddress}/transactions/estimate/`, "POST", {
-        to: txn.to,
-        value: txn.value.toNumber(),
-        data: txn.data,
-        operation: txn.operation,
-        gasToken: null
-    });
+  console.log("estimating gas for tx:",txn);
+  return fetchJson<GasEstimateResponse>(`${config.safeRelayUrl}/api/v2/safes/${safeAddress}/transactions/estimate/`, "POST", {
+    to: txn.to,
+    value: txn.value.toNumber(),
+    data: txn.data,
+    operation: txn.operation,
+    gasToken: null
+  });
 }
 
 const signAndGetSubmitReq = async (safeAddress: string, txn: Transaction, nonce: number, gasEstimate: GasEstimateResponse, web3: Web3ReactContext) : Promise<GnosisSubmitTxnRequest> => {
@@ -182,7 +183,7 @@ const signAndGetSubmitReq = async (safeAddress: string, txn: Transaction, nonce:
     value: txn.value.toNumber(),
     nonce,
     safeTxGas: BigNumber.from(gasEstimate.safeTxGas).toNumber(),
-    // We don't want to use the refund logic of the safe to lets use the default values
+    // We don't want to use the refund logic of the safe so lets use the default values
     baseGas: 0,
     gasPrice: 0,
     gasToken: "0x0000000000000000000000000000000000000000",
@@ -195,6 +196,7 @@ const signAndGetSubmitReq = async (safeAddress: string, txn: Transaction, nonce:
     data: utils.arrayify(txn.data),
   });
 
+  // Note: signHash() is a function on the eth-typed-data library. It does not support typescript.
   const contractTransactionHash = "0x" + safeTxn.signHash().toString('hex');
 
   const provider = web3.library;

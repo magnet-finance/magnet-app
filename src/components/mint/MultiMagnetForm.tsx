@@ -75,7 +75,7 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
       return;
     }
     if (safeAddress == null || !isAddress(safeAddress)) {
-      console.error(`FormSubmissionError: Invalid Safe Addres ${safeAddress}`);
+      console.error(`FormSubmissionError: Invalid Safe Address ${safeAddress}`);
       return;
     }
     if (web3 == null) {
@@ -133,8 +133,9 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
       </Form.List>
       <MintReview magnets={inProgressMagnets}/>
       <div style={styles.beta}>Beta Warning: use at your own risk</div>
-      <div style={styles.disclaimer}>Magnet is an unaudited tool. You could lose all your funds. </div>
-      <div style={styles.disclaimer}>By clicking "Mint Magnets" below, you acknowledge this risk and assume all responsibility and liability.</div>
+      <div style={styles.disclaimer}>Please take note that this is a beta version feature and is provided on an "as is" and "as available" basis.</div>
+      <div style={styles.disclaimer}>Magnet or its developers do not give any warranties and will not be liable for any loss, direct or indirect through continued use of this feature.</div>
+      <div style={styles.disclaimer}>By clicking "Mint Magnets" below, you acknowledge this risk and assume all responsibility.</div>
       <Form.Item {...tailLayout}>
         <Button style={styles.submitButton} type="primary" htmlType="submit" size="large">
           Mint Magnets

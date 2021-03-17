@@ -10,7 +10,7 @@ export const WalletConnectPageComponent: React.FC = () => {
         <div style={styles.welcome}>Welcome</div>
         <Wallet />
         <div style={styles.supportedWallets}>
-          Magnet only supports injected providers like Metamask for now :)
+          Only injected providers like Metamask are supported for now :)
         </div>
       </Card>
     </Content>
@@ -41,9 +41,9 @@ const styles : {[key: string]: React.CSSProperties} = {
   supportedWallets: {
     marginTop: 48,
     maxWidth: 250,
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: 300,
-    lineHeight: "20px",
+    lineHeight: "22px",
     color: "#8C8C8C",
   }
 }
