@@ -1,6 +1,6 @@
 import { getAddress } from "@ethersproject/address";
 import { BigNumber } from "@ethersproject/bignumber";
-import { memoize } from "lodash";
+import { isNumber, memoize } from "lodash";
 import filter from "lodash/filter";
 import find from "lodash/find";
 import includes from "lodash/includes";
@@ -34,11 +34,16 @@ const _getTokenManagerHelper = memoize((chainId) : TokenManager => {
   }
 });
 
-export const getTokenManager = (web3?: Web3ReactContext) : TokenManager | undefined => {
-  if (web3 == null) {
+export const getTokenManager = (context?: Web3ReactContext | number) : TokenManager | undefined => {
+  if (context == null) {
     return undefined;
   }
-  const providerChainId = web3.chainId;
+  let providerChainId : number | undefined;
+  if (isNumber(context)) {
+    providerChainId = context;
+  } else {
+    providerChainId = context.chainId
+  }
   if (providerChainId == null || ChainIdToTokenList[providerChainId] == null) {
     return undefined;
   }
