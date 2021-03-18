@@ -4,7 +4,7 @@ import memoize from "lodash/memoize";
 import { MagnetDefinition } from "../types/magnet";
 import { Transaction } from "../types/transaction";
 import { Web3ReactContext } from "../types/web3ReactContext";
-import { getGnosisTxn } from "./transactionManager";
+import { getGnosisTxn, parseTxnsIntoMagnets } from "./transactionManager";
 import { fetchJson, JSON_HEADERS } from "./util/fetch";
 
 // Config Definitions
@@ -277,4 +277,58 @@ export const getGnosisManager = (web3: Web3ReactContext) : GnosisManager | undef
     return undefined;
   }
   return _getGnosisManagerHelper(ChainIdToGnosisConfig[providerChainId], web3);
+}
+
+// Looking up info for the review screen
+const fetchGnosisTxn = (chainId: number, safeTxHash: string) : Promise<SafeTxResponse> => {
+  // Note: Should add type verification here, but not right now
+  return fetchJson<SafeTxResponse>(`${ChainIdToGnosisConfig[chainId].txServiceUrl}​/api/v1/transactions​/${safeTxHash}​/`)
+}
+
+type GnosisLookupError = {
+  successful: false,
+  error: "NOT_FOUND" | "PARSE_ERROR"
+}
+
+type GnosisLookupResult = {
+  successful: true,
+  chainId: number,
+  magnets: MagnetDefinition[],
+  gnosisResponse: SafeTxResponse
+}
+
+export const lookupGnosisTxn = async (safeTxHash: string) : Promise<GnosisLookupResult | GnosisLookupError> => {
+  for (const chainIdStr in ChainIdToGnosisConfig) {
+    const chainId = Number(chainIdStr);
+    try {
+      const gnosisResponse = await fetchGnosisTxn(chainId, safeTxHash);
+      const txn : Transaction = {
+        to: gnosisResponse.to,
+        data: gnosisResponse.data ?? Transaction.DEFAULT_DATA,
+        operation: gnosisResponse.operation,
+        value: BigNumber.from(gnosisResponse.value)
+      }
+
+      const parsed = parseTxnsIntoMagnets([txn], chainId);
+      if (parsed == null) {
+        return {
+          successful: false,
+          error: "PARSE_ERROR"
+        };
+      }
+
+      return {
+        successful: true,
+        chainId,
+        magnets: parsed,
+        gnosisResponse
+      };
+    } catch (e) {
+      // Not necessarily an error, maybe just the wrong chain
+    }
+  }
+  return {
+    successful: false,
+    error: "NOT_FOUND"
+  }
 }

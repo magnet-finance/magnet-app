@@ -20,7 +20,7 @@ export type TokenManager = {
   isTokenAddress: (tokenAddress: any) => tokenAddress is string,
   getTokenInfo: (tokenAddress: string) => TokenInfo | undefined,
   getTokenInfoBySymbol: (tokenSymbol: string) => TokenInfo | undefined,
-  convertToDecimals: (amount: BigNumber, tokenInfo: TokenInfo) => BigNumber
+  convertToDecimals: (amount: BigNumber, tokenInfo: TokenInfo) => BigNumber,
 };
 
 const _getTokenManagerHelper = memoize((chainId) : TokenManager => {

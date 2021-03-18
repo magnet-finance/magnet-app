@@ -1,5 +1,5 @@
 import { Contract } from "@ethersproject/contracts";
-import { Web3Provider } from '@ethersproject/providers';
+import isNumber from "lodash/isNumber";
 import memoize from "lodash/memoize";
 import { TokenInfo } from "../../types/token";
 import { Web3ReactContext } from "../../types/web3ReactContext";
@@ -45,46 +45,45 @@ export type ContractManager = {
   getErc20Contract: (token: TokenInfo) => Contract
 }
 
-const _getContractManagerHelper = memoize((chainId: number, provider: Web3Provider) : ContractManager => {
+const _getContractManagerHelper = memoize((chainId: number) : ContractManager => {
   return {
     chainId,
     contractAddresses: ContractAddressMap[chainId],
     getSablierContract: memoize(() => new Contract(
       ContractAddressMap[chainId].sablierContractAddress,
-      sablierAbi,
-      provider
+      sablierAbi
     )),
     getYVestFactoryContract: memoize(() => new Contract(
       ContractAddressMap[chainId].yVestFactoryContractAddress,
-      yVestFactoryAbi,
-      provider
+      yVestFactoryAbi
     )),
     getYGiftContract: memoize(() => new Contract(
       ContractAddressMap[chainId].yGiftContractAddress,
-      yGiftAbi,
-      provider
+      yGiftAbi
     )),
     getGnosisMultiSendContract: memoize(() => new Contract(
       ContractAddressMap[chainId].gnosisMultiSendContractAddress,
-      gnosisMultiSendAbi,
-      provider
+      gnosisMultiSendAbi
     )),
     getErc20Contract: memoize((token) => new Contract(
       token.address,
-      erc20Abi,
-      provider
+      erc20Abi
     ))
   }
 })
 
-export const getContractManager = (web3: Web3ReactContext) : ContractManager | undefined => {
-  if (web3 == null || web3.library == null) {
+export const getContractManager = (context?: Web3ReactContext | number) : ContractManager | undefined => {
+  if (context == null) {
     return undefined;
   }
-  const chainId = web3.chainId;
-  const provider = web3.library;
-  if (chainId == null || ContractAddressMap[chainId] == null || provider == null) {
+  let chainId : number | undefined;
+  if (isNumber(context)) {
+    chainId = context;
+  } else {
+    chainId = context.chainId
+  }
+  if (chainId == null || ContractAddressMap[chainId] == null) {
     return undefined;
   }
-  return _getContractManagerHelper(chainId, provider);
+  return _getContractManagerHelper(chainId);
 }
