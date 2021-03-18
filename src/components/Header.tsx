@@ -39,7 +39,7 @@ export const Header : React.FC = () => {
           icon={<PlusOutlined />}>
             Mint
         </Button>
-        <Wallet />
+        <Wallet style={styles.button} />
       </div>
     </Layout.Header>
   )
