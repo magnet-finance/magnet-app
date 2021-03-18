@@ -1,5 +1,6 @@
 import { getAddress } from "@ethersproject/address";
 import { BigNumber } from "@ethersproject/bignumber";
+import { utils } from "ethers";
 import { isNumber, memoize } from "lodash";
 import filter from "lodash/filter";
 import find from "lodash/find";
@@ -49,3 +50,9 @@ export const getTokenManager = (context?: Web3ReactContext | number) : TokenMana
   }
   return _getTokenManagerHelper(providerChainId);
 };
+
+export const formatBigNumber = (amount: BigNumber, decimals: number) : string => {
+  const removeDecimals = utils.formatUnits(amount, decimals);
+  const addCommas = utils.commify(removeDecimals);
+  return addCommas.replace(/(\.[0-9]*[1-9])0+$|\.0*$/,'$1'); // remove trailing 0s
+}

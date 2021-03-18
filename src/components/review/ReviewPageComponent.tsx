@@ -1,6 +1,6 @@
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from "@web3-react/core";
-import { Button } from "antd";
+import { Button, Card, Skeleton } from "antd";
 import { Content } from "antd/lib/layout/layout";
 import { BigNumber } from "ethers";
 import groupBy from "lodash/groupBy";
@@ -9,7 +9,7 @@ import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { getTokenManager, TokenManager } from "../../logic/tokenManager";
 import { MagnetDefinition } from "../../types/magnet";
-import { LoadingPageComponent } from '../LoadingPageComponent';
+import { Web3ReactContext } from '../../types/web3ReactContext';
 import { Wallet } from '../Wallet';
 import { RecipientCard } from "./RecipientCard";
 import { Subtotal } from "./Subtotal";
@@ -20,59 +20,70 @@ type Error = {
 
 export const ReviewPageComponent: React.FC = () => {
   const [ magnets, setMagnets ] = useState<MagnetDefinition[] | Error | undefined>(undefined);
-  useEffect(loadMagnetsData)
+  const web3 = useWeb3React<Web3Provider>();
+
+  useEffect(() => {
+    const loadedMagnets = loadMagnetsData(web3);
+    setMagnets(loadedMagnets);
+  }, []);
 
   if (magnets == null) {
-    return <LoadingPageComponent/>
+    return (
+      <Content style={styles.content}>
+        <div style={styles.title}>Review Mint Transaction</div>
+        <Card style={styles.loadingCard} bodyStyle={styles.loadingCardBody}>
+          <Skeleton active avatar paragraph={{ rows: 4 }} />
+        </Card>
+      </Content>
+    );
   }
   else if (magnets instanceof Error) {
     return <div>error</div>
   }
   else {
-    const web3 = useWeb3React<Web3Provider>();
-    let tokenManager = getTokenManager(web3);
-
-    const loadedMagnets = loadMagnetsData(tokenManager);
-    const groupedMagnets = groupBy(magnets, "recipient");
-
     const signTransaction = () => {
       console.log("signing transaction");
     }
 
+    const groupedMagnets = groupBy(magnets, "recipient");
+
     return (
-      <Content  style={styles.content}>
+      <Content style={styles.content}>
         <div style={styles.title}>Review Mint Transaction</div>
-        {map(groupedMagnets, (magnets, recipient) =>
-          <RecipientCard key={`recipient-card-${recipient}`} recipient={recipient} magnets={magnets} />
+        {map(groupedMagnets, (magnetsForRecipient, recipient) =>
+          <RecipientCard key={`recipient-card-${recipient}`} recipient={recipient} magnets={magnetsForRecipient} />
         )}
         <div style={styles.subtitle}>Total</div>
         <Subtotal magnets={magnets} />
         {web3.chainId ? (
           <Button
             onClick={signTransaction}
-            style={styles.button}
+            style={styles.signButton}
             type="primary"
             size="large">
             Sign Transaction
           </Button>
         ) : (
-          <Wallet />
+          <Wallet style={styles.connectWalletButton} />
         )}
       </Content>
     );
   }
-  /**
-   * TODO: create a state var 'magnets' to hold the data
-   *
-   * if magnets undefined - render loading page
-   * if error - render error page (where to store error in state?)
-   *    subcase: if error was chainId is other net, then show message to switch chains
-   * if magnets defined - render page
-   *    *
-   */
 }
 
-const loadMagnetsData = (tokenManager: TokenManager | undefined) : MagnetDefinition[] => {
+const loadMagnetsData = (web3: Web3ReactContext | undefined) : MagnetDefinition[] | undefined => {
+  let tokenManager: TokenManager | undefined;
+  if (web3 == null || web3.chainId == null) {
+    tokenManager = getTokenManager(1); // TODO infer chain ID from gnosis data
+  } else {
+    tokenManager = getTokenManager(web3);
+  }
+
+  if (tokenManager == null) {
+    console.error("Load Review Magnets Error: Unknown Chain ID");
+    return undefined;
+  }
+
   /** Spoof magnet data for now */
   const now = moment();
   const cliff = moment(now).add(1,'y');
@@ -84,7 +95,7 @@ const loadMagnetsData = (tokenManager: TokenManager | undefined) : MagnetDefinit
       startTime: now,
       cliffTime: cliff,
       endTime: end,
-      lifetimeValue: BigNumber.from(20000),
+      lifetimeValue: BigNumber.from(20000).mul(BigNumber.from(10).pow(18)),
       token: tokenManager.getTokenInfoBySymbol("SUSHI") ?? tokenManager.tokens[0],
     },
     {
@@ -92,7 +103,7 @@ const loadMagnetsData = (tokenManager: TokenManager | undefined) : MagnetDefinit
       recipient: "0xmaki.eth",
       startTime: now,
       endTime: end,
-      lifetimeValue: BigNumber.from(600000),
+      lifetimeValue: BigNumber.from(600000).mul(BigNumber.from(10).pow(18)),
       token: tokenManager.getTokenInfoBySymbol("DAI") ?? tokenManager.tokens[0],
     },
     {
@@ -102,7 +113,7 @@ const loadMagnetsData = (tokenManager: TokenManager | undefined) : MagnetDefinit
       giftName: "pedrowww's launch bonus",
       giftMessage: "Thank you for contributing to the Sushi launch! We’re glad to have you in the community.",
       sendTime: now,
-      lifetimeValue: BigNumber.from(1000),
+      lifetimeValue: BigNumber.from(1000).mul(BigNumber.from(10).pow(18)),
       token: tokenManager.getTokenInfoBySymbol("DAI") ?? tokenManager.tokens[0],
     },
     {
@@ -111,7 +122,7 @@ const loadMagnetsData = (tokenManager: TokenManager | undefined) : MagnetDefinit
       startTime: now,
       cliffTime: cliff,
       endTime: end,
-      lifetimeValue: BigNumber.from(20000),
+      lifetimeValue: BigNumber.from(20000).mul(BigNumber.from(10).pow(18)),
       token: tokenManager.getTokenInfoBySymbol("SUSHI") ?? tokenManager.tokens[0],
     },
     {
@@ -121,7 +132,7 @@ const loadMagnetsData = (tokenManager: TokenManager | undefined) : MagnetDefinit
       giftName: "pedrowww's launch bonus",
       giftMessage: "Thank you for contributing to the Sushi launch! We’re glad to have you in the community.",
       sendTime: now,
-      lifetimeValue: BigNumber.from(1000),
+      lifetimeValue: BigNumber.from(1000).mul(BigNumber.from(10).pow(18)),
       token: tokenManager.getTokenInfoBySymbol("DAI") ?? tokenManager.tokens[0],
     },
     {
@@ -129,7 +140,7 @@ const loadMagnetsData = (tokenManager: TokenManager | undefined) : MagnetDefinit
       recipient: "pedrowww.eth",
       startTime: now,
       endTime: end,
-      lifetimeValue: BigNumber.from(600000),
+      lifetimeValue: BigNumber.from(600000).mul(BigNumber.from(10).pow(18)),
       token: tokenManager.getTokenInfoBySymbol("DAI") ?? tokenManager.tokens[0],
     },
   ];
@@ -157,7 +168,21 @@ const styles : {[key: string]: React.CSSProperties} = {
     marginTop: 48,
     marginBottom: 24,
   },
-  button: {
+  loadingCard: {
+    borderRadius: 6,
+    marginTop: 32,
+  },
+  loadingCardBody: {
+    paddingTop: 32,
+    paddingBottom: 30,
+    paddingLeft: 32,
+    paddingRight: 64,
+  },
+  connectWalletButton: {
+    borderColor: "#1890ff",
+    marginTop: 48
+  },
+  signButton: {
     marginTop: 48,
   }
 }
