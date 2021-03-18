@@ -16,7 +16,6 @@ export const executeTxn = async (txn: Transaction, web3:  Web3ReactContext) => {
     ...txn,
     gasLimit: 3000000
   });
-  console.log(result);
   return result;
 };
 

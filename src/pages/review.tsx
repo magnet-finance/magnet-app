@@ -3,12 +3,15 @@ import * as React from "react";
 import { Header } from "../components/Header";
 import { ReviewPageComponent } from '../components/review/ReviewPageComponent';
 
-// markup
-const ReviewPage = () => {
+type Props = {
+  safeTxHash?: string
+}
+
+const ReviewPage : React.FC<Props>= ({safeTxHash}) => {
   return (
     <Layout>
       <Header />
-      <ReviewPageComponent />
+      <ReviewPageComponent safeTxHash={safeTxHash} />
     </Layout>
   );
 }

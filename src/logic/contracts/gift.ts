@@ -42,7 +42,12 @@ export const getGiftTxn = (magnet: GiftMagnetDefinition, web3: Web3ReactContext)
 
 export const maybeParseGiftTxn : TxnParser<GiftMagnetDefinition> = (txns, chainId) => {
   const contractManager = getContractManager(chainId);
-  if (txns == null || txns.length < 2 || contractManager == null || txns[1].to !== contractManager.contractAddresses.yGiftContractAddress) {
+  if (
+    txns == null ||
+    txns.length < 2 ||
+    contractManager == null ||
+    txns[1].to !== contractManager.contractAddresses.yGiftContractAddress
+  ) {
     return null;
   }
   const approveTxn = txns[0];
@@ -52,7 +57,7 @@ export const maybeParseGiftTxn : TxnParser<GiftMagnetDefinition> = (txns, chainI
     const [
       recipient,       // yGift.recipient (address)
       tokenAddress,    // yGift.token (address)
-      lifetimeValue,          // yGift.amount (uint256)
+      lifetimeValue,   // yGift.amount (uint256)
       giftName,        // yGift.name (string)
       giftMessage,     // yGift.message (string)
       giftImageUrl,    // yGift.url (string)
@@ -76,13 +81,12 @@ export const maybeParseGiftTxn : TxnParser<GiftMagnetDefinition> = (txns, chainI
     }
 
     const parsedToken = maybeParseErc20ApprovalTxn(approveTxn, chainId);
-
     if (
       parsedToken == null ||
       parsedToken.token.address != tokenAddress ||
       !parsedToken.decimalAmount.eq(lifetimeValue) ||
       // Note: this final check may break if strings aren't formatted the same
-      parsedToken.spenderAddress === contractManager.contractAddresses.yGiftContractAddress
+      parsedToken.spenderAddress !== contractManager.contractAddresses.yGiftContractAddress
     ) {
       return null;
     }

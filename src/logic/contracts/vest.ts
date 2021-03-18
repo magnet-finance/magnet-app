@@ -62,7 +62,7 @@ export const maybeParseVestTxn : TxnParser<VestMagnetDefinition> = (txns, chainI
       duration,        // yVestFactory.vesting_duration (uint256)
       startTime,       // yVestFactory.vesting_start (uint256)
       durationToCliff  // yVestFactory.cliff_length (uint256)
-    ] = contractManager.getSablierContract().interface.decodeFunctionData(
+    ] = contractManager.getYVestFactoryContract().interface.decodeFunctionData(
       "deploy_vesting_contract(address,address,uint256,uint256,uint256,uint256)",
       mintTxn.data
     );
@@ -89,7 +89,7 @@ export const maybeParseVestTxn : TxnParser<VestMagnetDefinition> = (txns, chainI
       parsedToken.token.address != tokenAddress ||
       !parsedToken.decimalAmount.eq(lifetimeValue) ||
       // Note: this final check may break if strings aren't formatted the same
-      parsedToken.spenderAddress === contractManager.contractAddresses.yVestFactoryContractAddress
+      parsedToken.spenderAddress !== contractManager.contractAddresses.yVestFactoryContractAddress
     ) {
       return null;
     }

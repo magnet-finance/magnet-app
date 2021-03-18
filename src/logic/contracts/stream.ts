@@ -72,7 +72,7 @@ export const maybeParseStreamTxn : TxnParser<StreamMagnetDefinition> = (txns, ch
       parsedToken.token.address != tokenAddress ||
       !parsedToken.decimalAmount.eq(lifetimeValue) ||
       // Note: this final check may break if strings aren't formatted the same
-      parsedToken.spenderAddress === contractManager.contractAddresses.sablierContractAddress
+      parsedToken.spenderAddress !== contractManager.contractAddresses.sablierContractAddress
     ) {
       return null;
     }

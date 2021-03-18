@@ -7,6 +7,7 @@ import groupBy from "lodash/groupBy";
 import map from "lodash/map";
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
+import { GnosisLookupError, GnosisLookupResult, lookupGnosisTxn } from '../../logic/gnosisManager';
 import { getTokenManager, TokenManager } from "../../logic/tokenManager";
 import { MagnetDefinition } from "../../types/magnet";
 import { Web3ReactContext } from '../../types/web3ReactContext';
@@ -14,20 +15,29 @@ import { Wallet } from '../Wallet';
 import { RecipientCard } from "./RecipientCard";
 import { Subtotal } from "./Subtotal";
 
-type Error = {
-  error: string,
+
+type Props = {
+  safeTxHash?: string
 }
 
-export const ReviewPageComponent: React.FC = () => {
-  const [ magnets, setMagnets ] = useState<MagnetDefinition[] | Error | undefined>(undefined);
+export const ReviewPageComponent: React.FC<Props> = ({safeTxHash}) => {
+  const [ gnosisResult, setGnosisResult ] = useState<GnosisLookupResult | GnosisLookupError | undefined>(undefined);
   const web3 = useWeb3React<Web3Provider>();
 
   useEffect(() => {
-    const loadedMagnets = loadMagnetsData(web3);
-    setMagnets(loadedMagnets);
+    (async () => {
+      if (safeTxHash != null && safeTxHash !== ""){
+        setGnosisResult(await lookupGnosisTxn(safeTxHash));
+      }
+    })()
   }, []);
 
-  if (magnets == null) {
+  // Note use better logic to check hash
+  if (safeTxHash == null || safeTxHash === "") {
+    return <div>No Hash Provided</div>
+  }
+
+  if (gnosisResult == null) {
     return (
       <Content style={styles.content}>
         <div style={styles.title}>Review Mint Transaction</div>
@@ -37,10 +47,11 @@ export const ReviewPageComponent: React.FC = () => {
       </Content>
     );
   }
-  else if (magnets instanceof Error) {
+  else if (gnosisResult.successful === false) {
     return <div>error</div>
   }
   else {
+    const magnets = gnosisResult.magnets;
     const signTransaction = () => {
       console.log("signing transaction");
     }
