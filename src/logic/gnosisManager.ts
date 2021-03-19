@@ -241,7 +241,7 @@ const submitTxnToGnosis = async (config: GnosisConfig, safeAddress: string, subm
 // Gnosis Manager
 
 export type GnosisManager = {
-  submitMagnets: (magnets: MagnetDefinition[], gnosisSafeAddress: string) => void
+  submitMagnets: (magnets: MagnetDefinition[], gnosisSafeAddress: string) => Promise<string>
 }
 
 const _getGnosisManagerHelper = memoize((config: GnosisConfig, web3: Web3ReactContext) : GnosisManager => ({
@@ -259,7 +259,8 @@ const _getGnosisManagerHelper = memoize((config: GnosisConfig, web3: Web3ReactCo
       gasEstimate,
       web3
     );
-    return await submitTxnToGnosis(config, safeAddress, submitReq);
+    await submitTxnToGnosis(config, safeAddress, submitReq);
+    return submitReq.contractTransactionHash;
   }
 }));
 

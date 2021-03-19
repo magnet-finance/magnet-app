@@ -17,10 +17,11 @@ import { Subtotal } from "./Subtotal";
 
 
 type Props = {
+  mintSuccess?: boolean,
   safeTxHash?: string
 }
 
-export const ReviewPageComponent: React.FC<Props> = ({safeTxHash}) => {
+export const ReviewPageComponent: React.FC<Props> = ({mintSuccess, safeTxHash}) => {
   const [ gnosisResult, setGnosisResult ] = useState<GnosisLookupResult | GnosisLookupError | undefined>(undefined);
   const web3 = useWeb3React<Web3Provider>();
 
@@ -34,7 +35,11 @@ export const ReviewPageComponent: React.FC<Props> = ({safeTxHash}) => {
 
   // Note use better logic to check hash
   if (safeTxHash == null || safeTxHash === "") {
-    return <div>No Hash Provided</div>
+    return (
+      <Content style={styles.content}>
+        <div>Invalid Gnosis Safe Transaction Hash</div>
+      </Content>
+    );
   }
 
   if (gnosisResult == null) {
@@ -48,7 +53,11 @@ export const ReviewPageComponent: React.FC<Props> = ({safeTxHash}) => {
     );
   }
   else if (gnosisResult.successful === false) {
-    return <div>error</div>
+    return (
+      <Content style={styles.content}>
+        <div>Sorry, an error occured</div>
+      </Content>
+    );
   }
   else {
     const magnets = gnosisResult.magnets;
@@ -60,7 +69,15 @@ export const ReviewPageComponent: React.FC<Props> = ({safeTxHash}) => {
 
     return (
       <Content style={styles.content}>
-        <div style={styles.title}>Review Mint Transaction</div>
+        <>{mintSuccess ? (
+          <>
+            <div style={styles.title}>Success: Magnets Submitted to Gnosis</div>
+            <div style={styles.tip}>Share this page with your multisig for easy review!</div>
+            {/* TODO: add a share button w/link to this page. Add a link to the tx in Gnosis Safe too. */}
+          </>
+        ) : (
+          <div style={styles.title}>Review Mint Transaction</div>
+        )}</>
         {map(groupedMagnets, (magnetsForRecipient, recipient) =>
           <RecipientCard key={`recipient-card-${recipient}`} recipient={recipient} magnets={magnetsForRecipient} />
         )}
@@ -188,6 +205,18 @@ const styles : {[key: string]: React.CSSProperties} = {
     paddingBottom: 30,
     paddingLeft: 32,
     paddingRight: 64,
+  },
+  tip: {
+    backgroundColor: "#E6F7FF",
+    borderRadius: 12,
+    fontSize: 16,
+    maxWidth: 517,
+    paddingTop: 16,
+    paddingBottom: 16,
+    paddingLeft: 24,
+    paddingRight: 24,
+    marginTop: 48,
+    marginBottom: 48
   },
   connectWalletButton: {
     borderColor: "#1890ff",

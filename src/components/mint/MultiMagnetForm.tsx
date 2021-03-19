@@ -4,6 +4,7 @@ import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import { Button, Form, Input } from 'antd';
 import Avatar from 'antd/lib/avatar/avatar';
+import { navigate } from "gatsby";
 import flatMap from 'lodash/flatMap';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
@@ -87,7 +88,12 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
       console.error("FormSubmissionError: Unable to get GnosisManager");
       return;
     }
-    gnosisManager.submitMagnets(magnets, safeAddress)
+    const safeTxHash = await gnosisManager.submitMagnets(magnets, safeAddress);
+    navigate(`/review/${safeTxHash}`, {
+      state: {
+        mintSuccess: true,
+       },
+    });
   }, [web3])
 
   return (

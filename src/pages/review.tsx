@@ -1,17 +1,21 @@
 import Layout from "antd/lib/layout/layout";
+import { PageProps } from 'gatsby';
 import * as React from "react";
 import { Header } from "../components/Header";
 import { ReviewPageComponent } from '../components/review/ReviewPageComponent';
 
-type Props = {
+type Props = PageProps & {
+  mintSuccess?: boolean,
   safeTxHash?: string
 }
 
-const ReviewPage : React.FC<Props>= ({safeTxHash}) => {
+const ReviewPage : React.FC<Props>= (props) => {
+  const mintSuccess = (props.location.state as any)?.mintSuccess;
+
   return (
     <Layout>
       <Header />
-      <ReviewPageComponent safeTxHash={safeTxHash} />
+      <ReviewPageComponent safeTxHash={props.safeTxHash} mintSuccess={mintSuccess} />
     </Layout>
   );
 }

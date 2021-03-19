@@ -1,7 +1,9 @@
+import { BigNumber } from '@ethersproject/bignumber';
 import { Table } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import map from 'lodash/map';
 import React from 'react';
+import { formatBigNumber } from '../../logic/tokenManager';
 import { InProgressMagnetDefinition, maybeGetMagnetTypeDisplayName } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
 import { TokenInfo } from '../../types/token';
@@ -54,11 +56,11 @@ export const MintReview : React.FC<Props> = (props) => {
       title: <span style={styles.header}>Lifetime Value</span>,
       dataIndex: 'lifetimeValue',
       key: 'lifetimeValue',
-      render: (lifetimeValue: number) => {
+      render: (lifetimeValue: BigNumber, record) => {
         if (lifetimeValue === undefined) {
           return replaceEmptyCell(null);
         } else {
-          return lifetimeValue.toLocaleString();
+          return formatBigNumber(lifetimeValue, record.token?.decimals ?? 0);
         }
       },
     },
