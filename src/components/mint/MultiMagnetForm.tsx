@@ -49,10 +49,6 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
   const [ inProgressMagnets, setInProgressMagnets] = useState<InProgressMagnetDefinition[]>(initialInProgressMagnets);
 
   const [ mintButtonSpinner, setMintButtonSpinner ] = useState(false);
-  // TODO: implement proper error handling to hide spinner when MetaMask/TX errors occur
-  setTimeout(() => {
-    setMintButtonSpinner(false);
-  }, 15000);
 
   // Note(ggranito): Need to useRef to make sure it's the same function across renders
   const updateTable = useRef(throttle((formData) => {
@@ -99,12 +95,17 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
       console.error("FormSubmissionError: Unable to get GnosisManager");
       return;
     }
-    const safeTxHash = await gnosisManager.submitMagnets(magnets, safeAddress);
-    navigate(`/review/${safeTxHash}`, {
-      state: {
-        mintSuccess: true,
-       },
-    });
+    try {
+      const safeTxHash = await gnosisManager.submitMagnets(magnets, safeAddress);
+      navigate(`/review/${safeTxHash}`, {
+        state: {
+          mintSuccess: true,
+        },
+      });
+    } catch (e) {
+      setMintButtonSpinner(false);
+      console.error(e);
+    }
   }, [web3])
 
   return (
