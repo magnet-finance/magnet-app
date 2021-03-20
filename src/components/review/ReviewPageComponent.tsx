@@ -9,7 +9,7 @@ import map from "lodash/map";
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import GoToLink from '../../images/GoToLink.svg';
-import { getSafeAppUrl, GnosisLookupError, GnosisLookupResult, lookupGnosisTxn } from '../../logic/gnosisManager';
+import { getSafeAppTransactionsPageUrl, GnosisLookupError, GnosisLookupResult, lookupGnosisTxn } from '../../logic/gnosisManager';
 import { getTokenManager, TokenManager } from "../../logic/tokenManager";
 import { MagnetDefinition } from "../../types/magnet";
 import { Web3ReactContext } from '../../types/web3ReactContext';
@@ -183,7 +183,7 @@ type SuccessMessageProps = {
 }
 const SuccessMessage: React.FC<SuccessMessageProps> = (props) => {
   const url = window.location.href;
-  const safeAppUrl = getSafeAppUrl(props.safeAddress, props.chainId);
+  const safeAppUrl = getSafeAppTransactionsPageUrl(props.safeAddress, props.chainId);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(url);

@@ -48,6 +48,12 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
   const initialInProgressMagnets = useMemo(() => parseFormData({magnets: [initialValue]}, tokenManager).magnets, [initialValue, tokenManager]);
   const [ inProgressMagnets, setInProgressMagnets] = useState<InProgressMagnetDefinition[]>(initialInProgressMagnets);
 
+  const [ mintButtonSpinner, setMintButtonSpinner ] = useState(false);
+  // TODO: implement proper error handling to hide spinner when MetaMask/TX errors occur
+  setTimeout(() => {
+    setMintButtonSpinner(false);
+  }, 15000);
+
   // Note(ggranito): Need to useRef to make sure it's the same function across renders
   const updateTable = useRef(throttle((formData) => {
     setInProgressMagnets(parseFormData(formData, tokenManager).magnets);
@@ -65,26 +71,31 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
   };
 
   const onSubmit = useCallback(async (formData: any) => {
+    setMintButtonSpinner(true);
     console.log(formData)
     const {
       magnets,
       safeAddress
     } = parseFormData(formData, tokenManager);
     if (!areMagnetDefinitions(magnets)){
+      setMintButtonSpinner(false);
       console.error("FormSubmissionError: Magnet definitions are incomplete");
       console.log(magnets);
       return;
     }
     if (safeAddress == null || !isAddress(safeAddress)) {
+      setMintButtonSpinner(false);
       console.error(`FormSubmissionError: Invalid Safe Address ${safeAddress}`);
       return;
     }
     if (web3 == null) {
+      setMintButtonSpinner(false);
       console.error("FormSubmissionError: Web3 is null");
       return;
     }
     const gnosisManager = getGnosisManager(web3);
     if (gnosisManager == null) {
+      setMintButtonSpinner(false);
       console.error("FormSubmissionError: Unable to get GnosisManager");
       return;
     }
@@ -143,7 +154,7 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
       <div style={styles.disclaimer}>Magnet or its developers do not give any warranties and will not be liable for any loss, direct or indirect through continued use of this feature.</div>
       <div style={styles.disclaimer}>By clicking "Mint Magnets" below, you acknowledge this risk and assume all responsibility.</div>
       <Form.Item {...tailLayout}>
-        <Button style={styles.submitButton} type="primary" htmlType="submit" size="large">
+        <Button style={styles.submitButton} loading={mintButtonSpinner} type="primary" htmlType="submit" size="large">
           Mint Magnets
         </Button>
       </Form.Item>

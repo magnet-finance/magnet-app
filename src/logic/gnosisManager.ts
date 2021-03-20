@@ -332,6 +332,6 @@ export const lookupGnosisTxn = async (safeTxHash: string) : Promise<GnosisLookup
   }
 }
 
-export const getSafeAppUrl = (safeAddress: string, chainId: number) : string => {
-  return `${ChainIdToGnosisConfig[chainId].safeAppUrl}${safeAddress}`;
+export const getSafeAppTransactionsPageUrl = (safeAddress: string, chainId: number) : string => {
+  return `${ChainIdToGnosisConfig[chainId].safeAppUrl}${safeAddress}/transactions`;
 }
