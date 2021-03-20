@@ -1,3 +1,4 @@
+import Icon, { CopyOutlined } from '@ant-design/icons';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from "@web3-react/core";
 import { Button, Card, Skeleton } from "antd";
@@ -7,14 +8,14 @@ import groupBy from "lodash/groupBy";
 import map from "lodash/map";
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import { GnosisLookupError, GnosisLookupResult, lookupGnosisTxn } from '../../logic/gnosisManager';
+import GoToLink from '../../images/GoToLink.svg';
+import { getSafeAppUrl, GnosisLookupError, GnosisLookupResult, lookupGnosisTxn } from '../../logic/gnosisManager';
 import { getTokenManager, TokenManager } from "../../logic/tokenManager";
 import { MagnetDefinition } from "../../types/magnet";
 import { Web3ReactContext } from '../../types/web3ReactContext';
 import { Wallet } from '../Wallet';
 import { RecipientCard } from "./RecipientCard";
 import { Subtotal } from "./Subtotal";
-
 
 type Props = {
   mintSuccess?: boolean,
@@ -66,15 +67,10 @@ export const ReviewPageComponent: React.FC<Props> = ({mintSuccess, safeTxHash}) 
     }
 
     const groupedMagnets = groupBy(magnets, "recipient");
-
     return (
       <Content style={styles.content}>
         <>{mintSuccess ? (
-          <>
-            <div style={styles.title}>Success: Magnets Submitted to Gnosis</div>
-            <div style={styles.tip}>Share this page with your multisig for easy review!</div>
-            {/* TODO: add a share button w/link to this page. Add a link to the tx in Gnosis Safe too. */}
-          </>
+          <SuccessMessage safeAddress={gnosisResult.gnosisResponse.safe} chainId={gnosisResult.chainId} />
         ) : (
           <div style={styles.title}>Review Mint Transaction</div>
         )}</>
@@ -83,16 +79,22 @@ export const ReviewPageComponent: React.FC<Props> = ({mintSuccess, safeTxHash}) 
         )}
         <div style={styles.subtitle}>Total</div>
         <Subtotal magnets={magnets} />
-        {web3.chainId ? (
-          <Button
-            onClick={signTransaction}
-            style={styles.signButton}
-            type="primary"
-            size="large">
-            Sign Transaction
-          </Button>
+        {mintSuccess ? (
+          <></>
         ) : (
-          <Wallet style={styles.connectWalletButton} />
+          <>
+            {web3.chainId ? (
+              <Button
+                onClick={signTransaction}
+                style={styles.signButton}
+                type="primary"
+                size="large">
+                Sign Transaction
+              </Button>
+            ) : (
+              <Wallet style={styles.connectWalletButton} />
+            )}
+          </>
         )}
       </Content>
     );
@@ -175,6 +177,40 @@ const loadMagnetsData = (web3: Web3ReactContext | undefined) : MagnetDefinition[
   return parsedMagnets;
 }
 
+type SuccessMessageProps = {
+  safeAddress: string,
+  chainId: number,
+}
+const SuccessMessage: React.FC<SuccessMessageProps> = (props) => {
+  const url = window.location.href;
+  const safeAppUrl = getSafeAppUrl(props.safeAddress, props.chainId);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(url);
+  }
+
+  const handleGnosisButton = () => {
+    window.open(safeAppUrl, "_blank", "noopener");
+  }
+
+  return (
+    <>
+      <div style={styles.title}>Success: Magnets Submitted to Gnosis Safe</div>
+      <div style={styles.tip}>
+        Share this page with your multisig for easy review!
+        <div>
+          <Button style={styles.copyButton} type="primary" icon={<CopyOutlined />} size="large" onClick={handleCopy}>
+            Copy link
+          </Button>
+          <Button style={styles.goToGnosisButton} ghost type="primary" icon={<Icon style={styles.goToLink} component={GoToLink}/>} size="large" onClick={handleGnosisButton}>
+            Go to Gnosis Safe
+          </Button>
+        </div>
+      </div>
+    </>
+  );
+}
+
 const styles : {[key: string]: React.CSSProperties} = {
   content: {
     backgroundColor: "#FFFFFF",
@@ -196,6 +232,31 @@ const styles : {[key: string]: React.CSSProperties} = {
     marginTop: 48,
     marginBottom: 24,
   },
+  tip: {
+    width: "fit-content",
+    backgroundColor: "#E6F7FF",
+    borderRadius: 12,
+    fontSize: 20,
+    fontWeight: 600,
+    paddingTop: 18,
+    paddingBottom: 24,
+    paddingLeft: 32,
+    paddingRight: 32,
+    marginTop: 48,
+    marginBottom: 58
+  },
+  copyButton: {
+    borderRadius: 12,
+    marginTop: 16
+  },
+  goToGnosisButton: {
+    borderRadius: 12,
+    marginTop: 16,
+    marginLeft: 24,
+  },
+  goToLink: {
+    color: "#E6F7FF",
+  },
   loadingCard: {
     borderRadius: 6,
     marginTop: 32,
@@ -205,18 +266,6 @@ const styles : {[key: string]: React.CSSProperties} = {
     paddingBottom: 30,
     paddingLeft: 32,
     paddingRight: 64,
-  },
-  tip: {
-    backgroundColor: "#E6F7FF",
-    borderRadius: 12,
-    fontSize: 16,
-    maxWidth: 517,
-    paddingTop: 16,
-    paddingBottom: 16,
-    paddingLeft: 24,
-    paddingRight: 24,
-    marginTop: 48,
-    marginBottom: 48
   },
   connectWalletButton: {
     borderColor: "#1890ff",

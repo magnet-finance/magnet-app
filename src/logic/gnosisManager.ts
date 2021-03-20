@@ -11,17 +11,20 @@ import { fetchJson, JSON_HEADERS } from "./util/fetch";
 
 type GnosisConfig = {
   txServiceUrl: string,
-  safeRelayUrl: string
+  safeRelayUrl: string,
+  safeAppUrl: string,
 };
 
 const ChainIdToGnosisConfig : {[key: number]: GnosisConfig} = {
   1: {
     txServiceUrl: "https://safe-transaction.mainnet.gnosis.io",
-    safeRelayUrl: "https://safe-relay.mainnet.gnosis.io"
+    safeRelayUrl: "https://safe-relay.mainnet.gnosis.io",
+    safeAppUrl: "https://gnosis-safe.io/app/#/safes/",
   },
   4: {
     txServiceUrl: "https://safe-transaction.rinkeby.gnosis.io",
-    safeRelayUrl: "https://safe-relay.rinkeby.gnosis.io"
+    safeRelayUrl: "https://safe-relay.rinkeby.gnosis.io",
+    safeAppUrl: "https://rinkeby.gnosis-safe.io/app/#/safes/",
   },
 }
 
@@ -241,7 +244,7 @@ const submitTxnToGnosis = async (config: GnosisConfig, safeAddress: string, subm
 // Gnosis Manager
 
 export type GnosisManager = {
-  submitMagnets: (magnets: MagnetDefinition[], gnosisSafeAddress: string) => Promise<string>
+  submitMagnets: (magnets: MagnetDefinition[], gnosisSafeAddress: string) => Promise<string>,
 }
 
 const _getGnosisManagerHelper = memoize((config: GnosisConfig, web3: Web3ReactContext) : GnosisManager => ({
@@ -327,4 +330,8 @@ export const lookupGnosisTxn = async (safeTxHash: string) : Promise<GnosisLookup
     successful: false,
     error: "NOT_FOUND"
   }
+}
+
+export const getSafeAppUrl = (safeAddress: string, chainId: number) : string => {
+  return `${ChainIdToGnosisConfig[chainId].safeAppUrl}${safeAddress}`;
 }
