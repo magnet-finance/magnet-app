@@ -4,24 +4,27 @@ import memoize from "lodash/memoize";
 import { MagnetDefinition } from "../types/magnet";
 import { Transaction } from "../types/transaction";
 import { Web3ReactContext } from "../types/web3ReactContext";
-import { getGnosisTxn } from "./transactionManager";
+import { getGnosisTxn, parseTxnsIntoMagnets } from "./transactionManager";
 import { fetchJson, JSON_HEADERS } from "./util/fetch";
 
 // Config Definitions
 
 type GnosisConfig = {
   txServiceUrl: string,
-  safeRelayUrl: string
+  safeRelayUrl: string,
+  safeAppUrl: string,
 };
 
 const ChainIdToGnosisConfig : {[key: number]: GnosisConfig} = {
   1: {
     txServiceUrl: "https://safe-transaction.mainnet.gnosis.io",
-    safeRelayUrl: "https://safe-relay.mainnet.gnosis.io"
+    safeRelayUrl: "https://safe-relay.mainnet.gnosis.io",
+    safeAppUrl: "https://gnosis-safe.io/app/#/safes/",
   },
   4: {
     txServiceUrl: "https://safe-transaction.rinkeby.gnosis.io",
-    safeRelayUrl: "https://safe-relay.rinkeby.gnosis.io"
+    safeRelayUrl: "https://safe-relay.rinkeby.gnosis.io",
+    safeAppUrl: "https://rinkeby.gnosis-safe.io/app/#/safes/",
   },
 }
 
@@ -147,7 +150,6 @@ const getNextNonce = async (config: GnosisConfig, safeAddress: string, fallback?
 }
 
 const getGasEstimate = (config: GnosisConfig, safeAddress: string, txn: Transaction): Promise<GasEstimateResponse> => {
-  console.log("estimating gas for tx:",txn);
   return fetchJson<GasEstimateResponse>(`${config.safeRelayUrl}/api/v2/safes/${safeAddress}/transactions/estimate/`, "POST", {
     to: txn.to,
     value: txn.value.toNumber(),
@@ -214,7 +216,6 @@ const signAndGetSubmitReq = async (safeAddress: string, txn: Transaction, nonce:
       data: gnosisTxnSubmitReq.data
     }
   }
-  console.log(safeTxn.toSignatureRequest());
   // Using this instead of signer._signTypedData because it is an experimental api
   const signature = await provider.send("eth_signTypedData_v4", [
     myAddress,
@@ -243,7 +244,7 @@ const submitTxnToGnosis = async (config: GnosisConfig, safeAddress: string, subm
 // Gnosis Manager
 
 export type GnosisManager = {
-  submitMagnets: (magnets: MagnetDefinition[], gnosisSafeAddress: string) => void
+  submitMagnets: (magnets: MagnetDefinition[], gnosisSafeAddress: string) => Promise<string>,
 }
 
 const _getGnosisManagerHelper = memoize((config: GnosisConfig, web3: Web3ReactContext) : GnosisManager => ({
@@ -253,9 +254,7 @@ const _getGnosisManagerHelper = memoize((config: GnosisConfig, web3: Web3ReactCo
       throw Error("Gnosis Error: Unable to submit null transaction");
     }
     const gasEstimate = await getGasEstimate(config, safeAddress, txn);
-    console.log(gasEstimate);
     const nonce = await getNextNonce(config, safeAddress, gasEstimate.lastUsedNonce + 1);
-    console.log(`Nonce: ${nonce}`);
     const submitReq = await signAndGetSubmitReq(
       safeAddress,
       txn,
@@ -263,8 +262,8 @@ const _getGnosisManagerHelper = memoize((config: GnosisConfig, web3: Web3ReactCo
       gasEstimate,
       web3
     );
-    console.log(submitReq);
-    return await submitTxnToGnosis(config, safeAddress, submitReq);
+    await submitTxnToGnosis(config, safeAddress, submitReq);
+    return submitReq.contractTransactionHash;
   }
 }));
 
@@ -277,4 +276,62 @@ export const getGnosisManager = (web3: Web3ReactContext) : GnosisManager | undef
     return undefined;
   }
   return _getGnosisManagerHelper(ChainIdToGnosisConfig[providerChainId], web3);
+}
+
+// Looking up info for the review screen
+const fetchGnosisTxn = (chainId: number, safeTxHash: string) : Promise<SafeTxResponse> => {
+  // Note: Should add type verification here, but not right now
+  return fetchJson<SafeTxResponse>(`${ChainIdToGnosisConfig[chainId].txServiceUrl}​/api/v1/transactions/${safeTxHash}/`)
+}
+
+export type GnosisLookupError = {
+  successful: false,
+  error: "NOT_FOUND" | "PARSE_ERROR"
+}
+
+export type GnosisLookupResult = {
+  successful: true,
+  chainId: number,
+  magnets: MagnetDefinition[],
+  gnosisResponse: SafeTxResponse
+}
+
+export const lookupGnosisTxn = async (safeTxHash: string) : Promise<GnosisLookupResult | GnosisLookupError> => {
+  for (const chainIdStr in ChainIdToGnosisConfig) {
+    const chainId = Number(chainIdStr);
+    try {
+      const gnosisResponse = await fetchGnosisTxn(chainId, safeTxHash);
+      const txn : Transaction = {
+        to: gnosisResponse.to,
+        data: gnosisResponse.data ?? Transaction.DEFAULT_DATA,
+        operation: gnosisResponse.operation,
+        value: BigNumber.from(gnosisResponse.value)
+      }
+
+      const parsed = parseTxnsIntoMagnets([txn], chainId);
+      if (parsed == null) {
+        return {
+          successful: false,
+          error: "PARSE_ERROR"
+        };
+      }
+      return {
+        successful: true,
+        chainId,
+        magnets: parsed,
+        gnosisResponse
+      };
+    } catch (e) {
+      // Not necessarily an error, maybe just the wrong chain
+      console.log(e)
+    }
+  }
+  return {
+    successful: false,
+    error: "NOT_FOUND"
+  }
+}
+
+export const getSafeAppTransactionsPageUrl = (safeAddress: string, chainId: number) : string => {
+  return `${ChainIdToGnosisConfig[chainId].safeAppUrl}${safeAddress}/transactions`;
 }

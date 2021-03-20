@@ -1,23 +1,21 @@
-import { Web3Provider } from '@ethersproject/providers';
-import { useWeb3React } from "@web3-react/core";
 import Layout from "antd/lib/layout/layout";
+import { PageProps } from 'gatsby';
 import * as React from "react";
 import { Header } from "../components/Header";
 import { ReviewPageComponent } from '../components/review/ReviewPageComponent';
-import { WalletConnectPageComponent } from "../components/WalletConnectPageComponent";
 
-// markup
-const ReviewPage = () => {
-  const web3 = useWeb3React<Web3Provider>();
+type Props = PageProps & {
+  mintSuccess?: boolean,
+  safeTxHash?: string
+}
+
+const ReviewPage : React.FC<Props>= (props) => {
+  const mintSuccess = (props.location.state as any)?.mintSuccess;
 
   return (
     <Layout>
       <Header />
-      {web3.chainId ? (
-        <ReviewPageComponent />
-      ) : (
-        <WalletConnectPageComponent />
-      )}
+      <ReviewPageComponent safeTxHash={props.safeTxHash} mintSuccess={mintSuccess} />
     </Layout>
   );
 }

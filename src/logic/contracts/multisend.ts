@@ -1,5 +1,7 @@
-import { utils } from 'ethers';
-import { Operation, Transaction } from '../../types/transaction';
+import { isAddress } from '@ethersproject/address';
+import { BigNumber, utils } from 'ethers';
+import isString from 'lodash/isString';
+import { Operation, Transaction, TxnParser } from '../../types/transaction';
 import { Web3ReactContext } from '../../types/web3ReactContext';
 import { getContractManager } from './contractManager';
 
@@ -17,6 +19,55 @@ const encodeTxnsAsMultiSendData = (txns: Transaction[]): string => {
   return `0x${joinedTxns}`
 }
 
+const decodeMultiSendDataAsTxns = (data: string) : Transaction[] | null => {
+  const txns: Transaction[] = [];
+  let remainingData = data.replace(/^0x/, '');
+  while (remainingData.length > 0) {
+    try {
+      const fullLengthOperation = "0".repeat(62) + remainingData.slice(0,2);
+      const fullLengthTo = "0".repeat(24) + remainingData.slice(2,2+40);
+      const fullLengthValue = remainingData.slice(2+40,2+40+64);
+      const fullLengthDataLength = remainingData.slice(2+40+64, 2+40+64+64);
+
+      // Data was trimmed for efficiency in encoding, it needs to be zero packed to get back to
+      // full length
+      const [operation, to, value, dataLength] = utils.defaultAbiCoder.decode(['uint8', 'address', 'uint256', 'uint256'],
+        `0x${fullLengthOperation}${fullLengthTo}${fullLengthValue}${fullLengthDataLength}`
+      );
+
+      // Validate parse types
+      if (
+        (operation !== Operation.CALL && operation !== Operation.DELEGATE_CALL) ||
+        !isAddress(to) ||
+        !BigNumber.isBigNumber(value) ||
+        !BigNumber.isBigNumber(dataLength)
+      ) {
+        return null;
+      }
+      const dataStartIndex = 2+40+64+64;
+      // Note Datalength is measured in uint8 array length, not hexstring length so you multiply by 2
+      const dataEndIndex = dataStartIndex + (dataLength.toNumber()*2);
+      const data = `0x${remainingData.slice(dataStartIndex, dataEndIndex)}`
+      if (data.length !== (dataEndIndex - dataStartIndex) + 2) {
+        // parsed data is the wrong length (ran out of string)
+        return null;
+      }
+
+      txns.push({
+        operation,
+        to,
+        value,
+        data
+      });
+      remainingData = remainingData.slice(dataEndIndex);
+    } catch (e) {
+      console.error("Error Decoding MultisendTxn");
+      console.error(e);
+      return null;
+    }
+  }
+  return txns;
+}
 
 export const getMultiSendTxn = (txns: Transaction[], web3: Web3ReactContext) : Transaction => {
   const contractManager = getContractManager(web3);
@@ -34,3 +85,33 @@ export const getMultiSendTxn = (txns: Transaction[], web3: Web3ReactContext) : T
     ])
   };
 }
+
+// Note this is a bit of a weird parser, it doesn't return any magnets
+// it just unpacks the first txn and returns it at the beginning of rest
+export const maybeParseMultiSendTxn : TxnParser = (txns, chainId) => {
+  const txn = txns[0]; // we only need to look at the first one
+  const contractManager = getContractManager(chainId);
+  if (txn == null || contractManager == null || txn.to !== contractManager.contractAddresses.gnosisMultiSendContractAddress) {
+    return null;
+  }
+
+  try {
+    const [encodedTxns] = contractManager.getGnosisMultiSendContract().interface.decodeFunctionData("multiSend", txn.data);
+    if (!isString(encodedTxns)) {
+      return null;
+    }
+
+    const parsed = decodeMultiSendDataAsTxns(encodedTxns);
+    if (parsed == null) {
+      return null;
+    }
+
+    return {
+      magnets: [],
+      rest: [...parsed, ...txns.slice(1)]
+    };
+  } catch (e) {
+    return null;
+  }
+}
+

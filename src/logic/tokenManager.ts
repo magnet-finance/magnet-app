@@ -1,6 +1,7 @@
 import { getAddress } from "@ethersproject/address";
 import { BigNumber } from "@ethersproject/bignumber";
-import { memoize } from "lodash";
+import { utils } from "ethers";
+import { isNumber, memoize } from "lodash";
 import filter from "lodash/filter";
 import find from "lodash/find";
 import includes from "lodash/includes";
@@ -20,7 +21,7 @@ export type TokenManager = {
   isTokenAddress: (tokenAddress: any) => tokenAddress is string,
   getTokenInfo: (tokenAddress: string) => TokenInfo | undefined,
   getTokenInfoBySymbol: (tokenSymbol: string) => TokenInfo | undefined,
-  convertToDecimals: (amount: BigNumber, tokenInfo: TokenInfo) => BigNumber
+  convertToDecimals: (amount: BigNumber, tokenInfo: TokenInfo) => BigNumber,
 };
 
 const _getTokenManagerHelper = memoize((chainId) : TokenManager => {
@@ -34,13 +35,24 @@ const _getTokenManagerHelper = memoize((chainId) : TokenManager => {
   }
 });
 
-export const getTokenManager = (web3?: Web3ReactContext) : TokenManager | undefined => {
-  if (web3 == null) {
+export const getTokenManager = (context?: Web3ReactContext | number) : TokenManager | undefined => {
+  if (context == null) {
     return undefined;
   }
-  const providerChainId = web3.chainId;
+  let providerChainId : number | undefined;
+  if (isNumber(context)) {
+    providerChainId = context;
+  } else {
+    providerChainId = context.chainId
+  }
   if (providerChainId == null || ChainIdToTokenList[providerChainId] == null) {
     return undefined;
   }
   return _getTokenManagerHelper(providerChainId);
 };
+
+export const formatBigNumber = (amount: BigNumber, decimals: number) : string => {
+  const removeDecimals = utils.formatUnits(amount, decimals);
+  const addCommas = utils.commify(removeDecimals);
+  return addCommas.replace(/(\.[0-9]*[1-9])0+$|\.0*$/,'$1'); // remove trailing 0s
+}

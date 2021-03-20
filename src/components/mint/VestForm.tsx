@@ -107,16 +107,17 @@ export const parseVestFormData = (formData: any, tokenManager: TokenManager) : I
     vestMagnetDefinition.recipient = recipient;
   }
 
-  // Parse Lifetime val
-  const lifetimeValue = formData.lifetimeValue;
-  if (isFinite(lifetimeValue) && lifetimeValue > 0) {
-    vestMagnetDefinition.lifetimeValue = BigNumber.from(lifetimeValue);
-  }
-
   // Parse tokenAddress
   const tokenAddress = formData.tokenAddress;
   if (tokenManager.isTokenAddress(tokenAddress)) {
-    vestMagnetDefinition.token = tokenManager.getTokenInfo(tokenAddress);
+    const token = tokenManager.getTokenInfo(tokenAddress);
+    vestMagnetDefinition.token = token;
+
+    // Parse Lifetime val - requires token to be defined
+    const lifetimeValue = formData.lifetimeValue;
+    if (isFinite(lifetimeValue) && lifetimeValue > 0 && token != null) {
+      vestMagnetDefinition.lifetimeValue = tokenManager.convertToDecimals(BigNumber.from(lifetimeValue), token);
+    }
   }
 
   // Parse Times

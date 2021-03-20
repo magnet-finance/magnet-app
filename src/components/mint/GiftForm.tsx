@@ -143,16 +143,17 @@ export const parseGiftFormData = (formData: any, tokenManager: TokenManager) : I
     giftMagnetDefinition.recipient = recipient;
   }
 
-  // Parse Lifetime val
-  const lifetimeValue = formData.lifetimeValue;
-  if (isFinite(lifetimeValue) && lifetimeValue > 0) {
-    giftMagnetDefinition.lifetimeValue = BigNumber.from(lifetimeValue);
-  }
-
   // Parse Token Address
   const tokenAddress = formData.tokenAddress;
   if (tokenManager.isTokenAddress(tokenAddress)) {
-    giftMagnetDefinition.token = tokenManager.getTokenInfo(tokenAddress);
+    const token = tokenManager.getTokenInfo(tokenAddress)
+    giftMagnetDefinition.token = token;
+
+    // Parse Lifetime val - requires token to be defined
+    const lifetimeValue = formData.lifetimeValue;
+    if (isFinite(lifetimeValue) && lifetimeValue > 0 && token != null) {
+      giftMagnetDefinition.lifetimeValue = tokenManager.convertToDecimals(BigNumber.from(lifetimeValue), token);
+    }
   }
 
   // Parse Times

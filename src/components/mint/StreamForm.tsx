@@ -94,16 +94,17 @@ export const parseStreamFormData = (formData: any, tokenManager: TokenManager) :
     streamMagnetDefinition.recipient = recipient;
   }
 
-  // Parse Lifetime val
-  const lifetimeValue = formData.lifetimeValue;
-  if (isFinite(lifetimeValue) && lifetimeValue > 0) {
-    streamMagnetDefinition.lifetimeValue = BigNumber.from(lifetimeValue);
-  }
-
   // Parse TokenAddress
   const tokenAddress = formData.tokenAddress;
   if (tokenManager.isTokenAddress(tokenAddress)) {
-    streamMagnetDefinition.token = tokenManager.getTokenInfo(tokenAddress);
+    const token = tokenManager.getTokenInfo(tokenAddress);
+    streamMagnetDefinition.token = token;
+
+    // Parse Lifetime val - requires token to be defined
+    const lifetimeValue = formData.lifetimeValue;
+    if (isFinite(lifetimeValue) && lifetimeValue > 0 && token != null) {
+      streamMagnetDefinition.lifetimeValue = tokenManager.convertToDecimals(BigNumber.from(lifetimeValue), token);
+    }
   }
 
   // Parse Times
