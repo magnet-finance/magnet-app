@@ -3,18 +3,17 @@ import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { Button } from "antd";
 import * as React from "react";
+import { ChainManager } from '../logic/chainManager';
 
-export const injectedConnector = new InjectedConnector({
-  supportedChainIds: [
-    1, // Mainet
-    3, // Ropsten
-    4, // Rinkeby
-    5, // Goerli
-    42, // Kovan
-  ],
+type Props = {
+  style?: React.CSSProperties;
+}
+
+const injectedConnector = new InjectedConnector({
+  supportedChainIds: ChainManager.SUPPORTED_CHAINS,
 })
 
-export const Wallet: React.FC = () => {
+export const Wallet: React.FC<Props> = (props) => {
   const { account, activate, active, deactivate } = useWeb3React<Web3Provider>()
 
   const handleClickWhileActive = () => {
@@ -42,14 +41,14 @@ export const Wallet: React.FC = () => {
       {active ? (
         <Button
           onClick={handleClickWhileActive}
-          style={styles.walletButton}
+          style={props.style ? {...styles.walletButton, ...props.style} : styles.walletButton}
           size="large">
           {getShortAddress()}
         </Button>
       ) : (
         <Button
           onClick={handleClickWhileInactive}
-          style={styles.walletButton}
+          style={props.style ? {...styles.walletButton, ...props.style} : styles.walletButton}
           size="large">
           Connect a wallet
         </Button>
@@ -64,7 +63,5 @@ const styles : {[key: string]: React.CSSProperties} = {
     color: "#4F4F4F",
     borderRadius: 12,
     lineHeight: "24px",
-    marginLeft: 24,
-    marginRight: 24,
   }
 }

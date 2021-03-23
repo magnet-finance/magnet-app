@@ -1,20 +1,22 @@
-import { Web3Provider } from '@ethersproject/providers';
-import { Web3ReactProvider } from '@web3-react/core';
+import Layout from "antd/lib/layout/layout";
+import { PageProps } from 'gatsby';
 import * as React from "react";
+import { Header } from "../components/Header";
 import { ReviewPageComponent } from '../components/review/ReviewPageComponent';
 
-function getLibrary(provider: any): Web3Provider {
-  const library = new Web3Provider(provider)
-  library.pollingInterval = 12000
-  return library
+type Props = PageProps & {
+  mintSuccess?: boolean,
+  safeTxHash?: string
 }
 
-// markup
-const ReviewPage = () => {
+const ReviewPage : React.FC<Props>= (props) => {
+  const mintSuccess = (props.location.state as any)?.mintSuccess;
+
   return (
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <ReviewPageComponent />
-    </Web3ReactProvider>
+    <Layout>
+      <Header />
+      <ReviewPageComponent safeTxHash={props.safeTxHash} mintSuccess={mintSuccess} />
+    </Layout>
   );
 }
 

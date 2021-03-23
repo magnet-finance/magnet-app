@@ -1,10 +1,13 @@
 import { Table } from "antd";
 import { ColumnsType } from "antd/lib/table";
+import { BigNumber } from "ethers";
 import { map } from "lodash";
 import moment, { Moment } from 'moment';
 import 'moment-duration-format';
 import * as React from "react";
+import { formatBigNumber } from "../../logic/tokenManager";
 import { maybeGetMagnetTypeDisplayName, RecurringMagnetDefinition } from "../../types/magnet";
+import { TokenInfo } from "../../types/token";
 import { TokenLabel } from "../TokenLabel";
 
 type Props = {
@@ -28,7 +31,7 @@ export const RecurringMagnetTable: React.FC<Props> = (props: Props) => {
       title: <span style={styles.header}>Start</span>,
       dataIndex: 'startTime',
       key: 'startTime',
-      render: (startTime) => <>{startTime.local().format('MMMM Do YYYY, h:mm a')}</>,
+      render: (startTime: Moment) => <>{startTime.local().format('MMMM Do YYYY, h:mm a')}</>,
     },
     {
       title: <span style={styles.header}>Cliff</span>,
@@ -54,13 +57,13 @@ export const RecurringMagnetTable: React.FC<Props> = (props: Props) => {
       title: <span style={styles.header}>Amount</span>,
       dataIndex: 'lifetimeValue',
       key: 'lifetimeValue',
-      render: (lifetimeValue: number) => <>{lifetimeValue.toLocaleString()}</>,
+      render: (lifetimeValue: BigNumber, record) => <>{formatBigNumber(lifetimeValue, record.token.decimals)}</>
     },
     {
       title: <span style={styles.header}>Token</span>,
-      dataIndex: 'tokenType',
-      key: 'tokenType',
-      render: (tokenType: string) => <TokenLabel address={tokenType} />,
+      dataIndex: 'token',
+      key: 'token',
+      render: (token: TokenInfo) => <TokenLabel token={token}/>,
     },
   ];
 

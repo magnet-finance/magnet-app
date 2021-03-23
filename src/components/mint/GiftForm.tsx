@@ -1,31 +1,36 @@
 import { UploadOutlined } from '@ant-design/icons';
+import { BigNumber } from '@ethersproject/bignumber';
+import { Web3Provider } from '@ethersproject/providers';
+import { useWeb3React } from '@web3-react/core';
 import { Button, DatePicker, Form, Input, InputNumber, Radio, Select, Space, TimePicker, Upload } from 'antd';
 import { UploadChangeParam } from 'antd/lib/upload';
 import { UploadFile } from 'antd/lib/upload/interface';
 import get from 'lodash/get';
-import isInteger from 'lodash/isInteger';
+import isFinite from 'lodash/isFinite';
 import isString from 'lodash/isString';
 import moment from 'moment';
 import { UploadRequestOption } from 'rc-upload/lib/interface';
 import React, { useState } from 'react';
 import { mergeDateAndTime } from '../../logic/timeSelector';
-import { isTokenType } from '../../logic/tokenType';
+import { getTokenManager, TokenManager } from '../../logic/tokenManager';
 import { InProgressGiftMagnetDefinition } from '../../types/magnet';
 import { Stylesheet } from '../../types/stylesheet';
+import { TokenLabel } from '../TokenLabel';
 
 type Props = {
   parentFieldName: string | number,
   fieldPath: (string | number)[]
 }
 
-const TokensTypes = [
-  { label: 'Sushi', value: 'sushi' },
-  { label: 'DAI', value: 'dai' },
-];
-
 export const GiftForm : React.FC<Props> = (props) => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
+  const web3 = useWeb3React<Web3Provider>();
+  const tokenManager = getTokenManager(web3);
+  if (web3 == null || tokenManager == null) {
+    console.error("Gift Form Error: No Wallet connected");
+    return null;
+  }
   const handleImageChange = (info: UploadChangeParam) => {
     const newFileList = info.fileList.slice(-1);
     info.fileList = newFileList;
@@ -81,8 +86,16 @@ export const GiftForm : React.FC<Props> = (props) => {
             <Form.Item name={[props.parentFieldName, "lifetimeValue"]}>
               <InputNumber />
             </Form.Item>
-            <Form.Item name={[props.parentFieldName, "tokenType"]}>
-              <Select options={TokensTypes} allowClear={false} />
+            <Form.Item name={[props.parentFieldName, "tokenAddress"]}>
+              <Select allowClear={false} style={styles.tokenSelect}>
+                {tokenManager.tokens.map((token) =>
+                  <Select.Option value={token.address} key={`mint-gift-token-dropdown-${token.address}`}>
+                    <span style={styles.selectOptionContainer}>
+                      <TokenLabel token={token}/>
+                    </span>
+                  </Select.Option>
+                )}
+              </Select>
             </Form.Item>
           </Space>
       </Form.Item>
@@ -114,7 +127,7 @@ export const GiftForm : React.FC<Props> = (props) => {
   );
 }
 
-export const parseGiftFormData = (formData: any) : InProgressGiftMagnetDefinition =>  {
+export const parseGiftFormData = (formData: any, tokenManager: TokenManager) : InProgressGiftMagnetDefinition =>  {
 
   const giftMagnetDefinition : InProgressGiftMagnetDefinition = {
     type: "gift"
@@ -130,16 +143,17 @@ export const parseGiftFormData = (formData: any) : InProgressGiftMagnetDefinitio
     giftMagnetDefinition.recipient = recipient;
   }
 
-  // Parse Lifetime val
-  const lifetimeValue = formData.lifetimeValue;
-  if (isInteger(lifetimeValue) && lifetimeValue > 0) {
-    giftMagnetDefinition.lifetimeValue = lifetimeValue;
-  }
+  // Parse Token Address
+  const tokenAddress = formData.tokenAddress;
+  if (tokenManager.isTokenAddress(tokenAddress)) {
+    const token = tokenManager.getTokenInfo(tokenAddress)
+    giftMagnetDefinition.token = token;
 
-  // Parse TokenType
-  const tokenType = formData.tokenType;
-  if (isTokenType(tokenType)) {
-    giftMagnetDefinition.tokenType = tokenType;
+    // Parse Lifetime val - requires token to be defined
+    const lifetimeValue = formData.lifetimeValue;
+    if (isFinite(lifetimeValue) && lifetimeValue > 0 && token != null) {
+      giftMagnetDefinition.lifetimeValue = tokenManager.convertToDecimals(BigNumber.from(lifetimeValue), token);
+    }
   }
 
   // Parse Times
@@ -197,5 +211,13 @@ const styles : Stylesheet = {
   label: {
     width: 100,
     textAlign: "left"
+  },
+  tokenSelect: {
+    width: 120,
+  },
+  selectOptionContainer: {
+    height: 29,
+    display: "flex",
+    alignItems: "center",
   }
 }

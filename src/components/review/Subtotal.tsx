@@ -1,12 +1,15 @@
 import { Table } from "antd";
 import { ColumnsType } from "antd/lib/table";
+import { BigNumber } from 'ethers';
 import groupBy from "lodash/groupBy";
 import mapValues from 'lodash/mapValues';
-import sumBy from "lodash/sumBy";
+import reduce from 'lodash/reduce';
 import values from "lodash/values";
 import 'moment-duration-format';
 import * as React from "react";
+import { formatBigNumber } from "../../logic/tokenManager";
 import { MagnetDefinition } from "../../types/magnet";
+import { TokenInfo } from "../../types/token";
 import { TokenLabel } from "../TokenLabel";
 
 type Props = {
@@ -15,8 +18,8 @@ type Props = {
 
 type Subtotal = {
   key: string,
-  amount: number,
-  tokenType: string,
+  amount: BigNumber,
+  token: TokenInfo,
 }
 
 export const Subtotal: React.FC<Props> = (props) => {
@@ -25,22 +28,23 @@ export const Subtotal: React.FC<Props> = (props) => {
       title: <span style={styles.header}>Amount</span>,
       dataIndex: 'amount',
       key: 'amount',
-      render: (text, record) => <>{record.amount.toLocaleString()}</>,
+      render: (amount: BigNumber, record) => <>{formatBigNumber(amount, record.token.decimals)}</>,
     },
     {
       title: <span style={styles.header}>Token</span>,
       dataIndex: 'token',
       key: 'token',
-      render: (text, record) => <TokenLabel address={record.tokenType} />,
+      render: (token: TokenInfo) => <TokenLabel token={token}/>,
     },
   ];
 
-  const magnetsByToken = groupBy(props.magnets, "tokenType");
-  const subtotals = values(mapValues(magnetsByToken, (magnets, tokenType) => {
+  const magnetsByToken = groupBy(props.magnets, "token.address");
+  const subtotals = values(mapValues(magnetsByToken, (magnets, tokenAddress) => {
+    const amount = reduce(magnets, (acc, m) => acc.add(m.lifetimeValue), BigNumber.from(0));
     return {
-      key: `subtotal-${tokenType}`,
-      amount: sumBy(magnets, "lifetimeValue"),
-      tokenType
+      key: `subtotal-${tokenAddress}`,
+      amount: amount,
+      token: magnets[0].token,
     }
   }));
 

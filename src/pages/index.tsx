@@ -1,23 +1,14 @@
-import { Web3Provider } from '@ethersproject/providers';
-import { Web3ReactProvider } from '@web3-react/core';
 import { Button } from 'antd';
 import Layout, { Content } from "antd/lib/layout/layout";
 import { navigate } from "gatsby";
 import * as React from "react";
 import { Header } from '../components/Header';
-import { ThemeProvider } from '../components/ThemeProvider';
 import GiftGraphic from '../images/gift.svg';
 import SablierLogo from '../images/sablier.svg';
 import StreamGraphic from '../images/stream.svg';
 import VestGraphic from '../images/vest.svg';
 import YfiLogo from '../images/yfi.svg';
 import YgiftLogo from '../images/ygift.svg';
-
-function getLibrary(provider: any): Web3Provider {
-  const library = new Web3Provider(provider)
-  library.pollingInterval = 12000
-  return library
-}
 
 // markup
 const IndexPage = () => {
@@ -30,94 +21,90 @@ const IndexPage = () => {
   }
 
   return (
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <ThemeProvider>
-        <Layout>
-          <Header />
-          <Content  style={styles.content}>
-            <div style={styles.title}>Magnetize your Mission.</div>
-            <div style={styles.subtitle}>Attract and retain contributors</div>
-            <div style={styles.subsubtitle}>Choose a magnet</div>
-            <div style={styles.cardContainer}>
-              <div style={styles.card}>
-                <VestGraphic style={styles.cardLogo} />
-                <div style={styles.cardTitle}>
-                  Vest
-                </div>
-                <div style={styles.cardDescription}>
-                  Vest retention packages with a cliff date and any ERC20 token
-                </div>
-                <div style={styles.attributionContainer}>
-                  <YfiLogo style={styles.attributionLogo} />
-                  <div style={styles.attributionText}>
-                    Vested via Yearn Escrow
-                  </div>
-                </div>
-                <Button
-                  onClick={() => goToMint("vest")}
-                  style={styles.cardButton}
-                  type="primary"
-                  size="large">
-                  Mint
-                </Button>
-              </div>
-              <div style={styles.card}>
-                <StreamGraphic style={styles.cardLogo} />
-                <div style={styles.cardTitle}>
-                  Stream
-                </div>
-                <div style={styles.cardDescription}>
-                  Stream salaries in real-time with any ERC20 token
-                </div>
-                <div style={styles.attributionContainer}>
-                  <SablierLogo style={styles.attributionLogo} />
-                  <div style={styles.attributionText}>
-                    Streamed via Sablier
-                  </div>
-                </div>
-                <Button
-                  onClick={() => goToMint("stream")}
-                  style={styles.cardButton}
-                  type="primary"
-                  size="large">
-                  Mint
-                </Button>
-              </div>
-              <div style={styles.card}>
-                <GiftGraphic style={styles.cardLogo} />
-                <div style={styles.cardTitle}>
-                  Gift
-                </div>
-                <div style={styles.cardDescription}>
-                  Gift ERC20 tokens, memes, and a message of gratitude
-                </div>
-                <div style={styles.attributionContainer}>
-                  <YgiftLogo style={styles.attributionLogo} />
-                  <div style={styles.attributionText}>
-                    Gifted via yGift
-                  </div>
-                </div>
-                <Button
-                  onClick={() => goToMint("gift")}
-                  style={styles.cardButton}
-                  type="primary"
-                  size="large">
-                  Mint
-                </Button>
+    <Layout>
+      <Header />
+      <Content  style={styles.content}>
+        <div style={styles.title}>Magnetize your Mission.</div>
+        <div style={styles.subtitle}>Attract and retain contributors</div>
+        <div style={styles.subsubtitle}>Choose a magnet</div>
+        <div style={styles.cardContainer}>
+          <div style={styles.card}>
+            <VestGraphic style={styles.cardLogo} />
+            <div style={styles.cardTitle}>
+              Vest
+            </div>
+            <div style={styles.cardDescription}>
+              Vest retention packages with a cliff date and any ERC20 token
+            </div>
+            <div style={styles.attributionContainer}>
+              <YfiLogo style={styles.attributionLogo} />
+              <div style={styles.attributionText}>
+                Vested via Yearn Escrow
               </div>
             </div>
             <Button
-              onClick={() => goToMint("")}
-              style={styles.mintMultipleButton}
-              size="large"
+              onClick={() => goToMint("vest")}
+              style={styles.cardButton}
               type="primary"
-              ghost={true}>
-              Mint Multiple
+              size="large">
+              Mint
             </Button>
-          </Content>
-        </Layout>
-      </ThemeProvider>
-    </Web3ReactProvider>
+          </div>
+          <div style={styles.card}>
+            <StreamGraphic style={styles.cardLogo} />
+            <div style={styles.cardTitle}>
+              Stream
+            </div>
+            <div style={styles.cardDescription}>
+              Stream salaries in real-time with any ERC20 token
+            </div>
+            <div style={styles.attributionContainer}>
+              <SablierLogo style={styles.attributionLogo} />
+              <div style={styles.attributionText}>
+                Streamed via Sablier
+              </div>
+            </div>
+            <Button
+              onClick={() => goToMint("stream")}
+              style={styles.cardButton}
+              type="primary"
+              size="large">
+              Mint
+            </Button>
+          </div>
+          <div style={styles.card}>
+            <GiftGraphic style={styles.cardLogo} />
+            <div style={styles.cardTitle}>
+              Gift
+            </div>
+            <div style={styles.cardDescription}>
+              Gift ERC20 tokens, memes, and a message of gratitude
+            </div>
+            <div style={styles.attributionContainer}>
+              <YgiftLogo style={styles.attributionLogo} />
+              <div style={styles.attributionText}>
+                Gifted via yGift
+              </div>
+            </div>
+            <Button
+              onClick={() => goToMint("gift")}
+              style={styles.cardButton}
+              type="primary"
+              size="large">
+              Mint
+            </Button>
+          </div>
+        </div>
+        <Button
+          onClick={() => goToMint("")}
+          style={styles.mintMultipleButton}
+          size="large"
+          type="primary"
+          ghost={true}>
+          Mint Multiple
+        </Button>
+      </Content>
+    </Layout>
   )
 }
 

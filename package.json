@@ -21,6 +21,7 @@
     "@web3-react/core": "^6.1.9",
     "@web3-react/injected-connector": "^6.0.7",
     "antd": "^4.12.3",
+    "eth-typed-data": "^0.1.0-beta.0",
     "ethers": "^5.0.31",
     "gatsby": "^2.32.3",
     "gatsby-image": "^2.11.0",

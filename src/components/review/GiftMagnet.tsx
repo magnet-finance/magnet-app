@@ -2,6 +2,7 @@ import { TwitterOutlined } from '@ant-design/icons';
 import { Button, Card, Image } from "antd";
 import 'moment-duration-format';
 import * as React from "react";
+import { formatBigNumber } from '../../logic/tokenManager';
 import { GiftMagnetDefinition } from '../../types/magnet';
 import { TokenLabel } from "../TokenLabel";
 
@@ -15,6 +16,7 @@ export const GiftMagnet: React.FC<Props> = (props) => {
     window.open("https://twitter.com/intent/tweet?text=" + text);
   }
 
+  const token = props.gift.token;
   return (
     <Card style={styles.card} bodyStyle={styles.cardBody}>
       <Image
@@ -32,8 +34,8 @@ export const GiftMagnet: React.FC<Props> = (props) => {
           {props.gift.giftMessage}
         </div>
         <div style={styles.amount}>
-          <span style={styles.number}>{props.gift.lifetimeValue.toLocaleString()}</span>
-          <TokenLabel address={props.gift.tokenType} />
+          <span style={styles.number}>{formatBigNumber(props.gift.lifetimeValue, token.decimals)}</span>
+          <TokenLabel token={token}/>
         </div>
         <Button
           style={styles.twitter}
