@@ -127,7 +127,20 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
           labelAlign="left"
           labelCol={{span: 0}}
           style={styles.gnosisFormItem}
-          name="safeAddress">
+          name="safeAddress"
+          rules={[
+            {
+              validator: async (_, value) => {
+                if (!value) {
+                  return Promise.reject(new Error('Please enter Gnosis Multisig address'));
+                }
+                else if (!isAddress(value)) {
+                  return Promise.reject(new Error('Invalid address'));
+                }
+              },
+            },
+          ]}
+        >
           <Input/>
         </Form.Item>
       </div>
