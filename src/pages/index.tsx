@@ -2,6 +2,7 @@ import { Button } from 'antd';
 import Layout, { Content } from "antd/lib/layout/layout";
 import { navigate } from "gatsby";
 import * as React from "react";
+import Helmet from "react-helmet";
 import { Header } from '../components/Header';
 import GiftGraphic from '../images/gift.svg';
 import SablierLogo from '../images/sablier.svg';
@@ -22,6 +23,9 @@ const IndexPage = () => {
 
   return (
     <Layout>
+      <Helmet>
+        <title>Magnet</title>
+      </Helmet>
       <Header />
       <Content  style={styles.content}>
         <div style={styles.title}>Magnetize your Mission.</div>
@@ -107,8 +111,6 @@ const IndexPage = () => {
     </Layout>
   )
 }
-
-export default IndexPage
 
 const styles : {[key: string]: React.CSSProperties} = {
   content: {
@@ -196,3 +198,5 @@ const styles : {[key: string]: React.CSSProperties} = {
     marginTop: 48,
   }
 }
+
+export default IndexPage
