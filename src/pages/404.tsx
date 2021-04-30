@@ -1,54 +1,52 @@
-import * as React from "react"
-import { Link } from "gatsby"
-
-// styles
-const pageStyles = {
-  color: "#232129",
-  padding: "96px",
-  fontFamily: "-apple-system, Roboto, sans-serif, serif",
-}
-const headingStyles = {
-  marginTop: 0,
-  marginBottom: 64,
-  maxWidth: 320,
-}
-
-const paragraphStyles = {
-  marginBottom: 48,
-}
-const codeStyles = {
-  color: "#8A6534",
-  padding: 4,
-  backgroundColor: "#FFF4DB",
-  fontSize: "1.25rem",
-  borderRadius: 4,
-}
+import { Button } from "antd";
+import Layout, { Content } from "antd/lib/layout/layout";
+import { navigate } from "gatsby";
+import * as React from "react";
+import Helmet from "react-helmet";
+import { Header } from '../components/Header';
 
 // markup
 const NotFoundPage = () => {
+  const goToHome = () => {
+    navigate("/");
+  }
+
   return (
-    <main style={pageStyles}>
-      <title>Not found</title>
-      <h1 style={headingStyles}>Page not found</h1>
-      <p style={paragraphStyles}>
-        Sorry{" "}
-        <span role="img" aria-label="Pensive emoji">
-          😔
-        </span>{" "}
-        we couldn’t find what you were looking for.
-        <br />
-        {process.env.NODE_ENV === "development" ? (
-          <>
-            <br />
-            Try creating a page in <code style={codeStyles}>src/pages/</code>.
-            <br />
-          </>
-        ) : null}
-        <br />
-        <Link to="/">Go home</Link>.
-      </p>
-    </main>
+    <Layout>
+      <Helmet>
+        <title>Magnet</title>
+      </Helmet>
+      <Header />
+      <Content  style={styles.content}>
+        <div style={styles.error}>Page not found</div>
+        <Button
+          onClick={() => goToHome()}
+          style={styles.goHomeButton}
+          type="primary"
+          size="large">
+          Go home
+        </Button>
+      </Content>
+    </Layout>
   )
+}
+
+const styles : {[key: string]: React.CSSProperties} = {
+  content: {
+    backgroundColor: "#FFFFFF",
+    paddingTop: 64,
+    paddingBottom: 64,
+    paddingLeft: 50,
+    paddingRight: 50,
+    textAlign: "center",
+  },
+  error: {
+    marginTop: 128,
+    fontSize: 36,
+  },
+  goHomeButton: {
+    marginTop: 20,
+  },
 }
 
 export default NotFoundPage

@@ -132,7 +132,7 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
             {
               validator: async (_, value) => {
                 if (!value) {
-                  return Promise.reject(new Error('Please enter Gnosis Multisig address'));
+                  return Promise.reject(new Error('Please enter a Gnosis Multisig address'));
                 }
                 else if (!isAddress(value)) {
                   return Promise.reject(new Error('Invalid address'));
@@ -163,10 +163,9 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
         )}
       </Form.List>
       <MintReview magnets={inProgressMagnets}/>
-      <div style={styles.beta}>Beta Warning: use at your own risk</div>
-      <div style={styles.disclaimer}>Please take note that this is a beta version feature and is provided on an "as is" and "as available" basis.</div>
-      <div style={styles.disclaimer}>Magnet or its developers do not give any warranties and will not be liable for any loss, direct or indirect through continued use of this feature.</div>
-      <div style={styles.disclaimer}>By clicking "Mint Magnets" below, you acknowledge this risk and assume all responsibility.</div>
+      <div style={styles.beta}>Disclaimer: you could lose all your funds. Use at your own risk.</div>
+      <div style={styles.disclaimer}>Please note this is a Beta version and is provided on an "as is" and "as available" basis. You could lose all your funds. Magnet Labs LLC and its developers do not give any warranties and will not be liable for any loss, direct or indirect through continued use of this feature.</div>
+      <div style={styles.disclaimer}>By clicking "Mint Magnets" below, you acknowledge this message and assume all responsibility.</div>
       <Form.Item {...tailLayout}>
         <Button style={styles.submitButton} loading={mintButtonSpinner} type="primary" htmlType="submit" size="large">
           Mint Magnets

@@ -61,7 +61,17 @@ export const StreamForm : React.FC<Props> = (props) => {
       <Form.Item
         label={wrapLabel("End Time")}>
           <Space>
-            <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "endTimeAmount"]}>
+            <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "endTimeAmount"]}
+              rules={[
+                {
+                  validator: async (_, value) => {
+                    if (!value || value <= 0) {
+                      return Promise.reject(new Error('Stream duration must be greater than zero'));
+                    }
+                  },
+                },
+              ]}
+            >
               <InputNumber />
             </Form.Item>
             <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "endTimeUnit"]}>
