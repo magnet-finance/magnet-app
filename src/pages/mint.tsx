@@ -3,6 +3,7 @@ import { useWeb3React } from "@web3-react/core";
 import Layout, { Content } from "antd/lib/layout/layout";
 import { PageProps } from 'gatsby';
 import * as React from "react";
+import { Helmet } from 'react-helmet';
 import { Header } from '../components/Header';
 import { MultiMagnetForm } from '../components/mint/MultiMagnetForm';
 import { WalletConnectPageComponent } from "../components/WalletConnectPageComponent";
@@ -22,6 +23,9 @@ const MintPage : React.FC<PageProps> = (props) => {
 
   return (
     <Layout>
+      <Helmet>
+        <title>Magnet</title>
+      </Helmet>
       <Header />
       {web3.chainId ? (
         <Content  style={styles.content}>
@@ -36,8 +40,6 @@ const MintPage : React.FC<PageProps> = (props) => {
     </Layout>
   );
 }
-
-export default MintPage
 
 const styles : {[key: string]: React.CSSProperties} = {
   content: {
@@ -68,3 +70,5 @@ const styles : {[key: string]: React.CSSProperties} = {
     fontWeight: 600,
   },
 }
+
+export default MintPage

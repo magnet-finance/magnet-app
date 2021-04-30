@@ -49,10 +49,6 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
   const [ inProgressMagnets, setInProgressMagnets] = useState<InProgressMagnetDefinition[]>(initialInProgressMagnets);
 
   const [ mintButtonSpinner, setMintButtonSpinner ] = useState(false);
-  // TODO: implement proper error handling to hide spinner when MetaMask/TX errors occur
-  setTimeout(() => {
-    setMintButtonSpinner(false);
-  }, 15000);
 
   // Note(ggranito): Need to useRef to make sure it's the same function across renders
   const updateTable = useRef(throttle((formData) => {
@@ -99,12 +95,17 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
       console.error("FormSubmissionError: Unable to get GnosisManager");
       return;
     }
-    const safeTxHash = await gnosisManager.submitMagnets(magnets, safeAddress);
-    navigate(`/review/${safeTxHash}`, {
-      state: {
-        mintSuccess: true,
-       },
-    });
+    try {
+      const safeTxHash = await gnosisManager.submitMagnets(magnets, safeAddress);
+      navigate(`/review/${safeTxHash}`, {
+        state: {
+          mintSuccess: true,
+        },
+      });
+    } catch (e) {
+      setMintButtonSpinner(false);
+      console.error(e);
+    }
   }, [web3])
 
   return (
@@ -126,7 +127,20 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
           labelAlign="left"
           labelCol={{span: 0}}
           style={styles.gnosisFormItem}
-          name="safeAddress">
+          name="safeAddress"
+          rules={[
+            {
+              validator: async (_, value) => {
+                if (!value) {
+                  return Promise.reject(new Error('Please enter a Gnosis Multisig address'));
+                }
+                else if (!isAddress(value)) {
+                  return Promise.reject(new Error('Invalid address'));
+                }
+              },
+            },
+          ]}
+        >
           <Input/>
         </Form.Item>
       </div>
@@ -149,10 +163,9 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
         )}
       </Form.List>
       <MintReview magnets={inProgressMagnets}/>
-      <div style={styles.beta}>Beta Warning: use at your own risk</div>
-      <div style={styles.disclaimer}>Please take note that this is a beta version feature and is provided on an "as is" and "as available" basis.</div>
-      <div style={styles.disclaimer}>Magnet or its developers do not give any warranties and will not be liable for any loss, direct or indirect through continued use of this feature.</div>
-      <div style={styles.disclaimer}>By clicking "Mint Magnets" below, you acknowledge this risk and assume all responsibility.</div>
+      <div style={styles.beta}>Disclaimer: you could lose all your funds. Use at your own risk.</div>
+      <div style={styles.disclaimer}>Please note this is a Beta version and is provided on an "as is" and "as available" basis. You could lose all your funds. Magnet Labs LLC and its developers do not give any warranties and will not be liable for any loss, direct or indirect through continued use of this feature.</div>
+      <div style={styles.disclaimer}>By clicking "Mint Magnets" below, you acknowledge this message and assume all responsibility.</div>
       <Form.Item {...tailLayout}>
         <Button style={styles.submitButton} loading={mintButtonSpinner} type="primary" htmlType="submit" size="large">
           Mint Magnets

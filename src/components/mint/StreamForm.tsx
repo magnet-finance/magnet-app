@@ -1,3 +1,4 @@
+import { isAddress } from '@ethersproject/address';
 import { BigNumber } from '@ethersproject/bignumber';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
@@ -28,7 +29,20 @@ export const StreamForm : React.FC<Props> = (props) => {
     <>
       <Form.Item
         label={wrapLabel("Recipient")}
-        name={[props.parentFieldName, "recipient"]}>
+        name={[props.parentFieldName, "recipient"]}
+        rules={[
+          {
+            validator: async (_, value) => {
+              if (!value) {
+                return Promise.reject(new Error('Please enter recipient address'));
+              }
+              else if (!isAddress(value)) {
+                return Promise.reject(new Error('Invalid address'));
+              }
+            },
+          },
+        ]}
+      >
         <Input/>
       </Form.Item>
       <Form.Item
@@ -47,7 +61,17 @@ export const StreamForm : React.FC<Props> = (props) => {
       <Form.Item
         label={wrapLabel("End Time")}>
           <Space>
-            <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "endTimeAmount"]}>
+            <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "endTimeAmount"]}
+              rules={[
+                {
+                  validator: async (_, value) => {
+                    if (!value || value <= 0) {
+                      return Promise.reject(new Error('Stream duration must be greater than zero'));
+                    }
+                  },
+                },
+              ]}
+            >
               <InputNumber />
             </Form.Item>
             <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "endTimeUnit"]}>
@@ -58,7 +82,17 @@ export const StreamForm : React.FC<Props> = (props) => {
       <Form.Item
         label={wrapLabel("Lifetime Value")}>
           <Space>
-            <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "lifetimeValue"]}>
+            <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "lifetimeValue"]}
+              rules={[
+                {
+                  validator: async (_, value) => {
+                    if (!value || value <= 0) {
+                      return Promise.reject(new Error('Value must be greater than zero'));
+                    }
+                  },
+                },
+              ]}
+            >
               <InputNumber />
             </Form.Item>
             <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "tokenAddress"]}>

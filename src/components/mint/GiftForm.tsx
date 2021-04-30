@@ -1,4 +1,5 @@
 import { UploadOutlined } from '@ant-design/icons';
+import { isAddress } from '@ethersproject/address';
 import { BigNumber } from '@ethersproject/bignumber';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
@@ -51,7 +52,20 @@ export const GiftForm : React.FC<Props> = (props) => {
     <>
       <Form.Item
         label={wrapLabel("Recipient")}
-        name={[props.parentFieldName, "recipient"]}>
+        name={[props.parentFieldName, "recipient"]}
+        rules={[
+          {
+            validator: async (_, value) => {
+              if (!value) {
+                return Promise.reject(new Error('Please enter recipient address'));
+              }
+              else if (!isAddress(value)) {
+                return Promise.reject(new Error('Invalid address'));
+              }
+            },
+          },
+        ]}
+      >
         <Input/>
       </Form.Item>
       <Form.Item
@@ -83,7 +97,17 @@ export const GiftForm : React.FC<Props> = (props) => {
         label={wrapLabel("Value")}
         style={styles.inputRow}>
           <Space>
-            <Form.Item name={[props.parentFieldName, "lifetimeValue"]}>
+            <Form.Item name={[props.parentFieldName, "lifetimeValue"]}
+              rules={[
+                {
+                  validator: async (_, value) => {
+                    if (value === null || value < 0) {
+                      return Promise.reject(new Error('Value must be at least zero'));
+                    }
+                  },
+                },
+              ]}
+            >
               <InputNumber />
             </Form.Item>
             <Form.Item name={[props.parentFieldName, "tokenAddress"]}>
@@ -151,7 +175,7 @@ export const parseGiftFormData = (formData: any, tokenManager: TokenManager) : I
 
     // Parse Lifetime val - requires token to be defined
     const lifetimeValue = formData.lifetimeValue;
-    if (isFinite(lifetimeValue) && lifetimeValue > 0 && token != null) {
+    if (isFinite(lifetimeValue) && lifetimeValue >= 0 && token != null) {
       giftMagnetDefinition.lifetimeValue = tokenManager.convertToDecimals(BigNumber.from(lifetimeValue), token);
     }
   }
