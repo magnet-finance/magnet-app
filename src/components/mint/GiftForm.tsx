@@ -37,6 +37,37 @@ export const GiftForm : React.FC<Props> = (props) => {
     info.fileList = newFileList;
     setFileList(newFileList);
   }
+/*
+  async function saveToIpfs(file: File) {
+    if (file) {
+      ipfs
+        .add(file, {
+          progress: (prog: any) => console.log(`received: ${prog}`),
+        })
+        .then((file) => {
+          console.log(file);
+          const ipfsHash = file.path;
+          const ipfsGateway = "https://gateway.ipfs.io/ipfs/";
+          formik.setFieldValue(
+            String(params.indexOf("_url")),
+            ipfsGateway + ipfsHash
+          );
+          setChosenFile(undefined);
+          setChosenFileUrl("");
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+      // try {
+      //   for (const file of await source) {
+      //     console.log(file);
+      //   }
+      // } catch (err) {
+      //   console.error(err);
+      // }
+    }
+  }
+*/
 
   const dontUploadImage = (data: UploadRequestOption) => {
     // Note(ggranito): this is needed to tell the UI we're not uploading it
@@ -139,7 +170,7 @@ export const GiftForm : React.FC<Props> = (props) => {
         <Upload
           listType="picture"
           fileList={fileList}
-          accept=".png,.jpg,.mp4"
+          accept=".png,.jpg,.mp4,.gif,.jpeg"
           multiple={false}
           customRequest={dontUploadImage}
           onChange={handleImageChange}
