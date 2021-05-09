@@ -80,6 +80,8 @@ export const StreamForm : React.FC<Props> = (props) => {
           </Space>
       </Form.Item>
       <Form.Item
+        help="Sablier requires the value to be an even multiple of duration. Magnet will submit the nearest rounded value, shown below."
+        style={styles.spaceForWarning}
         label={wrapLabel("Lifetime Value")}>
           <Space>
             <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "lifetimeValue"]}
@@ -130,14 +132,37 @@ export const parseStreamFormData = (formData: any, tokenManager: TokenManager) :
 
   // Parse TokenAddress
   const tokenAddress = formData.tokenAddress;
+  const lifetimeValue = formData.lifetimeValue;
+  const token = tokenManager.getTokenInfo(tokenAddress);
   if (tokenManager.isTokenAddress(tokenAddress)) {
-    const token = tokenManager.getTokenInfo(tokenAddress);
     streamMagnetDefinition.token = token;
 
     // Parse Lifetime val - requires token to be defined
-    const lifetimeValue = formData.lifetimeValue;
     if (isFinite(lifetimeValue) && lifetimeValue > 0 && token != null) {
-      streamMagnetDefinition.lifetimeValue = tokenManager.convertToDecimals(BigNumber.from(lifetimeValue), token);
+      const decimalLifetimeValue = tokenManager.convertToDecimals(BigNumber.from(lifetimeValue), token);
+      let roundedLifetimeValue: BigNumber | undefined;
+
+      const startTimeDate = formData.startTimeDate;
+      const startTimeTime = formData.startTimeTime;
+      if (moment.isMoment(startTimeDate) && moment.isMoment(startTimeTime)) {
+        const startTime = mergeDateAndTime(startTimeDate, startTimeTime);
+        const endTimeAmount = formData.endTimeAmount;
+        const endTimeUnit = formData.endTimeUnit;
+        if (isFinite(endTimeAmount) && endTimeAmount >=0 && isTimeUnit(endTimeUnit)) {
+          roundedLifetimeValue = roundValueToMatchDuration(
+            endTimeAmount,
+            endTimeUnit,
+            decimalLifetimeValue,
+            startTime);
+        }
+      }
+
+      if (roundedLifetimeValue !== undefined) {
+        streamMagnetDefinition.lifetimeValue = roundedLifetimeValue;
+      }
+      else {
+        streamMagnetDefinition.lifetimeValue = decimalLifetimeValue;
+      }
     }
   }
 
@@ -157,6 +182,16 @@ export const parseStreamFormData = (formData: any, tokenManager: TokenManager) :
   }
 
   return streamMagnetDefinition;
+}
+
+// Returns the lifetimeValue after rounding down to the nearest multiple of duration
+// because the Sablier contract requires that lifetimeValue be an even multiple of duration.
+const roundValueToMatchDuration = (endTimeAmount: any, endTimeUnit: string, value: BigNumber, startTime: moment.Moment): BigNumber => {
+  const endTime = moment(startTime).add(endTimeAmount, endTimeUnit);
+  const durationInSeconds = moment.duration(endTime.diff(startTime)).asSeconds();
+  const remainder = value.mod(durationInSeconds);
+  const roundedValue = value.sub(remainder);
+  return roundedValue;
 }
 
 const wrapLabel = (label: string) => {
