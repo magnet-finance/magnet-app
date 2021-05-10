@@ -159,7 +159,29 @@ const getGasEstimate = (config: GnosisConfig, safeAddress: string, txn: Transact
   });
 }
 
-const signAndGetSubmitReq = async (safeAddress: string, txn: Transaction, nonce: number, gasEstimate: GasEstimateResponse, web3: Web3ReactContext) : Promise<GnosisSubmitTxnRequest> => {
+type UnsignedGnosisTxn = Omit<GnosisSubmitTxnRequest, "contractTransactionHash" | "sender" | "signature" | "origin">;
+
+const getUnsignedGnosisTxn = (txn: Transaction, nonce: number, gasEstimate: GasEstimateResponse) => {
+  return {
+    ...txn,
+    // This just validates and coerces the to address, it should already be done, but doing it again can't hurt.
+    to: utils.getAddress(txn.to),
+    value: txn.value.toNumber(),
+    nonce,
+    safeTxGas: BigNumber.from(gasEstimate.safeTxGas).toNumber(),
+    // We don't want to use the refund logic of the safe so lets use the default values
+    baseGas: 0,
+    gasPrice: 0,
+    gasToken: "0x0000000000000000000000000000000000000000",
+    refundReceiver: "0x0000000000000000000000000000000000000000",
+  }
+}
+
+const signGnosisTxn = async (safeAddress: string, unsigned: UnsignedGnosisTxn, web3: Web3ReactContext) => {
+  if (unsigned.data == null) {
+    throw Error("Signing Error: Invalid unsigned txn\n\n" + JSON.stringify(unsigned))
+  }
+
   // From https://gist.github.com/rmeissner/0fa5719dc6b306ba84ee34bebddc860b#file-safe_sig_gen_uport_eip712-ts-L114
   const safeDomain = new EIP712Domain({
     verifyingContract: safeAddress
@@ -178,24 +200,10 @@ const signAndGetSubmitReq = async (safeAddress: string, txn: Transaction, nonce:
     { type: "uint256", name: "nonce" },
   ]);
 
-  const gnosisTxnSubmitReq : Omit<GnosisSubmitTxnRequest, "contractTransactionHash" | "sender" | "signature" | "origin"> = {
-    ...txn,
-    // This just validates and coerces the to address, it should already be done, but doing it again can't hurt.
-    to: utils.getAddress(txn.to),
-    value: txn.value.toNumber(),
-    nonce,
-    safeTxGas: BigNumber.from(gasEstimate.safeTxGas).toNumber(),
-    // We don't want to use the refund logic of the safe so lets use the default values
-    baseGas: 0,
-    gasPrice: 0,
-    gasToken: "0x0000000000000000000000000000000000000000",
-    refundReceiver: "0x0000000000000000000000000000000000000000",
-  }
-
   const safeTxn = new SafeTx({
-    ...gnosisTxnSubmitReq,
+    ...unsigned,
     // We need to convert data to an array
-    data: utils.arrayify(txn.data),
+    data: utils.arrayify(unsigned.data),
   });
 
   // Note: signHash() is a function on the eth-typed-data library. It does not support typescript.
@@ -213,17 +221,34 @@ const signAndGetSubmitReq = async (safeAddress: string, txn: Transaction, nonce:
     ...generatedSigReq,
     message: {
       ...generatedSigReq.message,
-      data: gnosisTxnSubmitReq.data
+      data: unsigned.data
     }
   }
   // Using this instead of signer._signTypedData because it is an experimental api
-  const signature = await provider.send("eth_signTypedData_v4", [
+  const signature : string = await provider.send("eth_signTypedData_v4", [
     myAddress,
     JSON.stringify(sigReq)
   ]);
 
   return {
-    ...gnosisTxnSubmitReq,
+    contractTransactionHash,
+    signature,
+    myAddress
+  };
+}
+
+const signAndGetSubmitReq = async (safeAddress: string, txn: Transaction, nonce: number, gasEstimate: GasEstimateResponse, web3: Web3ReactContext) : Promise<GnosisSubmitTxnRequest> => {
+
+  const unsigned = getUnsignedGnosisTxn(txn, nonce, gasEstimate);
+
+  const {
+    contractTransactionHash,
+    myAddress,
+    signature
+  } = await signGnosisTxn(safeAddress, unsigned, web3);
+
+  return {
+    ...unsigned,
     contractTransactionHash,
     sender: myAddress,
     signature,
@@ -241,10 +266,39 @@ const submitTxnToGnosis = async (config: GnosisConfig, safeAddress: string, subm
   return result.status < 300;
 }
 
+const getApprovalSignature = (safeAddress: string, gnosisResponse: SafeTxResponse, web3: Web3ReactContext) => {
+  return signGnosisTxn(safeAddress,
+    {
+      operation: gnosisResponse.operation,
+      to: gnosisResponse.to,
+      value: BigNumber.from(gnosisResponse.value).toNumber(),
+      data: gnosisResponse.data,
+      nonce: gnosisResponse.nonce,
+      baseGas: gnosisResponse.baseGas,
+      gasPrice: BigNumber.from(gnosisResponse.gasPrice).toNumber(),
+      gasToken: gnosisResponse.gasToken,
+      refundReceiver: gnosisResponse.refundReceiver,
+      safeTxGas: gnosisResponse.safeTxGas
+    },
+    web3);
+}
+
+const submitApprovalToGnosis = async (config: GnosisConfig, gnosisResponse: SafeTxResponse, signature: string) : Promise<boolean> => {
+  const result = await fetch(`${config.txServiceUrl}/api/v1/multisig-transactions/${gnosisResponse.safeTxHash}/confirmations/`, {
+    method: "POST",
+    headers: JSON_HEADERS,
+    body: JSON.stringify({
+      signature
+    })
+  });
+  return result.status < 300;
+}
+
 // Gnosis Manager
 
 export type GnosisManager = {
   submitMagnets: (magnets: MagnetDefinition[], gnosisSafeAddress: string) => Promise<string>,
+  submitApproval: (safeAddress: string, gnosisResponse: SafeTxResponse) => Promise<boolean>
 }
 
 const _getGnosisManagerHelper = memoize((config: GnosisConfig, web3: Web3ReactContext) : GnosisManager => ({
@@ -264,6 +318,10 @@ const _getGnosisManagerHelper = memoize((config: GnosisConfig, web3: Web3ReactCo
     );
     await submitTxnToGnosis(config, safeAddress, submitReq);
     return submitReq.contractTransactionHash;
+  },
+  submitApproval: async (safeAddress: string, gnosisResponse: SafeTxResponse) => {
+    const { signature } = await getApprovalSignature(safeAddress, gnosisResponse, web3)
+    return await submitApprovalToGnosis(config, gnosisResponse, signature)
   }
 }));
 
