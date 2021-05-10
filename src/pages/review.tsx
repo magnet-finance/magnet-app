@@ -1,5 +1,6 @@
-import Layout from "antd/lib/layout/layout";
-import { PageProps } from 'gatsby';
+import { Button, Form, Input } from "antd";
+import Layout, { Content } from "antd/lib/layout/layout";
+import { navigate, PageProps } from 'gatsby';
 import * as React from "react";
 import { Helmet } from "react-helmet";
 import { Header } from "../components/Header";
@@ -13,15 +14,50 @@ type Props = PageProps & {
 const ReviewPage : React.FC<Props>= (props) => {
   const mintSuccess = (props.location.state as any)?.mintSuccess;
 
+  const goToSafeHash = (values: any) => {
+    navigate(`/review/${values.safeTxHash}`)
+  };
+
   return (
     <Layout>
       <Helmet>
         <title>Magnet</title>
       </Helmet>
       <Header />
-      <ReviewPageComponent safeTxHash={props.safeTxHash} mintSuccess={mintSuccess} />
+      {props.safeTxHash ? (
+        <ReviewPageComponent safeTxHash={props.safeTxHash} mintSuccess={mintSuccess} />
+      ) : (
+        <Content style={styles.content}>
+          <div style={styles.title}>Enter the Gnosis SafeTxHash for review</div>
+          <Form name="enter-safe-hash-form" onFinish={goToSafeHash}>
+            <Form.Item name="safeTxHash" rules={[{ required: true }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item >
+              <Button type="primary" htmlType="submit">
+                Begin Review
+              </Button>
+            </Form.Item>
+          </Form>
+        </Content>
+      )}
     </Layout>
   );
+}
+
+const styles : {[key: string]: React.CSSProperties} = {
+  content: {
+    backgroundColor: "#FFFFFF",
+    paddingTop: 64,
+    paddingBottom: 64,
+    paddingLeft: 146,
+    paddingRight: 146,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 600,
+    marginBottom: 20,
+  }
 }
 
 export default ReviewPage
