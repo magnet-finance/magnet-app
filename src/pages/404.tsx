@@ -18,14 +18,16 @@ const NotFoundPage = () => {
       </Helmet>
       <Header />
       <Content  style={styles.content}>
-        <div style={styles.error}>Page not found</div>
-        <Button
-          onClick={() => goToHome()}
-          style={styles.goHomeButton}
-          type="primary"
-          size="large">
-          Go home
-        </Button>
+        <div style={styles.centered}>
+          <div style={styles.error}>Page not found</div>
+          <Button
+            onClick={() => goToHome()}
+            style={styles.goHomeButton}
+            type="primary"
+            size="large">
+            Go home
+          </Button>
+        </div>
       </Content>
     </Layout>
   )
@@ -38,6 +40,8 @@ const styles : {[key: string]: React.CSSProperties} = {
     paddingBottom: 64,
     paddingLeft: 50,
     paddingRight: 50,
+  },
+  centered: {
     textAlign: "center",
   },
   error: {
