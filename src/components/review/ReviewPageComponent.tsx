@@ -144,6 +144,7 @@ const styles : {[key: string]: React.CSSProperties} = {
     paddingBottom: 64,
     paddingLeft: 146,
     paddingRight: 146,
+    textAlign: "left",
   },
   title: {
     fontSize: 36,
