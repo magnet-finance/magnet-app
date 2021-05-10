@@ -29,14 +29,14 @@ export const DEFAULT_FORM_VALUES = (tokenManager: TokenManager) : {[key in Magne
   vest: {
     type: "vest",
     recipient: "",
-    cliffTimeAmount: 1,
+    // cliffTimeAmount: 1,
     cliffTimeUnit: "years",
-    endTimeAmount: 4,
+    // endTimeAmount: 4,
     endTimeUnit: "years",
-    lifetimeValue: 20000,
+    // lifetimeValue: 20000,
     startTimeTime: now,
     startTimeDate: now,
-    tokenAddress: tokenManager.getTokenInfoBySymbol("SUSHI")?.address ?? tokenManager.tokens[0].address,
+    tokenAddress: tokenManager.getTokenInfoBySymbol("DAI")?.address ?? tokenManager.tokens[0].address,
   },
   gift: {
     type: "gift",
@@ -48,14 +48,14 @@ export const DEFAULT_FORM_VALUES = (tokenManager: TokenManager) : {[key in Magne
     sendTimeDate: now,
     sendTimeTime: now,
     tokenAddress: tokenManager.getTokenInfoBySymbol("DAI")?.address ?? tokenManager.tokens[0].address,
-    lifetimeValue: 1000
+    // lifetimeValue: 1000
   },
   stream: {
     type: "stream",
     recipient: "",
-    endTimeAmount: 4,
+    // endTimeAmount: 4,
     endTimeUnit: "years",
-    lifetimeValue: 20000,
+    // lifetimeValue: 20000,
     startTimeTime: now,
     startTimeDate: now,
     tokenAddress: tokenManager.getTokenInfoBySymbol("DAI")?.address ?? tokenManager.tokens[0].address,

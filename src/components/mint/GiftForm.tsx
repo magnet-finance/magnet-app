@@ -6,6 +6,7 @@ import { useWeb3React } from '@web3-react/core';
 import { Button, DatePicker, Form, Input, InputNumber, Radio, Select, Space, TimePicker, Upload } from 'antd';
 import { UploadChangeParam } from 'antd/lib/upload';
 import { UploadFile } from 'antd/lib/upload/interface';
+import ipfsClient from "ipfs-http-client";
 import get from 'lodash/get';
 import isFinite from 'lodash/isFinite';
 import isString from 'lodash/isString';
@@ -36,6 +37,36 @@ export const GiftForm : React.FC<Props> = (props) => {
     const newFileList = info.fileList.slice(-1);
     info.fileList = newFileList;
     setFileList(newFileList);
+    if (info.file.originFileObj) {
+      saveToIpfs(info.file.originFileObj)
+        .then((ipfsUrl) => {
+          info.file.url = ipfsUrl;
+        });
+    } else {
+      console.log("Invalid image file");
+    }
+  }
+
+  // Uploads file to IPFS and returns the new IPFS gateway URL to the file
+  async function saveToIpfs(file: File): Promise<string | undefined> {
+    if (file) {
+      const ipfs = ipfsClient({ url: "https://ipfs.infura.io:5001" });
+      const ipfsUrl = ipfs
+        .add(file, {
+          progress: (prog: any) => console.log(`received: ${prog}`),
+        })
+        .then((file) => {
+          const ipfsHash = file.path;
+          const ipfsGateway = "https://gateway.ipfs.io/ipfs/";
+          return ipfsGateway + ipfsHash;
+        })
+        .catch((err) => {
+          console.error(err);
+          return undefined;
+        });
+
+      return ipfsUrl;
+    }
   }
 
   const dontUploadImage = (data: UploadRequestOption) => {
@@ -139,7 +170,7 @@ export const GiftForm : React.FC<Props> = (props) => {
         <Upload
           listType="picture"
           fileList={fileList}
-          accept=".png,.jpg,.mp4"
+          accept=".png,.jpg,.mp4,.gif,.jpeg"
           multiple={false}
           customRequest={dontUploadImage}
           onChange={handleImageChange}
@@ -212,9 +243,9 @@ export const parseGiftFormData = (formData: any, tokenManager: TokenManager) : I
   }
 
   // Parse giftImageUrl
-  const giftFile = get(formData, "giftImage.file.originFileObj");
-  if (giftFile instanceof Blob) {
-    giftMagnetDefinition.giftImageUrl = URL.createObjectURL(giftFile);
+  const giftImageUrl = get(formData, "giftImage.file.url");
+  if (giftImageUrl !== undefined) {
+    giftMagnetDefinition.giftImageUrl = giftImageUrl;
   }
 
   return giftMagnetDefinition;
