@@ -3,16 +3,11 @@ import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from "@web3-react/core";
 import { Button, Card, Skeleton } from "antd";
 import { Content } from "antd/lib/layout/layout";
-import { BigNumber } from "ethers";
 import groupBy from "lodash/groupBy";
 import map from "lodash/map";
-import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import GoToLink from '../../images/GoToLink.svg';
-import { getSafeAppTransactionsPageUrl, GnosisLookupError, GnosisLookupResult, lookupGnosisTxn } from '../../logic/gnosisManager';
-import { getTokenManager, TokenManager } from "../../logic/tokenManager";
-import { MagnetDefinition } from "../../types/magnet";
-import { Web3ReactContext } from '../../types/web3ReactContext';
+import { getGnosisManager, getSafeAppTransactionsPageUrl, GnosisLookupError, GnosisLookupResult, lookupGnosisTxn } from '../../logic/gnosisManager';
 import { Wallet } from '../Wallet';
 import { RecipientCard } from "./RecipientCard";
 import { Subtotal } from "./Subtotal";
@@ -33,6 +28,17 @@ export const ReviewPageComponent: React.FC<Props> = ({mintSuccess, safeTxHash}) 
       }
     })()
   }, []);
+
+  const doApproval = useCallback(async () => {
+    if (!gnosisResult?.successful){
+      throw Error("Gnosis Approval Error: Can't approve unknown txn");
+    }
+    if (gnosisResult.chainId !== web3.chainId) {
+      throw Error("Gnosis Approval Error: ChainId of signer is incorrect");
+    }
+    const _successful = await getGnosisManager(web3)?.submitApproval(gnosisResult.gnosisResponse);
+    //TODO: Use successful (and any errors above) to display messages
+  }, [web3, gnosisResult]);
 
   // Note use better logic to check hash
   if (safeTxHash == null || safeTxHash === "") {
@@ -62,10 +68,6 @@ export const ReviewPageComponent: React.FC<Props> = ({mintSuccess, safeTxHash}) 
   }
   else {
     const magnets = gnosisResult.magnets;
-    const signTransaction = () => {
-      console.log("signing transaction");
-    }
-
     const groupedMagnets = groupBy(magnets, "recipient");
     return (
       <Content style={styles.content}>
@@ -85,7 +87,7 @@ export const ReviewPageComponent: React.FC<Props> = ({mintSuccess, safeTxHash}) 
           <>
             {web3.chainId ? (
               <Button
-                onClick={signTransaction}
+                onClick={doApproval}
                 style={styles.signButton}
                 type="primary"
                 size="large">
@@ -99,82 +101,6 @@ export const ReviewPageComponent: React.FC<Props> = ({mintSuccess, safeTxHash}) 
       </Content>
     );
   }
-}
-
-const loadMagnetsData = (web3: Web3ReactContext | undefined) : MagnetDefinition[] | undefined => {
-  let tokenManager: TokenManager | undefined;
-  if (web3 == null || web3.chainId == null) {
-    tokenManager = getTokenManager(1); // TODO infer chain ID from gnosis data
-  } else {
-    tokenManager = getTokenManager(web3);
-  }
-
-  if (tokenManager == null) {
-    console.error("Load Review Magnets Error: Unknown Chain ID");
-    return undefined;
-  }
-
-  /** Spoof magnet data for now */
-  const now = moment();
-  const cliff = moment(now).add(1,'y');
-  const end = moment(now).add(4,'y');
-  const parsedMagnets: MagnetDefinition[] = [
-    {
-      type: "vest",
-      recipient: "0xmaki.eth",
-      startTime: now,
-      cliffTime: cliff,
-      endTime: end,
-      lifetimeValue: BigNumber.from(20000).mul(BigNumber.from(10).pow(18)),
-      token: tokenManager.getTokenInfoBySymbol("SUSHI") ?? tokenManager.tokens[0],
-    },
-    {
-      type: "stream",
-      recipient: "0xmaki.eth",
-      startTime: now,
-      endTime: end,
-      lifetimeValue: BigNumber.from(600000).mul(BigNumber.from(10).pow(18)),
-      token: tokenManager.getTokenInfoBySymbol("DAI") ?? tokenManager.tokens[0],
-    },
-    {
-      type: "gift",
-      recipient: "pedrowww.eth",
-      giftImageUrl: "https://news.bitcoin.com/wp-content/uploads/2019/01/sushiswap1.jpg",
-      giftName: "pedrowww's launch bonus",
-      giftMessage: "Thank you for contributing to the Sushi launch! We’re glad to have you in the community.",
-      sendTime: now,
-      lifetimeValue: BigNumber.from(1000).mul(BigNumber.from(10).pow(18)),
-      token: tokenManager.getTokenInfoBySymbol("DAI") ?? tokenManager.tokens[0],
-    },
-    {
-      type: "vest",
-      recipient: "0xmaki.eth",
-      startTime: now,
-      cliffTime: cliff,
-      endTime: end,
-      lifetimeValue: BigNumber.from(20000).mul(BigNumber.from(10).pow(18)),
-      token: tokenManager.getTokenInfoBySymbol("SUSHI") ?? tokenManager.tokens[0],
-    },
-    {
-      type: "gift",
-      recipient: "0xmaki.eth",
-      giftImageUrl: "https://news.bitcoin.com/wp-content/uploads/2019/01/sushiswap1.jpg",
-      giftName: "pedrowww's launch bonus",
-      giftMessage: "Thank you for contributing to the Sushi launch! We’re glad to have you in the community.",
-      sendTime: now,
-      lifetimeValue: BigNumber.from(1000).mul(BigNumber.from(10).pow(18)),
-      token: tokenManager.getTokenInfoBySymbol("DAI") ?? tokenManager.tokens[0],
-    },
-    {
-      type: "stream",
-      recipient: "pedrowww.eth",
-      startTime: now,
-      endTime: end,
-      lifetimeValue: BigNumber.from(600000).mul(BigNumber.from(10).pow(18)),
-      token: tokenManager.getTokenInfoBySymbol("DAI") ?? tokenManager.tokens[0],
-    },
-  ];
-  return parsedMagnets;
 }
 
 type SuccessMessageProps = {
@@ -218,6 +144,7 @@ const styles : {[key: string]: React.CSSProperties} = {
     paddingBottom: 64,
     paddingLeft: 146,
     paddingRight: 146,
+    textAlign: "left",
   },
   title: {
     fontSize: 36,
