@@ -35,7 +35,7 @@ export const DEFAULT_FORM_VALUES = (tokenManager: TokenManager) : {[key in Magne
     endTimeUnit: "years",
     // lifetimeValue: 20000,
     startTimeTime: now,
-    startTimeDate: now,
+    startTimeDate: now.add(1, "day"),
     tokenAddress: tokenManager.getTokenInfoBySymbol("DAI")?.address ?? tokenManager.tokens[0].address,
   },
   gift: {
