@@ -1,48 +1,36 @@
-<p align="center">
-  <a href="https://www.gatsbyjs.com/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter">
-    <img alt="Gatsby" src="https://www.gatsbyjs.com/Gatsby-Monogram.svg" width="60" />
-  </a>
-</p>
-<h1 align="center">
-  Gatsby minimal starter
-</h1>
+## 🟦🟥 Magnet
 
-## 🚀 Quick start
+[magnethq.io](https://magnethq.io/) is a workflow tool that makes it easy for a [Gnosis Safe](https://gnosis-safe.io/) Multisig to create and approve compensation packages.
 
-1.  **Create a Gatsby site.**
+You can...
+1. Vest ERC20 tokens via [yearn vesting escrow](https://github.com/banteg/yearn-vesting-escrow)
+2. Stream ERC20 tokens via [Sablier](https://github.com/sablierhq/sablier)
+3. Grant ERC20 token bonuses via [yGift](https://github.com/yearn/ygift)
 
-    Use the Gatsby CLI to create a new site, specifying the minimal starter.
+## Contracts
+Magnet is a web UI that leverages existing smart contracts from the rockstar teams below.
+| Contract        | Mainnet           | Rinkeby Testnet  |
+| ------------- |-------------| -----|
+| yearn-vesting-escrow      | 0xF124534bfa6Ac7b89483B401B4115Ec0d27cad6A | 0x2836925b66345e1c118ec87bbe44fce2e5a558f6 |
+| Sablier      | 0xA4fc358455Febe425536fd1878bE67FfDBDEC59a      |   0xc04Ad234E01327b24a831e3718DBFcbE245904CC |
+| yGift | 0x020171085bcd43b6FD36aD8C95aD61848B1211A2      |    0x7396352b217cd712a81463e5397f685e1a4965a1 |
+| Gnosis MultiSend | 0x8D29bE29923b68abfDD21e541b9374737B49cdAD      |    0x8D29bE29923b68abfDD21e541b9374737B49cdAD |
 
-    ```shell
-    # create a new Gatsby site using the minimal starter
-    npm init gatsby
-    ```
+## Feature backlog
+Check out our [figma UX board](https://www.figma.com/file/pqukEVdFaa2DC8Dr7S0osz/Magnet-App-shared?node-id=0%3A1) for ideas!
 
-2.  **Start developing.**
+* Glassdoor-style compensation features (e.g. top paying DAOs, top earning contributors)
+* Withdrawal UI for contributors to claim their rewards
+* ENS integration for address names and profile images
+* Support more wallets beyond the current injected provider, via [web3react](https://github.com/NoahZinsmeister/web3-react)
+* On the review page, display which multisig members have already approved or rejected the transactions
 
-    Navigate into your new site’s directory and start it up.
+## Developer guide
+Pull requests are warmly welcome! To get started, follow the steps below.
+```
+git clone https://github.com/magnet-finance/magnet-app
+yarn install
+yarn start
+```
 
-    ```shell
-    cd my-gatsby-site/
-    npm run develop
-    ```
-
-3.  **Open the code and start customizing!**
-
-    Your site is now running at http://localhost:8000!
-
-    Edit `src/pages/index.js` to see your site update in real-time!
-
-4.  **Learn more**
-
-    - [Documentation](https://www.gatsbyjs.com/docs/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
-
-    - [Tutorials](https://www.gatsbyjs.com/tutorial/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
-
-    - [Guides](https://www.gatsbyjs.com/tutorial/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
-
-    - [API Reference](https://www.gatsbyjs.com/docs/api-reference/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
-
-    - [Plugin Library](https://www.gatsbyjs.com/plugins?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
-
-    - [Cheat Sheet](https://www.gatsbyjs.com/docs/cheat-sheet/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
+Then visit localhost:8000 in your browser
