@@ -266,8 +266,8 @@ const submitTxnToGnosis = async (config: GnosisConfig, safeAddress: string, subm
   return result.status < 300;
 }
 
-const getApprovalSignature = (safeAddress: string, gnosisResponse: SafeTxResponse, web3: Web3ReactContext) => {
-  return signGnosisTxn(safeAddress,
+const getApprovalSignature = (gnosisResponse: SafeTxResponse, web3: Web3ReactContext) => {
+  return signGnosisTxn(gnosisResponse.safe,
     {
       operation: gnosisResponse.operation,
       to: gnosisResponse.to,
@@ -298,7 +298,7 @@ const submitApprovalToGnosis = async (config: GnosisConfig, gnosisResponse: Safe
 
 export type GnosisManager = {
   submitMagnets: (magnets: MagnetDefinition[], gnosisSafeAddress: string) => Promise<string>,
-  submitApproval: (safeAddress: string, gnosisResponse: SafeTxResponse) => Promise<boolean>
+  submitApproval: (gnosisResponse: SafeTxResponse) => Promise<boolean>
 }
 
 const _getGnosisManagerHelper = memoize((config: GnosisConfig, web3: Web3ReactContext) : GnosisManager => ({
@@ -319,8 +319,8 @@ const _getGnosisManagerHelper = memoize((config: GnosisConfig, web3: Web3ReactCo
     await submitTxnToGnosis(config, safeAddress, submitReq);
     return submitReq.contractTransactionHash;
   },
-  submitApproval: async (safeAddress: string, gnosisResponse: SafeTxResponse) => {
-    const { signature } = await getApprovalSignature(safeAddress, gnosisResponse, web3)
+  submitApproval: async (gnosisResponse: SafeTxResponse) => {
+    const { signature } = await getApprovalSignature(gnosisResponse, web3)
     return await submitApprovalToGnosis(config, gnosisResponse, signature)
   }
 }));
