@@ -151,6 +151,7 @@ const getNextNonce = async (config: GnosisConfig, safeAddress: string, fallback?
 
 const getGasEstimate = (config: GnosisConfig, safeAddress: string, txn: Transaction): Promise<GasEstimateResponse> => {
   return fetchJson<GasEstimateResponse>(`${config.safeRelayUrl}/api/v2/safes/${safeAddress}/transactions/estimate/`, "POST", {
+    safe: safeAddress,
     to: txn.to,
     value: txn.value.toNumber(),
     data: txn.data,
