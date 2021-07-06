@@ -197,6 +197,14 @@
       "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x4fE83213D56308330EC302a8BD641f1d0113A4Cc/logo.png"
     },
     {
+      "name": "Octo.fi",
+      "address": "0x7240aC91f01233BaAf8b064248E80feaA5912BA3",
+      "symbol": "OCTO",
+      "decimals": 18,
+      "chainId": 1,
+      "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x7240aC91f01233BaAf8b064248E80feaA5912BA3/logo.png"
+    },
+    {
       "name": "Orchid",
       "address": "0x4575f41308EC1483f3d399aa9a2826d74Da13Deb",
       "symbol": "OXT",
