@@ -3,8 +3,7 @@ version: 2.1
 orbs:
   aws-s3: circleci/aws-s3@2.0.0
 
-jobs: 
-
+jobs:
   magnet-app-build:
     parameters:
     docker:
@@ -25,7 +24,7 @@ jobs:
           key: v1-magnet-app-deps-{{ checksum "~/magnet-app/yarn.lock" }}-{{ checksum "~/magnet-app/package.json" }}
       - run:
           command: yarn build
-      - run: sudo apt-get update
+      - run: sudo apt-get update --allow-releaseinfo-change
       - run: sudo apt-get install rsync
       - run:
           working_directory: ~/magnet-app/public
@@ -37,7 +36,7 @@ jobs:
           root: /tmp/magnet-app-build
           paths:
             - .
-  
+
   magnet-app-deploy:
     parameters:
       source-dir:
@@ -53,8 +52,7 @@ jobs:
       - aws-s3/sync:
           from: << parameters.source-dir >>
           to: "s3://<< parameters.s3-bucket-name >>"
-          arguments: '--delete'
-
+          arguments: "--delete"
 
 workflows:
   version: 2
