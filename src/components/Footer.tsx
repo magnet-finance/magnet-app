@@ -1,7 +1,7 @@
-import { Layout } from 'antd';
-import * as React from "react";
 import { GithubOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { Layout } from 'antd';
 import Link from "gatsby-link";
+import * as React from "react";
 
 // markup
 export const Footer : React.FC = () => {

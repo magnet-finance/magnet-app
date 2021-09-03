@@ -3,9 +3,9 @@ import Layout, { Content } from "antd/lib/layout/layout";
 import { navigate, PageProps } from 'gatsby';
 import * as React from "react";
 import { Helmet } from "react-helmet";
+import { Footer } from '../components/Footer';
 import { Header } from "../components/Header";
 import { ReviewPageComponent } from '../components/review/ReviewPageComponent';
-import { Footer } from '../components/Footer';
 
 type Props = PageProps & {
   mintSuccess?: boolean,

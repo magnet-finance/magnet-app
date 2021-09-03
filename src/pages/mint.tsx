@@ -4,11 +4,11 @@ import Layout, { Content } from "antd/lib/layout/layout";
 import { PageProps } from 'gatsby';
 import * as React from "react";
 import { Helmet } from 'react-helmet';
+import { Footer } from '../components/Footer';
 import { Header } from '../components/Header';
 import { MultiMagnetForm } from '../components/mint/MultiMagnetForm';
 import { WalletConnectPageComponent } from "../components/WalletConnectPageComponent";
 import { MagnetDefinition } from '../types/magnet';
-import { Footer } from '../components/Footer';
 
 // markup
 const MintPage : React.FC<PageProps> = (props) => {
