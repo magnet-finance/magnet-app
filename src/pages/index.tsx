@@ -4,6 +4,7 @@ import { navigate } from "gatsby";
 import * as React from "react";
 import Helmet from "react-helmet";
 import { Header } from '../components/Header';
+import { Footer } from '../components/Footer';
 import GiftGraphic from '../images/gift.svg';
 import SablierLogo from '../images/sablier.svg';
 import StreamGraphic from '../images/stream.svg';
@@ -22,7 +23,7 @@ const IndexPage = () => {
   }
 
   return (
-    <Layout>
+    <Layout style={styles.layout}>
       <Helmet>
         <title>Magnet</title>
       </Helmet>
@@ -108,12 +109,19 @@ const IndexPage = () => {
           Mint Multiple
         </Button>
       </Content>
+      <Footer />
     </Layout>
   )
 }
 
 const styles : {[key: string]: React.CSSProperties} = {
+  layout: {
+    display: "flex",
+    minHeight: "100vh",
+    flexDirection: "column",
+  },
   content: {
+    flexGrow: 1,
     backgroundColor: "#FFFFFF",
     paddingTop: 64,
     paddingBottom: 64,

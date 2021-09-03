@@ -5,6 +5,7 @@ import * as React from "react";
 import { Helmet } from "react-helmet";
 import { Header } from "../components/Header";
 import { ReviewPageComponent } from '../components/review/ReviewPageComponent';
+import { Footer } from '../components/Footer';
 
 type Props = PageProps & {
   mintSuccess?: boolean,
@@ -19,7 +20,7 @@ const ReviewPage : React.FC<Props>= (props) => {
   };
 
   return (
-    <Layout>
+    <Layout style={styles.layout}>
       <Helmet>
         <title>Magnet</title>
       </Helmet>
@@ -41,12 +42,19 @@ const ReviewPage : React.FC<Props>= (props) => {
           </Form>
         </Content>
       )}
+      <Footer />
     </Layout>
   );
 }
 
 const styles : {[key: string]: React.CSSProperties} = {
+  layout: {
+    display: "flex",
+    minHeight: "100vh",
+    flexDirection: "column",
+  },
   content: {
+    flexGrow: 1,
     backgroundColor: "#FFFFFF",
     paddingTop: 64,
     paddingBottom: 64,

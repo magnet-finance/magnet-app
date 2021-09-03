@@ -24,7 +24,7 @@ const styles : {[key: string]: React.CSSProperties} = {
     backgroundColor: "#FFFFFF",
   },
   card: {
-    marginTop: 200,
+    marginTop: 60,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
