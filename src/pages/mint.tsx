@@ -4,6 +4,7 @@ import Layout, { Content } from "antd/lib/layout/layout";
 import { PageProps } from 'gatsby';
 import * as React from "react";
 import { Helmet } from 'react-helmet';
+import { Footer } from '../components/Footer';
 import { Header } from '../components/Header';
 import { MultiMagnetForm } from '../components/mint/MultiMagnetForm';
 import { WalletConnectPageComponent } from "../components/WalletConnectPageComponent";
@@ -22,27 +23,36 @@ const MintPage : React.FC<PageProps> = (props) => {
   const web3 = useWeb3React<Web3Provider>();
 
   return (
-    <Layout>
+    <Layout style={styles.layout}>
       <Helmet>
         <title>Magnet</title>
       </Helmet>
       <Header />
-      {web3.chainId ? (
-        <Content  style={styles.content}>
-          <div style={styles.title}>Attract and retain contributors</div>
-          <div style={styles.tip}>You can mint (create) vesting, streaming, or gift magnets. Feel free to mix and match!</div>
-          <div style={styles.mintTitle}>Mint Magnets</div>
-          <MultiMagnetForm initialSelection={initialSelection}/>
-        </Content>
-      ) : (
-        <WalletConnectPageComponent />
-      )}
+      <Content  style={styles.content}>
+        {web3.chainId ? (
+          <>
+            <div style={styles.title}>Attract and retain contributors</div>
+            <div style={styles.tip}>You can mint (create) vesting, streaming, or gift magnets. Feel free to mix and match!</div>
+            <div style={styles.mintTitle}>Mint Magnets</div>
+            <MultiMagnetForm initialSelection={initialSelection}/>
+          </>
+        ) : (
+            <WalletConnectPageComponent />
+        )}
+      </Content>
+      <Footer />
     </Layout>
   );
 }
 
 const styles : {[key: string]: React.CSSProperties} = {
+  layout: {
+    display: "flex",
+    minHeight: "100vh",
+    flexDirection: "column",
+  },
   content: {
+    flexGrow: 1,
     backgroundColor: "#FFFFFF",
     paddingTop: 64,
     paddingBottom: 64,
