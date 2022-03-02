@@ -1,5 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers';
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "web3-react-core";
 import Layout, { Content } from "antd/lib/layout/layout";
 import { PageProps } from 'gatsby';
 import * as React from "react";
@@ -11,8 +11,8 @@ import { WalletConnectPageComponent } from "../components/WalletConnectPageCompo
 import { MagnetDefinition } from '../types/magnet';
 
 // markup
-const MintPage : React.FC<PageProps> = (props) => {
-  const initialSelection = (() : MagnetDefinition["type"] | undefined => {
+const MintPage: React.FC<PageProps> = (props) => {
+  const initialSelection = ((): MagnetDefinition["type"] | undefined => {
     const passedSelection = (props.location.state as any)?.initialSelection;
     if (passedSelection === "vest" || passedSelection === "stream" || passedSelection === "gift") {
       return passedSelection;
@@ -28,16 +28,16 @@ const MintPage : React.FC<PageProps> = (props) => {
         <title>Magnet</title>
       </Helmet>
       <Header />
-      <Content  style={styles.content}>
+      <Content style={styles.content}>
         {web3.chainId ? (
           <>
             <div style={styles.title}>Attract and retain contributors</div>
             <div style={styles.tip}>You can mint (create) vesting, streaming, or gift magnets. Feel free to mix and match!</div>
             <div style={styles.mintTitle}>Mint Magnets</div>
-            <MultiMagnetForm initialSelection={initialSelection}/>
+            <MultiMagnetForm initialSelection={initialSelection} />
           </>
         ) : (
-            <WalletConnectPageComponent />
+          <WalletConnectPageComponent />
         )}
       </Content>
       <Footer />
@@ -45,7 +45,7 @@ const MintPage : React.FC<PageProps> = (props) => {
   );
 }
 
-const styles : {[key: string]: React.CSSProperties} = {
+const styles: { [key: string]: React.CSSProperties } = {
   layout: {
     display: "flex",
     minHeight: "100vh",

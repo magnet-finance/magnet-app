@@ -1,6 +1,6 @@
 import Icon, { CopyOutlined } from '@ant-design/icons';
 import { Web3Provider } from '@ethersproject/providers';
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "web3-react-core";
 import { Button, Card, Skeleton } from "antd";
 import { Content } from "antd/lib/layout/layout";
 import groupBy from "lodash/groupBy";
@@ -17,20 +17,20 @@ type Props = {
   safeTxHash?: string
 }
 
-export const ReviewPageComponent: React.FC<Props> = ({mintSuccess, safeTxHash}) => {
-  const [ gnosisResult, setGnosisResult ] = useState<GnosisLookupResult | GnosisLookupError | undefined>(undefined);
+export const ReviewPageComponent: React.FC<Props> = ({ mintSuccess, safeTxHash }) => {
+  const [gnosisResult, setGnosisResult] = useState<GnosisLookupResult | GnosisLookupError | undefined>(undefined);
   const web3 = useWeb3React<Web3Provider>();
 
   useEffect(() => {
     (async () => {
-      if (safeTxHash != null && safeTxHash !== ""){
+      if (safeTxHash != null && safeTxHash !== "") {
         setGnosisResult(await lookupGnosisTxn(safeTxHash));
       }
     })()
   }, []);
 
   const doApproval = useCallback(async () => {
-    if (!gnosisResult?.successful){
+    if (!gnosisResult?.successful) {
       throw Error("Gnosis Approval Error: Can't approve unknown txn");
     }
     if (gnosisResult.chainId !== web3.chainId) {
@@ -128,7 +128,7 @@ const SuccessMessage: React.FC<SuccessMessageProps> = (props) => {
           <Button style={styles.copyButton} type="primary" icon={<CopyOutlined />} size="large" onClick={handleCopy}>
             Copy link
           </Button>
-          <Button style={styles.goToGnosisButton} ghost type="primary" icon={<Icon style={styles.goToLink} component={GoToLink}/>} size="large" onClick={handleGnosisButton}>
+          <Button style={styles.goToGnosisButton} ghost type="primary" icon={<Icon style={styles.goToLink} component={GoToLink} />} size="large" onClick={handleGnosisButton}>
             Go to Gnosis Safe
           </Button>
         </div>
@@ -137,7 +137,7 @@ const SuccessMessage: React.FC<SuccessMessageProps> = (props) => {
   );
 }
 
-const styles : {[key: string]: React.CSSProperties} = {
+const styles: { [key: string]: React.CSSProperties } = {
   content: {
     backgroundColor: "#FFFFFF",
     paddingTop: 64,

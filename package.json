@@ -21,6 +21,7 @@
   "dependencies": {
     "@fontsource/poppins": "^4.2.1",
     "@types/moment-duration-format": "^2.2.2",
+    "@uniswap/widgets": "^0.0.20-beta",
     "@web3-react/core": "^6.1.9",
     "@web3-react/injected-connector": "^6.0.7",
     "antd": "^4.12.3",
@@ -42,7 +43,8 @@
     "moment-duration-format": "^2.3.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-helmet": "^6.1.0"
+    "react-helmet": "^6.1.0",
+    "react-redux": "^7.2.6"
   },
   "devDependencies": {
     "@types/react": "^17.0.2",

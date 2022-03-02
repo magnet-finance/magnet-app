@@ -2,7 +2,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import { isAddress } from '@ethersproject/address';
 import { BigNumber } from '@ethersproject/bignumber';
 import { Web3Provider } from '@ethersproject/providers';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from 'web3-react-core';
 import { Button, DatePicker, Form, Input, InputNumber, Radio, Select, Space, TimePicker, Upload } from 'antd';
 import { UploadChangeParam } from 'antd/lib/upload';
 import { UploadFile } from 'antd/lib/upload/interface';
@@ -24,7 +24,7 @@ type Props = {
   fieldPath: (string | number)[]
 }
 
-export const GiftForm : React.FC<Props> = (props) => {
+export const GiftForm: React.FC<Props> = (props) => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const web3 = useWeb3React<Web3Provider>();
@@ -97,72 +97,72 @@ export const GiftForm : React.FC<Props> = (props) => {
           },
         ]}
       >
-        <Input/>
+        <Input />
       </Form.Item>
       <Form.Item
         label={wrapLabel("Send Time")}
         shouldUpdate={sendTimeTypeChanged}
         style={styles.inputRow}>
-          {({getFieldValue}) => (
-            <Space>
-              <Form.Item name={[props.parentFieldName, "sendTimeType"]}>
-                <Radio.Group>
-                  <Radio.Button value="now">Now</Radio.Button>
-                  <Radio.Button value="schedule">Schedule</Radio.Button>
-                </Radio.Group>
-              </Form.Item>
-              { getFieldValue([...props.fieldPath, "sendTimeType"]) === "schedule" && (
-                <>
-                  <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "sendTimeDate"]}>
-                    <DatePicker />
-                  </Form.Item>
-                  <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "sendTimeTime"]}>
-                    <TimePicker />
-                  </Form.Item>
-                </>
-              )}
-            </Space>
-          )}
+        {({ getFieldValue }) => (
+          <Space>
+            <Form.Item name={[props.parentFieldName, "sendTimeType"]}>
+              <Radio.Group>
+                <Radio.Button value="now">Now</Radio.Button>
+                <Radio.Button value="schedule">Schedule</Radio.Button>
+              </Radio.Group>
+            </Form.Item>
+            {getFieldValue([...props.fieldPath, "sendTimeType"]) === "schedule" && (
+              <>
+                <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "sendTimeDate"]}>
+                  <DatePicker />
+                </Form.Item>
+                <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "sendTimeTime"]}>
+                  <TimePicker />
+                </Form.Item>
+              </>
+            )}
+          </Space>
+        )}
       </Form.Item>
       <Form.Item
         label={wrapLabel("Value")}
         style={styles.inputRow}>
-          <Space>
-            <Form.Item name={[props.parentFieldName, "lifetimeValue"]}
-              rules={[
-                {
-                  validator: async (_, value) => {
-                    if (value === null || value < 0) {
-                      return Promise.reject(new Error('Value must be at least zero'));
-                    }
-                  },
+        <Space>
+          <Form.Item name={[props.parentFieldName, "lifetimeValue"]}
+            rules={[
+              {
+                validator: async (_, value) => {
+                  if (value === null || value < 0) {
+                    return Promise.reject(new Error('Value must be at least zero'));
+                  }
                 },
-              ]}
-            >
-              <InputNumber />
-            </Form.Item>
-            <Form.Item name={[props.parentFieldName, "tokenAddress"]}>
-              <Select allowClear={false} style={styles.tokenSelect}>
-                {tokenManager.tokens.map((token) =>
-                  <Select.Option value={token.address} key={`mint-gift-token-dropdown-${token.address}`}>
-                    <span style={styles.selectOptionContainer}>
-                      <TokenLabel token={token}/>
-                    </span>
-                  </Select.Option>
-                )}
-              </Select>
-            </Form.Item>
-          </Space>
+              },
+            ]}
+          >
+            <InputNumber />
+          </Form.Item>
+          <Form.Item name={[props.parentFieldName, "tokenAddress"]}>
+            <Select allowClear={false} style={styles.tokenSelect}>
+              {tokenManager.tokens.map((token) =>
+                <Select.Option value={token.address} key={`mint-gift-token-dropdown-${token.address}`}>
+                  <span style={styles.selectOptionContainer}>
+                    <TokenLabel token={token} />
+                  </span>
+                </Select.Option>
+              )}
+            </Select>
+          </Form.Item>
+        </Space>
       </Form.Item>
       <Form.Item
         label={wrapLabel("Gift Name")}
         name={[props.parentFieldName, "giftName"]}>
-        <Input/>
+        <Input />
       </Form.Item>
       <Form.Item
         label={wrapLabel("Message")}
         name={[props.parentFieldName, "giftMessage"]}>
-        <Input/>
+        <Input />
       </Form.Item>
       <Form.Item
         label={wrapLabel("Image")}
@@ -174,7 +174,7 @@ export const GiftForm : React.FC<Props> = (props) => {
           multiple={false}
           customRequest={dontUploadImage}
           onChange={handleImageChange}
-          >
+        >
           <Button icon={<UploadOutlined />}>Upload Image or mp4</Button>
         </Upload>
       </Form.Item>
@@ -182,9 +182,9 @@ export const GiftForm : React.FC<Props> = (props) => {
   );
 }
 
-export const parseGiftFormData = (formData: any, tokenManager: TokenManager) : InProgressGiftMagnetDefinition =>  {
+export const parseGiftFormData = (formData: any, tokenManager: TokenManager): InProgressGiftMagnetDefinition => {
 
-  const giftMagnetDefinition : InProgressGiftMagnetDefinition = {
+  const giftMagnetDefinition: InProgressGiftMagnetDefinition = {
     type: "gift"
   }
 
@@ -215,16 +215,16 @@ export const parseGiftFormData = (formData: any, tokenManager: TokenManager) : I
   const sendTimeType = formData.sendTimeType;
   const sendTimeDate = formData.sendTimeDate;
   const sendTimeTime = formData.sendTimeTime;
-  const sendTime  = (() => {
-      if (sendTimeType === "now") {
-        return moment();
-      }
+  const sendTime = (() => {
+    if (sendTimeType === "now") {
+      return moment();
+    }
 
-      if (sendTimeType === "schedule" && moment.isMoment(sendTimeDate) && moment.isMoment(sendTimeTime)) {
-        return mergeDateAndTime(sendTimeDate, sendTimeTime);
-      }
+    if (sendTimeType === "schedule" && moment.isMoment(sendTimeDate) && moment.isMoment(sendTimeTime)) {
+      return mergeDateAndTime(sendTimeDate, sendTimeTime);
+    }
 
-      return null;
+    return null;
   })();
   if (moment.isMoment(sendTime)) {
     giftMagnetDefinition.sendTime = sendTime;
@@ -259,7 +259,7 @@ const wrapLabel = (label: string) => {
   );
 }
 
-const styles : Stylesheet = {
+const styles: Stylesheet = {
   inputRow: {
     marginBottom: 0
   },

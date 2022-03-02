@@ -1,5 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers';
-import { Web3ReactProvider } from '@web3-react/core';
+import { Web3ReactProvider } from 'web3-react-core';
 import React from 'react';
 import { ThemeProvider } from './components/ThemeProvider';
 
@@ -10,12 +10,12 @@ const getLibrary = (provider: any): Web3Provider => {
 }
 
 
-export const RootWrapper : React.FC  = ({ children }) => {
+export const RootWrapper: React.FC = ({ children }) => {
   return (
-  <Web3ReactProvider getLibrary={getLibrary}>
-    <ThemeProvider>
-      { children }
-    </ThemeProvider>
-  </Web3ReactProvider>
+    <Web3ReactProvider getLibrary={getLibrary}>
+      <ThemeProvider>
+        {children}
+      </ThemeProvider>
+    </Web3ReactProvider>
   );
 }

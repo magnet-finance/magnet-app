@@ -1,7 +1,7 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { getAddress, isAddress } from '@ethersproject/address';
 import { Web3Provider } from '@ethersproject/providers';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from 'web3-react-core';
 import { Button, Form, Input } from 'antd';
 import Avatar from 'antd/lib/avatar/avatar';
 import { navigate } from "gatsby";
@@ -33,8 +33,8 @@ type Props = {
   initialSelection?: MagnetDefinition["type"];
 }
 
-export const MultiMagnetForm : React.FC<Props> = (props) => {
-  const [ form ] = Form.useForm()
+export const MultiMagnetForm: React.FC<Props> = (props) => {
+  const [form] = Form.useForm()
 
   const web3 = useWeb3React<Web3Provider>();
   const tokenManager = getTokenManager(web3);
@@ -45,10 +45,10 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
 
   const initialValue = useMemo(() => DEFAULT_FORM_VALUES(tokenManager)[props.initialSelection ?? "vest"], [tokenManager]);
 
-  const initialInProgressMagnets = useMemo(() => parseFormData({magnets: [initialValue]}, tokenManager).magnets, [initialValue, tokenManager]);
-  const [ inProgressMagnets, setInProgressMagnets] = useState<InProgressMagnetDefinition[]>(initialInProgressMagnets);
+  const initialInProgressMagnets = useMemo(() => parseFormData({ magnets: [initialValue] }, tokenManager).magnets, [initialValue, tokenManager]);
+  const [inProgressMagnets, setInProgressMagnets] = useState<InProgressMagnetDefinition[]>(initialInProgressMagnets);
 
-  const [ mintButtonSpinner, setMintButtonSpinner ] = useState(false);
+  const [mintButtonSpinner, setMintButtonSpinner] = useState(false);
 
   // Note(ggranito): Need to useRef to make sure it's the same function across renders
   const updateTable = useRef(throttle((formData) => {
@@ -73,7 +73,7 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
       magnets,
       safeAddress
     } = parseFormData(formData, tokenManager);
-    if (!areMagnetDefinitions(magnets)){
+    if (!areMagnetDefinitions(magnets)) {
       setMintButtonSpinner(false);
       console.error("FormSubmissionError: Magnet definitions are incomplete");
       console.log(magnets);
@@ -125,7 +125,7 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
         <Form.Item
           label={<div style={styles.gnosisLabel}>Address</div>}
           labelAlign="left"
-          labelCol={{span: 0}}
+          labelCol={{ span: 0 }}
           style={styles.gnosisFormItem}
           name="safeAddress"
           rules={[
@@ -141,11 +141,11 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
             },
           ]}
         >
-          <Input/>
+          <Input />
         </Form.Item>
       </div>
       <Form.List name="magnets" initialValue={[initialValue]}>
-        {(fields, {add, remove}) => (
+        {(fields, { add, remove }) => (
           <>
             {fields.map((f, i) => (
               <MagnetForm field={f} index={i} key={i} fieldPath={["magnets", f.name]}
@@ -162,7 +162,7 @@ export const MultiMagnetForm : React.FC<Props> = (props) => {
           </>
         )}
       </Form.List>
-      <MintReview magnets={inProgressMagnets}/>
+      <MintReview magnets={inProgressMagnets} />
       <div style={styles.beta}>Disclaimer: you could lose all your funds. Use at your own risk.</div>
       <div style={styles.disclaimer}>Please note this is a Beta version and is provided on an "as is" and "as available" basis. You could lose all your funds. Magnet Labs LLC and its developers do not give any warranties and will not be liable for any loss, direct or indirect through continued use of this feature.</div>
       <div style={styles.disclaimer}>By clicking "Mint Magnets" below, you acknowledge this message and assume all responsibility.</div>
@@ -179,7 +179,7 @@ type ParsedFormData = {
   magnets: InProgressMagnetDefinition[],
   safeAddress?: string
 };
-const parseFormData = (formData: any, tokenManager: TokenManager) : ParsedFormData => {
+const parseFormData = (formData: any, tokenManager: TokenManager): ParsedFormData => {
   const parsedSafeAddress = (() => {
     try {
       return getAddress(get(formData, "safeAddress"));
@@ -194,7 +194,7 @@ const parseFormData = (formData: any, tokenManager: TokenManager) : ParsedFormDa
       return [];
     }
 
-    return flatMap(magnets, (maybeMag) : InProgressMagnetDefinition[] => {
+    return flatMap(magnets, (maybeMag): InProgressMagnetDefinition[] => {
       const type = get(maybeMag, "type");
       if (type === "vest") {
         return [parseVestFormData(maybeMag, tokenManager)];
@@ -215,7 +215,7 @@ const parseFormData = (formData: any, tokenManager: TokenManager) : ParsedFormDa
   }
 }
 
-const styles : Stylesheet = {
+const styles: Stylesheet = {
   gnosisContainer: {
     flex: 1,
     marginBottom: 0,

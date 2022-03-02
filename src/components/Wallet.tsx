@@ -1,5 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers';
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "web3-react-core";
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { Button } from "antd";
 import * as React from "react";
@@ -41,14 +41,14 @@ export const Wallet: React.FC<Props> = (props) => {
       {active ? (
         <Button
           onClick={handleClickWhileActive}
-          style={props.style ? {...styles.walletButton, ...props.style} : styles.walletButton}
+          style={props.style ? { ...styles.walletButton, ...props.style } : styles.walletButton}
           size="large">
           {getShortAddress()}
         </Button>
       ) : (
         <Button
           onClick={handleClickWhileInactive}
-          style={props.style ? {...styles.walletButton, ...props.style} : styles.walletButton}
+          style={props.style ? { ...styles.walletButton, ...props.style } : styles.walletButton}
           size="large">
           Connect a wallet
         </Button>
@@ -57,7 +57,7 @@ export const Wallet: React.FC<Props> = (props) => {
   );
 }
 
-const styles : {[key: string]: React.CSSProperties} = {
+const styles: { [key: string]: React.CSSProperties } = {
   walletButton: {
     backgroundColor: "#F2F2F2",
     color: "#4F4F4F",

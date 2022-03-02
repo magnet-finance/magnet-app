@@ -1,6 +1,6 @@
 import { MinusCircleOutlined } from '@ant-design/icons';
 import { Web3Provider } from '@ethersproject/providers';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from 'web3-react-core';
 import { Button, Form, Radio } from 'antd';
 import { FormListFieldData } from 'antd/lib/form/FormList';
 import get from 'lodash/get';
@@ -25,7 +25,7 @@ type Props = {
   removeSelf: () => void
 }
 const now = moment();
-export const DEFAULT_FORM_VALUES = (tokenManager: TokenManager) : {[key in MagnetDefinition["type"]]: any} => ({
+export const DEFAULT_FORM_VALUES = (tokenManager: TokenManager): { [key in MagnetDefinition["type"]]: any } => ({
   vest: {
     type: "vest",
     recipient: "",
@@ -62,7 +62,7 @@ export const DEFAULT_FORM_VALUES = (tokenManager: TokenManager) : {[key in Magne
   }
 });
 
-export const MagnetForm : React.FC<Props> = (props: Props) => {
+export const MagnetForm: React.FC<Props> = (props: Props) => {
 
   const web3 = useWeb3React<Web3Provider>();
   const tokenManager = getTokenManager(web3);
@@ -93,7 +93,7 @@ export const MagnetForm : React.FC<Props> = (props: Props) => {
       </div>
       <div style={styles.formContainer}>
         <Form.Item shouldUpdate={typeDidChange}>
-          {({getFieldValue }) => {
+          {({ getFieldValue }) => {
             const type = getFieldValue([...props.fieldPath, "type"]);
 
             return (
@@ -111,23 +111,23 @@ export const MagnetForm : React.FC<Props> = (props: Props) => {
                   style={styles.removeButton} type="text" shape="circle" size="large"
                   icon={<MinusCircleOutlined />}
                   onClick={props.removeSelf} />
-                { type === "vest" && <TypeTag svg={VestSvg} text="Vested via Yearn Escrow" /> }
-                { type === "stream" && <TypeTag svg={StreamSvg} text="Streamed via Sablier" /> }
-                { type === "gift" && <TypeTag svg={GiftSvg} text="Gifted via yGift" /> }
+                {type === "vest" && <TypeTag svg={VestSvg} text="Vested via Yearn Escrow" />}
+                {type === "stream" && <TypeTag svg={StreamSvg} text="Streamed via Sablier" />}
+                {type === "gift" && <TypeTag svg={GiftSvg} text="Gifted via yGift" />}
               </div>
             )
           }}
 
         </Form.Item>
         <Form.Item style={styles.subformContainer} shouldUpdate={typeDidChange}>
-          {({getFieldValue}) => {
+          {({ getFieldValue }) => {
             const type = getFieldValue([...props.fieldPath, "type"]);
             if (type === "vest") {
               return <VestForm parentFieldName={props.field.name} />
-            } else if (type==="stream") {
+            } else if (type === "stream") {
               return <StreamForm parentFieldName={props.field.name} />
-            } else if (type==="gift") {
-              return <GiftForm parentFieldName={props.field.name} fieldPath={props.fieldPath}/>
+            } else if (type === "gift") {
+              return <GiftForm parentFieldName={props.field.name} fieldPath={props.fieldPath} />
             }
           }}
         </Form.Item>
@@ -153,7 +153,7 @@ const styles: Stylesheet = {
     alignItems: "center",
     justifyContent: "center"
   },
-  indexText:{
+  indexText: {
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: 600
@@ -183,7 +183,7 @@ type TypeTagProps = {
   svg: any,
   text: string
 }
-const TypeTag : React.FC<TypeTagProps> = (props) => {
+const TypeTag: React.FC<TypeTagProps> = (props) => {
   return (
     <div style={typeTagStyles.container}>
       <props.svg style={typeTagStyles.image} width={16} height={16} />
@@ -192,7 +192,7 @@ const TypeTag : React.FC<TypeTagProps> = (props) => {
   )
 }
 
-const typeTagStyles : Stylesheet = {
+const typeTagStyles: Stylesheet = {
   container: {
     display: "flex",
     alignItems: "center",

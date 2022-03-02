@@ -1,7 +1,7 @@
 import { isAddress } from '@ethersproject/address';
 import { BigNumber } from '@ethersproject/bignumber';
 import { Web3Provider } from '@ethersproject/providers';
-import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from 'web3-react-core';
 import { DatePicker, Form, Input, InputNumber, Select, Space, TimePicker } from 'antd';
 import isFinite from 'lodash/isFinite';
 import isString from 'lodash/isString';
@@ -17,7 +17,7 @@ type Props = {
   parentFieldName: string | number
 }
 
-export const StreamForm : React.FC<Props> = (props) => {
+export const StreamForm: React.FC<Props> = (props) => {
   const web3 = useWeb3React<Web3Provider>();
   const tokenManager = getTokenManager(web3);
   if (web3 == null || tokenManager == null) {
@@ -43,7 +43,7 @@ export const StreamForm : React.FC<Props> = (props) => {
           },
         ]}
       >
-        <Input/>
+        <Input />
       </Form.Item>
       <Form.Item
         help="Transaction will fail if executed after start time"
@@ -60,63 +60,63 @@ export const StreamForm : React.FC<Props> = (props) => {
       </Form.Item>
       <Form.Item
         label={wrapLabel("End Time")}>
-          <Space>
-            <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "endTimeAmount"]}
-              rules={[
-                {
-                  validator: async (_, value) => {
-                    if (!value || value <= 0) {
-                      return Promise.reject(new Error('Stream duration must be greater than zero'));
-                    }
-                  },
+        <Space>
+          <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "endTimeAmount"]}
+            rules={[
+              {
+                validator: async (_, value) => {
+                  if (!value || value <= 0) {
+                    return Promise.reject(new Error('Stream duration must be greater than zero'));
+                  }
                 },
-              ]}
-            >
-              <InputNumber />
-            </Form.Item>
-            <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "endTimeUnit"]}>
-              <Select options={TimeUnits} allowClear={false} />
-            </Form.Item>
-          </Space>
+              },
+            ]}
+          >
+            <InputNumber />
+          </Form.Item>
+          <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "endTimeUnit"]}>
+            <Select options={TimeUnits} allowClear={false} />
+          </Form.Item>
+        </Space>
       </Form.Item>
       <Form.Item
         help="Sablier requires the value to be an even multiple of duration. Magnet will submit the nearest rounded value, shown below."
         style={styles.spaceForWarning}
         label={wrapLabel("Lifetime Value")}>
-          <Space>
-            <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "lifetimeValue"]}
-              rules={[
-                {
-                  validator: async (_, value) => {
-                    if (!value || value <= 0) {
-                      return Promise.reject(new Error('Value must be greater than zero'));
-                    }
-                  },
+        <Space>
+          <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "lifetimeValue"]}
+            rules={[
+              {
+                validator: async (_, value) => {
+                  if (!value || value <= 0) {
+                    return Promise.reject(new Error('Value must be greater than zero'));
+                  }
                 },
-              ]}
-            >
-              <InputNumber />
-            </Form.Item>
-            <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "tokenAddress"]}>
-              <Select allowClear={false} style={styles.tokenSelect}>
-                {tokenManager.tokens.map((token) =>
-                  <Select.Option value={token.address} key={`mint-stream-token-dropdown-${token.address}`}>
-                    <span style={styles.selectOptionContainer}>
-                      <TokenLabel token={token}/>
-                    </span>
-                  </Select.Option>
-                )}
-              </Select>
-            </Form.Item>
-          </Space>
+              },
+            ]}
+          >
+            <InputNumber />
+          </Form.Item>
+          <Form.Item style={styles.inputRowItem} name={[props.parentFieldName, "tokenAddress"]}>
+            <Select allowClear={false} style={styles.tokenSelect}>
+              {tokenManager.tokens.map((token) =>
+                <Select.Option value={token.address} key={`mint-stream-token-dropdown-${token.address}`}>
+                  <span style={styles.selectOptionContainer}>
+                    <TokenLabel token={token} />
+                  </span>
+                </Select.Option>
+              )}
+            </Select>
+          </Form.Item>
+        </Space>
       </Form.Item>
     </>
   );
 }
 
-export const parseStreamFormData = (formData: any, tokenManager: TokenManager) : InProgressStreamMagnetDefinition =>  {
+export const parseStreamFormData = (formData: any, tokenManager: TokenManager): InProgressStreamMagnetDefinition => {
 
-  const streamMagnetDefinition : InProgressStreamMagnetDefinition = {
+  const streamMagnetDefinition: InProgressStreamMagnetDefinition = {
     type: "stream"
   }
 
@@ -148,7 +148,7 @@ export const parseStreamFormData = (formData: any, tokenManager: TokenManager) :
         const startTime = mergeDateAndTime(startTimeDate, startTimeTime);
         const endTimeAmount = formData.endTimeAmount;
         const endTimeUnit = formData.endTimeUnit;
-        if (isFinite(endTimeAmount) && endTimeAmount >=0 && isTimeUnit(endTimeUnit)) {
+        if (isFinite(endTimeAmount) && endTimeAmount >= 0 && isTimeUnit(endTimeUnit)) {
           roundedLifetimeValue = roundValueToMatchDuration(
             endTimeAmount,
             endTimeUnit,
@@ -176,7 +176,7 @@ export const parseStreamFormData = (formData: any, tokenManager: TokenManager) :
     // Parse end (needs start time)
     const endTimeAmount = formData.endTimeAmount;
     const endTimeUnit = formData.endTimeUnit;
-    if (isFinite(endTimeAmount) && endTimeAmount >=0 && isTimeUnit(endTimeUnit)) {
+    if (isFinite(endTimeAmount) && endTimeAmount >= 0 && isTimeUnit(endTimeUnit)) {
       streamMagnetDefinition.endTime = moment(startTime).add(endTimeAmount, endTimeUnit);
     }
   }
@@ -202,7 +202,7 @@ const wrapLabel = (label: string) => {
   );
 }
 
-const styles : Stylesheet = {
+const styles: Stylesheet = {
   inputRowItem: {
     marginBottom: 0
   },
