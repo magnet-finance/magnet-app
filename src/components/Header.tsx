@@ -6,9 +6,13 @@ import Logo from '../images/icon.svg';
 import { Wallet } from './Wallet';
 
 // markup
-export const Header : React.FC = () => {
+export const Header: React.FC = () => {
   const goToIndex = () => {
     navigate("/");
+  }
+
+  const goToSwap = () => {
+    navigate("/swap");
   }
 
   const goToReview = () => {
@@ -24,11 +28,18 @@ export const Header : React.FC = () => {
       <Logo style={styles.logo} onClick={goToIndex} />
       <div>
         <Button
+          onClick={goToSwap}
+          style={styles.button}
+          type="text"
+          size="large">
+          Swap
+        </Button>
+        <Button
           onClick={goToReview}
           style={styles.button}
           type="text"
           size="large">
-            Review
+          Review
         </Button>
         <Button
           onClick={goToMint}
@@ -37,7 +48,7 @@ export const Header : React.FC = () => {
           size="large"
           shape="round"
           icon={<PlusOutlined />}>
-            Mint
+          Mint
         </Button>
         <Wallet style={styles.button} />
       </div>
@@ -45,7 +56,7 @@ export const Header : React.FC = () => {
   )
 }
 
-const styles : {[key: string]: React.CSSProperties} = {
+const styles: { [key: string]: React.CSSProperties } = {
   header: {
     display: "flex",
     justifyContent: "space-between",
